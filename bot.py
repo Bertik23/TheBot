@@ -1,10 +1,11 @@
 from random import choice
-
+import os
 botId = 540563812890443794
-token = "NTQwNTYzODEyODkwNDQzNzk0.DzSvSQ.0EIosr33WmHA7ig4UIuvSylplPY"
 #84032 permissions int
 #https://discordapp.com/oauth2/authorize?client_id=540563812890443794&scope=bot&permissions=84032
 
+from boto.s3.connection import S3Connection
+token = S3Connection(os.environ['TOKEN'])
 
 import discord
 client = discord.Client()
