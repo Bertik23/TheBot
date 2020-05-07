@@ -4,8 +4,7 @@ botId = 540563812890443794
 #84032 permissions int
 #https://discordapp.com/oauth2/authorize?client_id=540563812890443794&scope=bot&permissions=84032
 
-from boto.s3.connection import S3Connection
-token = S3Connection(os.environ['TOKEN'])
+token = os.environ.get('TOKEN', None)
 
 import discord
 client = discord.Client()
