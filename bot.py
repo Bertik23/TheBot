@@ -6,6 +6,7 @@ botId = 540563812890443794
 
 token = os.environ.get('TOKEN', None)
 
+
 import discord
 client = discord.Client()
 guild = client.get_guild(540563312857841714)
@@ -35,8 +36,9 @@ async def on_message(message):
 	if a >= spamValue:
 		await message.channel.send(f"{message.author.mention} nespamuj!")
 
-	if "Hi!" in message.content:
-		await message.channel.send("Hello")
+	for i in ["hi","dobrý den","brý den","čau"]:
+		if i in message.content.lower():
+			await message.channel.send("Hello")
 
 	if "kdy" in message.content.lower() and "aktualizace" in message.content.lower():
 		await message.channel.send("Kdo ví")
