@@ -10,6 +10,10 @@ import discord
 client = discord.Client()
 guild = client.get_guild(540563312857841714)
 
+spamValue = 5
+
+last10messagesAuthors = {}
+
 @client.event # event decorator/wrapper
 async def on_ready():
 	print(f"We have logged in as {client.user}")
@@ -17,6 +21,19 @@ async def on_ready():
 @client.event
 async def on_message(message):
 	print(f"{message.channel}: {message.author}: {message.author.name}: {message.content}")
+	if message.channel not in last10messagesAuthors:
+		last10messagesAuthors[message.channel] = []
+	last10messagesAuthors[message.channel].append(message.author)
+	if len(last10messagesAuthors[message.channel]) > spamValue:
+		del last10messagesAuthors[message.channel][0]
+	a = 0
+	for author in last10messagesAuthors[message.channel]:
+		if author == message.author:
+			a += 1
+		else:
+			break
+	if a >= spamValue:
+		await message.channel.send(f"{message.author.mention} nespamuj!")
 
 	if "Hi!" in message.content:
 		await message.channel.send("Hello")
@@ -27,10 +44,34 @@ async def on_message(message):
 	if "!vypadni" in message.content:
 		quit()
 
-	if "!random" in message.content:
+	if "~random" in message.content:
 		with open("teams.txt","r") as teams:
 			team = choice(teams.read().split("\n"))
 			print(team)
 			await message.channel.send(team)
+
+	if "~embedTest" in message.content:
+		e = discord.Embed.from_dict({
+    "title": "title ~~(did you know you can have markdown here too?)~~",
+    "description": "this supports [named links](https://discordapp.com) on top of the previously shown subset of markdown. ```\nyes, even code blocks```",
+    "url": "https://discordapp.com",
+    "color": 1210266,
+	"timestamp": 1,
+    "footer": {
+      "icon_url": "https://cdn.discordapp.com/embed/avatars/0.png",
+      "text": "footer text"
+    },
+    "thumbnail": {
+      "url": "https://cdn.discordapp.com/embed/avatars/0.png"
+    },
+    "image": {
+      "url": "https://cdn.discordapp.com/embed/avatars/0.png"
+    },
+    "author": {
+      "name": "author name",
+      "url": "https://discordapp.com",
+      "icon_url": "https://cdn.discordapp.com/embed/avatars/0.png"
+    }})
+		await message.channel.send(embed=e)
 
 client.run(token)
