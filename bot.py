@@ -1,5 +1,7 @@
 from random import choice
 import os
+import requests
+from bs4 import BeautifulSoup
 botId = 540563812890443794
 #84032 permissions int
 #https://discordapp.com/oauth2/authorize?client_id=540563812890443794&scope=bot&permissions=84032
@@ -14,6 +16,28 @@ guild = client.get_guild(540563312857841714)
 spamValue = 5
 
 last10messagesAuthors = {}
+
+def getZmena(parametr):
+	zmeny = requests.get("https://bakalari.gymso.cz/next/zmeny.aspx")
+	zmeny = BeautifulSoup(zmeny.text, "html.parser")
+	tables = zmeny.find_all("table", {"class":"datagrid"})
+	for table in tables:
+		if table.find("th").text in ["Změny v rozvrzích tříd","Změny v rozvrzích učitelů"]:
+			trs = table.find_all("tr")
+			#print([t.find_all("td") for t in trs])
+			p = False
+			for tr1 in trs:
+				for i,b in [([u.text for u in t.find_parent().find_previous_siblings()],t) for t in tr1.find_all("table")]:
+					print(i)
+					if i[0] == parametr:
+						e = [[d.text for d in c.find_all("td")] for c in b.find_all("tr")]
+						text = ""
+						for f in e:
+							try:
+								text += f"{f[0]}. hod {f[1]} {f[2]} {f[3]} {f[4]} {f[5]}\n"
+							except:
+								text += f"{f[0]}\n"
+						return text
 
 @client.event # event decorator/wrapper
 async def on_ready():
@@ -38,7 +62,7 @@ async def on_message(message):
 
 	if "~help" in message.content[:5]:
 		e = discord.Embed.from_dict({
-    "title": "`Help for TheBot`",
+    "title": "Help for TheBot",
     "color": 2480439,
     "fields": [
       {
@@ -60,7 +84,12 @@ async def on_message(message):
         "name": "`~suggest`",
         "value": "**Usage:** `~suggest <text>`\nsuggest a command to the creator of the bot",
         "inline": True
-      }
+      },
+	  {
+		  "name": "`~zmena`",
+		  "value": "**Usage:** `~zmena <teacher/class>` eg. `~zmena Lukešová Danuše` or `~zmena 6.A`\nReturns schedule changes for the give teacher/class today",
+		  "inline": True
+	  }
      ]
    })
 		await message.channel.send(embed=e)
@@ -80,6 +109,9 @@ async def on_message(message):
 			team = choice(teams.read().split("\n"))
 			print(team)
 			await message.channel.send(team)
+
+	if "~zmena" in message.content[:6]:
+		await message.channel.send(f"Změny rozvrhu pro {message.content[7:]}:\n{getZmena(message.content[7:])}")
 
 	if "~embedTest" in message.content:
 		e = discord.Embed.from_dict({
