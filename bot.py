@@ -33,7 +33,7 @@ async def on_message(message):
 			a += 1
 		else:
 			break
-	if a >= spamValue:
+	if a >= spamValue and message.author.name != "TheBot":
 		await message.channel.send(f"{message.author.mention} nespamuj!")
 
 	if "~help" in message.content[:5]:
