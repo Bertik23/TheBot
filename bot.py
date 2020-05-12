@@ -36,17 +36,46 @@ async def on_message(message):
 	if a >= spamValue:
 		await message.channel.send(f"{message.author.mention} nespamuj!")
 
-	for i in ["hi","dobrý den","brý den","čau"]:
+	if "~help" in message.content[:5]:
+		e = discord.Embed.from_dict({
+    "title": "`Help for TheBot`",
+    "color": 2480439,
+    "fields": [
+      {
+        "name": "`~help`",
+        "value": "returns this",
+        "inline": True
+      },
+      {
+        "name": "`~randomCSM`",
+        "value": "returns a random team from [CSM](https://www.csmweb.net/)",
+        "inline": True
+      },
+      {
+        "name": "`~lyrics`",
+        "value": "will return lyrics of the now playing song, waiting for Bot approval by [KSoft.Si API](https://api.ksoft.si/)",
+        "inline": True
+      },
+      {
+        "name": "`~suggest`",
+        "value": "**Usage:** `~suggest <text>`\nsuggest a command to the creator of the bot",
+        "inline": True
+      }
+     ]
+   })
+		await message.channel.send(embed=e)
+
+	for i in ["hi","dobrý den","brý den","čau","ahoj"]:
 		if i in message.content.lower():
 			await message.channel.send("Hello")
 
 	if "kdy" in message.content.lower() and "aktualizace" in message.content.lower():
 		await message.channel.send("Kdo ví")
 	
-	if "!vypadni" in message.content:
+	if "~vypadni" in message.content:
 		quit()
 
-	if "~random" in message.content:
+	if "~randomCSM" in message.content:
 		with open("teams.txt","r") as teams:
 			team = choice(teams.read().split("\n"))
 			print(team)
@@ -75,5 +104,10 @@ async def on_message(message):
       "icon_url": "https://cdn.discordapp.com/embed/avatars/0.png"
     }})
 		await message.channel.send(embed=e)
+
+	if "~suggest" in message.content[:8]:
+		with open("suggestions.txt","a") as suggestions:
+			suggestions.write(message.content[8:]+"\n")
+		await message.channel.send(f"Your suggestion `{message.content[8:]}` was accepted")
 
 client.run(token)
