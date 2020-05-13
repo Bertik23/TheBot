@@ -94,9 +94,9 @@ async def on_message(message):
    })
 		await message.channel.send(embed=e)
 
-	for i in ["hi","dobrý den","brý den","čau","ahoj"]:
-		if i in message.content.lower():
-			await message.channel.send("Hello")
+	for i in ["hi","dobrý den","brý den","čau","ahoj", "zdravíčko", "ťe péro","zdárek párek"]:
+		if i in message.content.lower() and not message.author.bot:
+			await message.channel.send(f"Hello {message.author.mention}")
 
 	if "kdy" in message.content.lower() and "aktualizace" in message.content.lower():
 		await message.channel.send("Kdo ví")
