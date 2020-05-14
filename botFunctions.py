@@ -27,14 +27,16 @@ def getZmena(parametr):
 								text += f"{f[0]}\n"
 						return text
 
-def embed(title, description = None, fields = None, image = None, author =  None):
+def embed(title, url = None, description = None, fields = None, image = None, thumbnail = None, author =  None):
     e = discord.Embed.from_dict({
             "title": title,
             "color": 2480439,
             "description": description,
             "image": image,
+            "thumbnail": thumbnail,
             "author": author,
             "fields": fields,
+            "url": url,
             "footer": {
                 "text": "Powered by Bertik23",
                 "icon_url": "https://cdn.discordapp.com/avatars/452478521755828224/4cfdbde44582fe6ad05383171ac1b051.png"

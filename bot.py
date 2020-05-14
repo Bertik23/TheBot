@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import botFunctions
 from botFunctions import getZmena, embed, command
 import praw
+import prawcore
 
 reddit = praw.Reddit(client_id = os.environ.get("reddit_client_id", None),
                      client_secret = os.environ.get("reddit_client_secret", None),
@@ -15,6 +16,7 @@ botId = 540563812890443794
 #https://discordapp.com/oauth2/authorize?client_id=540563812890443794&scope=bot&permissions=84032
 
 token = os.environ.get('TOKEN', None)
+
 
 
 import discord
@@ -111,10 +113,14 @@ async def on_message(message):
 	if "r/" == commandos:
 		try:
 			subreddit = reddit.subreddit(attributes)
-			e = embed(f"[{subreddit.title}](https://reddit.com{subreddit.url})", description=subreddit.description, fields=[{"name": "Subscribers", "value": subreddit.subscribers, "inline":True}, {"name":"Online Subscribers", "value": subreddit.accounts_active, "inline": True}])
-			print(vars(subreddit))
+			e = embed(subreddit.title, url=f"https://reddit.com{subreddit.url}", description=subreddit.description[:2048], thumbnail={"url": subreddit.icon_img}, fields=[{"name": "Subscribers", "value": subreddit.subscribers, "inline":True}, {"name":"Online Subscribers", "value": subreddit.accounts_active, "inline": True}])
+			#print(vars(subreddit))
 			await message.channel.send(embed = e)
-		except:
-			await message.channel.send(f"The subreddit `{attributes}` doesn't exist.")
+		except Exception as e:
+			if e == prawcore.excptions.NotFound:
+				await message.channel.send(f"The subreddit `{attributes}` doesn't exist.")
+			else:
+				await message.channel.send(f"`{e}` occured while trying to find subreddit `{attributes}`.")
+				raise e
 
 client.run(token)
