@@ -2,6 +2,14 @@ from random import choice
 import os
 import requests
 from bs4 import BeautifulSoup
+import botFunctions
+from botFunctions import getZmena, embed, command
+import praw
+
+reddit = praw.Reddit(client_id = os.environ.get("reddit_client_id", None),
+                     client_secret = os.environ.get("reddit_client_secret", None),
+                     user_agent = os.environ.get("reddit_user_agent", None))
+
 botId = 540563812890443794
 #84032 permissions int
 #https://discordapp.com/oauth2/authorize?client_id=540563812890443794&scope=bot&permissions=84032
@@ -13,31 +21,12 @@ import discord
 client = discord.Client()
 guild = client.get_guild(540563312857841714)
 
+botFunctions.commandPrefix = "~"
+
 spamValue = 5
 
 last10messagesAuthors = {}
 
-def getZmena(parametr):
-	zmeny = requests.get("https://bakalari.gymso.cz/next/zmeny.aspx")
-	zmeny = BeautifulSoup(zmeny.text, "html.parser")
-	tables = zmeny.find_all("table", {"class":"datagrid"})
-	for table in tables:
-		if table.find("th").text in ["Změny v rozvrzích tříd","Změny v rozvrzích učitelů"]:
-			trs = table.find_all("tr")
-			#print([t.find_all("td") for t in trs])
-			p = False
-			for tr1 in trs:
-				for i,b in [([u.text for u in t.find_parent().find_previous_siblings()],t) for t in tr1.find_all("table")]:
-					print(i)
-					if i[0] == parametr:
-						e = [[d.text for d in c.find_all("td")] for c in b.find_all("tr")]
-						text = ""
-						for f in e:
-							try:
-								text += f"{f[0]}. hod {f[1]} {f[2]} {f[3]} {f[4]} {f[5]}\n"
-							except:
-								text += f"{f[0]}\n"
-						return text
 
 @client.event # event decorator/wrapper
 async def on_ready():
@@ -60,40 +49,6 @@ async def on_message(message):
 	if a >= spamValue and message.author.name != "TheBot":
 		await message.channel.send(f"{message.author.mention} nespamuj!")
 
-	if "~help" in message.content[:5]:
-		e = discord.Embed.from_dict({
-    "title": "Help for TheBot",
-    "color": 2480439,
-    "fields": [
-      {
-        "name": "`~help`",
-        "value": "returns this",
-        "inline": True
-      },
-      {
-        "name": "`~randomCSM`",
-        "value": "returns a random team from [CSM](https://www.csmweb.net/)",
-        "inline": True
-      },
-      {
-        "name": "`~lyrics`",
-        "value": "will return lyrics of the now playing song, waiting for Bot approval by [KSoft.Si API](https://api.ksoft.si/)",
-        "inline": True
-      },
-      {
-        "name": "`~suggest`",
-        "value": "**Usage:** `~suggest <text>`\nsuggest a command to the creator of the bot",
-        "inline": True
-      },
-	  {
-		  "name": "`~zmena`",
-		  "value": "**Usage:** `~zmena <teacher/class>` eg. `~zmena Lukešová Danuše` or `~zmena 6.A`\nReturns schedule changes for the give teacher/class today",
-		  "inline": True
-	  }
-     ]
-   })
-		await message.channel.send(embed=e)
-
 	for i in ["hi","dobrý den","brý den","čau","ahoj", "zdravíčko", "ťe péro","zdárek párek"]:
 		if i in message.content.lower() and not message.author.bot:
 			await message.channel.send(f"Hello {message.author.mention}")
@@ -101,45 +56,65 @@ async def on_message(message):
 	if "kdy" in message.content.lower() and "aktualizace" in message.content.lower():
 		await message.channel.send("Kdo ví")
 	
-	if "~vypadni" in message.content:
-		quit()
+	commandos, attributes = command(message.content)
 
-	if "~randomCSM" in message.content:
+	if "help" == commandos:
+		e = embed("Help for TheBot", fields=[
+				{
+					"name": "`~help`",
+					"value": "returns this",
+					"inline": True
+				},
+				{
+					"name": "`~randomCSM`",
+					"value": "returns a random team from [CSM](https://www.csmweb.net/)",
+					"inline": True
+				},
+				{
+					"name": "`~lyrics`",
+					"value": "will return lyrics of the now playing song, waiting for Bot approval by [KSoft.Si API](https://api.ksoft.si/)",
+					"inline": True
+				},
+				{
+					"name": "`~suggest`",
+					"value": "**Usage:** `~suggest <text>`\nsuggest a command to the creator of the bot",
+					"inline": True
+				},
+				{
+					"name": "`~zmena`",
+					"value": "**Usage:** `~zmena <teacher/class>` eg. `~zmena Lukešová Danuše` or `~zmena 6.A`\nReturns schedule changes for the give teacher/class today",
+					"inline": True
+				},
+				{
+					"name": "`~r/`",
+					"value": "**Usage:** `~r/ <subreddit>` eg. `~r/ kofola`\nReturns a subreddit",
+					"inline": True
+				}
+				]
+			)
+		await message.channel.send(embed=e)
+
+	if "randomCSM" == commandos:
 		with open("teams.txt","r") as teams:
 			team = choice(teams.read().split("\n"))
 			print(team)
 			await message.channel.send(team)
 
-	if "~zmena" in message.content[:6]:
-		await message.channel.send(f"Změny rozvrhu pro {message.content[7:]}:\n{getZmena(message.content[7:])}")
+	if "zmena" == commandos:
+		await message.channel.send(f"Změny rozvrhu pro {attributes}:\n{getZmena(attributes)}")
 
-	if "~embedTest" in message.content:
-		e = discord.Embed.from_dict({
-    "title": "title ~~(did you know you can have markdown here too?)~~",
-    "description": "this supports [named links](https://discordapp.com) on top of the previously shown subset of markdown. ```\nyes, even code blocks```",
-    "url": "https://discordapp.com",
-    "color": 1210266,
-	"timestamp": 1,
-    "footer": {
-      "icon_url": "https://cdn.discordapp.com/embed/avatars/0.png",
-      "text": "footer text"
-    },
-    "thumbnail": {
-      "url": "https://cdn.discordapp.com/embed/avatars/0.png"
-    },
-    "image": {
-      "url": "https://cdn.discordapp.com/embed/avatars/0.png"
-    },
-    "author": {
-      "name": "author name",
-      "url": "https://discordapp.com",
-      "icon_url": "https://cdn.discordapp.com/embed/avatars/0.png"
-    }})
-		await message.channel.send(embed=e)
-
-	if "~suggest" in message.content[:8]:
+	if "suggest" == commandos:
 		with open("suggestions.txt","a") as suggestions:
-			suggestions.write(message.content[8:]+"\n")
-		await message.channel.send(f"Your suggestion `{message.content[8:]}` was accepted")
+			suggestions.write(attributes+"\n")
+		await message.channel.send(f"Your suggestion `{attributes}` was accepted")
+
+	if "r/" == commandos:
+		try:
+			subreddit = reddit.subreddit(attributes)
+			e = embed(f"[{subreddit.title}](https://reddit.com{subreddit.url})", description=subreddit.description, fields=[{"name": "Subscribers", "value": subreddit.subscribers, "inline":True}, {"name":"Online Subscribers", "value": subreddit.accounts_active, "inline": True}])
+			print(vars(subreddit))
+			await message.channel.send(embed = e)
+		except:
+			await message.channel.send(f"The subreddit `{attributes}` doesn't exist.")
 
 client.run(token)
