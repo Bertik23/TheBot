@@ -117,7 +117,7 @@ async def on_message(message):
 			#print(vars(subreddit))
 			await message.channel.send(embed = e)
 		except Exception as e:
-			if e == prawcore.excptions.NotFound:
+			if e == prawcore.exceptions.NotFound:
 				await message.channel.send(f"The subreddit `{attributes}` doesn't exist.")
 			else:
 				await message.channel.send(f"`{e}` occured while trying to find subreddit `{attributes}`.")
