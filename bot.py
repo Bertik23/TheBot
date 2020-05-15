@@ -3,7 +3,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 import botFunctions
-from botFunctions import getZmena, embed, command
+from botFunctions import getZmena, embed, command, gymso
 import praw
 import prawcore
 
@@ -91,6 +91,11 @@ async def on_message(message):
 					"name": "`~r/`",
 					"value": "**Usage:** `~r/ <subreddit>` eg. `~r/ kofola`\nReturns a subreddit",
 					"inline": True
+				},
+				{
+					"name": "`~gymso`",
+					"value": "Returns last post on [gymso.cz](https://gymso.cz)",
+					"inline": True
 				}
 				]
 			)
@@ -122,5 +127,10 @@ async def on_message(message):
 			else:
 				await message.channel.send(f"`{e}` occured while trying to find subreddit `{attributes}`.")
 				raise e
+
+	if "gymso" == commandos:
+		clanek = gymso()
+		e = embed(clanek[0], url=clanek[1], description=clanek[2][:2048])
+		await message.channel.send(embed=e)
 
 client.run(token)

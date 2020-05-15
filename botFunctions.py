@@ -27,6 +27,14 @@ def getZmena(parametr):
 								text += f"{f[0]}\n"
 						return text
 
+def gymso():
+    gymso = requests.get("https://www.gymso.cz")
+    gymso = BeautifulSoup(gymso.text, features="html.parser")
+    clanekDiv = gymso.find("div",attrs={"class":"blog-item"})
+    clanekTitle = clanekDiv.find("h2", attrs={"class":"article-title"})
+    clanekText = clanekDiv.find("section", attrs={"class":"article-intro"})
+    return clanekTitle.a["title"], f"https://gymso.cz{clanekTitle.a['href']}", clanekText.text
+
 def embed(title, url = None, description = None, fields = None, image = None, thumbnail = None, author =  None):
     e = discord.Embed.from_dict({
             "title": title,
