@@ -147,7 +147,7 @@ async def on_message(message):
 		try:
 			results = await kclient.music.lyrics(attributes)
 		except ksoftapi.NoResults:
-			await message.send(f"No lyrics found for `{attributes}`.")
+			await message.channel.send(f"No lyrics found for `{attributes}`.")
 		else:
 			lyrics = results[0]
 			for i in range(math.ceil(len(lyrics.lyrics)/2048)):
