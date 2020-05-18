@@ -23,6 +23,7 @@ token = os.environ.get('TOKEN', None)
 
 
 
+
 import discord
 client = discord.Client()
 guild = client.get_guild(540563312857841714)
@@ -56,7 +57,7 @@ async def on_message(message):
 	if a >= spamValue and message.author.name != "TheBot":
 		await message.channel.send(f"{message.author.mention} nespamuj!")
 
-	for i in ["dobrý den","brý den","čau","ahoj", "zdravíčko", "ťe péro","zdárek párek"]:
+	for i in ["dobrý den","brý den","čau","ahoj", "zdravíčko", "tě péro","zdárek párek","tě guli", "čus"]:
 		if i in message.content.lower() and not message.author.bot:
 			await message.channel.send(f"Hello {message.author.mention}")
 
@@ -105,6 +106,11 @@ async def on_message(message):
 				{
 					"name": "`~meme`",
 					"value": "Returns random meme from [Reddit](https://reddit.com)",
+					"inline": True
+				},
+				{
+					"name": "`~eval`",
+					"value":"**Usage:** `~eval <python expresion>` eg. `~eval math.cos(math.pi)`\nReturns python expresion outcome.",
 					"inline": True
 				}
 				]
@@ -158,5 +164,14 @@ async def on_message(message):
 		meme = await kclient.images.random_meme()
 		e = embed(f"{meme.title}", url=meme.source, author={"name":meme.author,"url":f"https://reddit.com/user/{meme.author[3:]}"}, image={"url":meme.image_url})
 		await message.channel.send(embed=e)
+
+	if "eval" == commandos:
+		try: 
+			await message.channel.send(eval(attributes))
+		except Exception as e:
+			print(e)
+			await message.channel.send(f"Hej `{attributes}` fakt neudělám")
+
+
 
 client.run(token)
