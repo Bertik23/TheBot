@@ -64,6 +64,9 @@ async def on_message(message):
 	if "kdy" in message.content.lower() and "aktualizace" in message.content.lower():
 		await message.channel.send("Kdo ví")
 
+	if message.tts:
+		await message.channel.send(f"Hej ty {message.author.mention}, žádný ttska tady.", tts = True)
+
 	if "No lyrics found for `" in message.content:
 		try:
 			results = await kclient.music.lyrics(message.content.split("`")[1])
