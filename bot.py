@@ -63,6 +63,18 @@ async def on_message(message):
 
 	if "kdy" in message.content.lower() and "aktualizace" in message.content.lower():
 		await message.channel.send("Kdo ví")
+
+	if "No lyrics found for `" in message.content:
+		try:
+			results = await kclient.music.lyrics(message.content.split("`")[1])
+		except ksoftapi.NoResults:
+			await message.channel.send(f"No lyrics found for `{attributes}`.")
+		else:
+			lyrics = results[0]
+			for i in range(math.ceil(len(lyrics.lyrics)/2048)):
+				e = embed(f"Lyrics for {lyrics.artist} - {lyrics.name}", description=lyrics.lyrics[(i*2048):((i+1)*2048)], thumbnail={"url": lyrics.album_art})
+				await message.channel.send(embed=e)
+		await message.delete()		
 	
 	commandos, attributes = command(message.content)
 
