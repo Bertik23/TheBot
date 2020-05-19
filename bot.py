@@ -64,7 +64,7 @@ async def on_message(message):
 	if "kdy" in message.content.lower() and "aktualizace" in message.content.lower():
 		await message.channel.send("Kdo ví")
 
-	if message.tts:
+	if message.tts and not message.author.bot:
 		await message.channel.send(f"Hej ty {message.author.mention}, žádný ttska tady.", tts = True)
 
 	if "No lyrics found for `" in message.content:
