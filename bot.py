@@ -127,6 +127,16 @@ async def on_message(message):
 					"name": "`~eval`",
 					"value":"**Usage:** `~eval <python expresion>` eg. `~eval math.cos(math.pi)`\nReturns python expresion outcome.",
 					"inline": True
+				},
+				{
+					"name": "`~aww`",
+					"value": "Returns random aww image from [Reddit](https://reddit.com)",
+					"inline": True
+				},
+				{
+					"name": "~subreddit",
+					"value": "**Usage:** `~subreddit <subreddit> <span>` eg. `~subreddit kofola month`\nReturns random image from given subreddit and givel span.\n Spans: `hour`,`day`,`week`,`month`,`year`,`all`",
+					"inline": True
 				}
 				]
 			)
@@ -186,6 +196,23 @@ async def on_message(message):
 		except Exception as e:
 			print(e)
 			await message.channel.send(f"Hej `{attributes}` fakt neudělám")
+
+	if "aww" == commandos:
+		aww = await kclient.images.random_aww()
+		e = embed(f"{aww.title}", url=aww.source, author={"name":aww.author,"url":f"https://reddit.com/user/{aww.author[3:]}"}, image={"url":aww.image_url})
+		await message.channel.send(embed = e)
+
+	if "subreddit" == commandos:
+		attributes = attributes.split(" ")
+		try:
+			if len(attributes) >= 2:
+				subreddit_image = await kclient.images.random_reddit(attributes[0], attributes[1])
+			else:
+				subreddit_image = await kclient.images.random_reddit(attributes[0])
+			e = embed(f"{subreddit_image.title}", url=subreddit_image.source, author={"name":subreddit_image.author,"url":f"https://reddit.com/user/{subreddit_image.author[3:]}"}, image={"url":subreddit_image.image_url})
+			await message.channel.send(embed = e)
+		except ksoftapi.NoResults:
+			await message.channel.send(f"No lyrics found for `{attributes}`.")
 
 
 
