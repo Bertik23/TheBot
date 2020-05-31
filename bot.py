@@ -6,11 +6,13 @@ import math
 import requests
 from bs4 import BeautifulSoup
 import botFunctions
-from botFunctions import getZmena, embed, command, gymso
+from botFunctions import getZmena, gymso
 import praw
 import prawcore
 import ksoftapi
 import re
+import bdbf
+from bdbf import spamProtection, command, embed
 
 kclient = ksoftapi.Client(os.environ.get("ksoft_token", None))
 
@@ -31,12 +33,11 @@ import discord
 client = discord.Client()
 guild = client.get_guild(540563312857841714)
 
-botFunctions.commandPrefix = "~"
-
-spamValue = 5
-
-last10messagesAuthors = {}
-
+bdbf.commandPrefix = "~"
+bdbf.embedFooter= {
+                "text": "Powered by Bertik23",
+                "icon_url": "https://cdn.discordapp.com/avatars/452478521755828224/4cfdbde44582fe6ad05383171ac1b051.png"
+                }
 
 @client.event # event decorator/wrapper
 async def on_ready():
@@ -45,20 +46,7 @@ async def on_ready():
 @client.event
 async def on_message(message):
 	print(f"{message.channel}: {message.author}: {message.author.name}: {message.content}")
-	if message.channel not in last10messagesAuthors:
-		last10messagesAuthors[message.channel] = []
-	if not message.author.bot:
-		last10messagesAuthors[message.channel].append(message.author)
-	if len(last10messagesAuthors[message.channel]) > spamValue:
-		del last10messagesAuthors[message.channel][0]
-	a = 0
-	for author in last10messagesAuthors[message.channel]:
-		if author == message.author:
-			a += 1
-		else:
-			break
-	if a >= spamValue and message.author.name != "TheBot":
-		await message.channel.send(f"{message.author.mention} nespamuj!")
+	await spamProtection(message, f"{message.author.mention} nespamuj tady!", 5)
 
 	for i in ["hi","dobrý den","brý den","čau","ahoj", "zdravíčko", "tě péro", "těpéro", "zdárek párek","tě guli", "čus"]:
 		if re.search(f"(\W|^){i}(\W|$)", message.content, re.I) and not message.author.bot:
@@ -81,7 +69,7 @@ async def on_message(message):
 		try:
 			results = await kclient.music.lyrics(message.content.split("`")[1])
 		except ksoftapi.NoResults:
-			await message.channel.send(f"No lyrics found for `{attributes}`.")
+			await message.channel.send(f"No lyrics found for `{message.content.split('`')[1]}`.")
 		else:
 			lyrics = results[0]
 			for i in range(math.ceil(len(lyrics.lyrics)/2048)):
@@ -144,7 +132,7 @@ async def on_message(message):
 					"inline": True
 				},
 				{
-					"name": "~subreddit",
+					"name": "`~subreddit`",
 					"value": "**Usage:** `~subreddit <subreddit> <span>` eg. `~subreddit kofola month`\nReturns random image from given subreddit and givel span.\n Spans: `hour`,`day`,`week`,`month`,`year`,`all`",
 					"inline": True
 				}
