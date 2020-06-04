@@ -12,7 +12,7 @@ import prawcore
 import ksoftapi
 import re
 import bdbf
-from bdbf import spamProtection, command, embed
+from bdbf import spamProtection, command, embed, hasLink
 
 kclient = ksoftapi.Client(os.environ.get("ksoft_token", None))
 
@@ -38,6 +38,7 @@ bdbf.embedFooter= {
                 "text": "Powered by Bertik23",
                 "icon_url": "https://cdn.discordapp.com/avatars/452478521755828224/4cfdbde44582fe6ad05383171ac1b051.png"
                 }
+bdbf.embedColor = (37, 217, 55)
 
 @client.event # event decorator/wrapper
 async def on_ready():
@@ -45,8 +46,8 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-	print(f"{message.channel}: {message.author}: {message.author.name}: {message.content}")
-	await spamProtection(message, f"{message.author.mention} nespamuj tady!", 5)
+	print(f"{message.channel} ({message.channel.id}): {message.author}: {message.author.name}: {message.content}")
+	await spamProtection(message, 5, f"{message.author.mention} nespamuj tady!")
 
 	for i in ["hi","dobrý den","brý den","čau","ahoj", "zdravíčko", "tě péro", "těpéro", "zdárek párek","tě guli", "čus"]:
 		if re.search(f"(\W|^){i}(\W|$)", message.content, re.I) and not message.author.bot:
@@ -64,6 +65,10 @@ async def on_message(message):
 
 	if message.tts and not message.author.bot:
 		await message.channel.send(f"Hej ty {message.author.mention}, žádný ttska tady.", tts = True)
+
+	if message.channel.id == 715621624950292593:
+		if not hasLink(message.content):
+			await message.delete()
 
 	if "No lyrics found for `" in message.content:
 		try:
