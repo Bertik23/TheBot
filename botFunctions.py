@@ -5,7 +5,7 @@ import bdbf
 
 commandPrefix: str = None
 
-def getZmena(parametr):
+def getZmena(parametr) -> str:
 	zmeny = requests.get("https://bakalari.gymso.cz/next/zmeny.aspx")
 	zmeny = BeautifulSoup(zmeny.text, "html.parser")
 	tables = zmeny.find_all("table", {"class":"datagrid"})
@@ -27,7 +27,7 @@ def getZmena(parametr):
 								text += f"{f[0]}\n"
 						return text
 
-def gymso():
+def gymso() -> (str, str, str):
     gymso = requests.get("https://www.gymso.cz")
     gymso = BeautifulSoup(gymso.text, features="html.parser")
     clanekDiv = gymso.find("div",attrs={"class":"blog-item"})
