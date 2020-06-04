@@ -2,7 +2,7 @@
 
 # D:\Python\DiscordBot\bot.py: 15
 # D:\Python\DiscordBot\botFunctions.py: 4
-bdbf == 0.1.0
+bdbf == 0.1.1.3
 
 # D:\Python\DiscordBot\bot.py: 7
 # D:\Python\DiscordBot\botFunctions.py: 2
