@@ -6,13 +6,16 @@ import math
 import requests
 from bs4 import BeautifulSoup
 import botFunctions
-from botFunctions import getZmena, gymso
+from botFunctions import getZmena, gymso, newOnGymso
 import praw
 import prawcore
 import ksoftapi
 import re
 import bdbf
 from bdbf import spamProtection, command, embed, hasLink
+import asyncio
+import discord
+import pickle
 
 kclient = ksoftapi.Client(os.environ.get("ksoft_token", None))
 
@@ -29,9 +32,9 @@ token = os.environ.get('TOKEN', None)
 
 
 
-import discord
 client = discord.Client()
-guild = client.get_guild(540563312857841714)
+klubik = None #client.get_guild(697015129199607839)
+obecne = None #klubik.get_channel(697015129199607843)
 
 bdbf.commandPrefix = "~"
 bdbf.embedFooter= {
@@ -40,14 +43,34 @@ bdbf.embedFooter= {
                 }
 bdbf.embedColor = (37, 217, 55)
 
+async def repeat(interval, func, *args, **kwargs):
+    """Run func every interval seconds.
+
+    If func has not finished before *interval*, will run again
+    immediately when the previous iteration finished.
+
+    *args and **kwargs are passed as the arguments to func.
+    """
+    while True:
+        await asyncio.gather(
+            func(*args, **kwargs),
+            asyncio.sleep(interval),
+        )
+
 @client.event # event decorator/wrapper
 async def on_ready():
 	print(f"We have logged in as {client.user}")
 
 @client.event
 async def on_message(message):
+	global klubik, obecne
 	print(f"{message.channel} ({message.channel.id}): {message.author}: {message.author.name}: {message.content}")
-	await spamProtection(message, 5, f"{message.author.mention} nespamuj tady!")
+	if message.channel.guild.id == 697015129199607839:
+		klubik = message.channel.guild
+	if message.channel.id == 697015129199607843:
+		obecne = message.channel
+		print("on_msg", obecne, klubik)
+	await spamProtection(message, 5, f"{message.author.mention} nespamuj tady!", spamDelValue = 10)
 
 	for i in ["hi","dobrý den","brý den","čau","ahoj", "zdravíčko", "tě péro", "těpéro", "zdárek párek","tě guli", "čus"]:
 		if re.search(f"(\W|^){i}(\W|$)", message.content, re.I) and not message.author.bot:
@@ -217,6 +240,21 @@ async def on_message(message):
 		except ksoftapi.NoResults:
 			await message.channel.send(f"No lyrics found for `{attributes}`.")
 
+async def checkGymso():
+	while True:
+		try:
+			print("Checking for new posts on Gymso")
+			clanky = newOnGymso()
+			if clanky:
+				for clanek in clanky:
+					for i in range(math.ceil(len(clanek["text"])/2048)):
+						e = embed(clanek["title"], url = clanek["url"], description=clanek["text"][(i*2048):((i+1)*2048)])
+						await obecne.send(f"{klubik.default_role} nový příspěvek na Gymso", embed=e)
+		except Exception as e:
+			print(e)
+		await asyncio.sleep(600)
 
+
+client.loop.create_task(checkGymso())
 
 client.run(token)
