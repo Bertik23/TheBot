@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import discord
 import bdbf
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 commandPrefix: str = None
 
@@ -42,8 +42,8 @@ def newOnGymso() -> [dict]:
     gymso = BeautifulSoup(gymso.text, features="html.parser")
     clankyDiv = gymso.findAll("div",attrs={"class":"blog-item"})
     for clanekDiv in clankyDiv:
-        clanekTime = datetime.fromisoformat(clanekDiv.find("time")["datetime"].split("+")[0])
-        if datetime.now() - clanekTime < timedelta(minutes=15):
+        clanekTime = datetime.fromisoformat(clanekDiv.find("time")["datetime"])#.split("+")[0])
+        if datetime.now(timezone(timedelta(hours=2))) - clanekTime < timedelta(minutes=15):
             clanekTitle = clanekDiv.find("h2", attrs={"class":"article-title"})
             clanekText = clanekDiv.find("section", attrs={"class":"article-intro"})
             clanky.append({"title": clanekTitle.a["title"], "url": f"https://gymso.cz{clanekTitle.a['href']}", "time": clanekTime, "text": clanekText.text})
