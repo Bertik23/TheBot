@@ -70,7 +70,7 @@ async def on_message(message):
 	if message.channel.id == 697015129199607843:
 		obecne = message.channel
 		print("on_msg", obecne, klubik)
-	await spamProtection(message, 5, f"{message.author.mention} nespamuj tady!", spamDelValue = 10, spamDelWarnMsg = f"{message.author.mention} další zprávy už ti smažu!")
+	await spamProtection(message, 5, f"{message.author.mention} nespamuj tady!", spamDelValue = 10)#, spamDelWarnMsg = f"{message.author.mention} další zprávy už ti smažu!")
 
 	for i in ["hi","dobrý den","brý den","čau","ahoj", "zdravíčko", "tě péro", "těpéro", "zdárek párek","tě guli", "čus"]:
 		if re.search(f"(\W|^){i}(\W|$)", message.content, re.I) and not message.author.bot:
