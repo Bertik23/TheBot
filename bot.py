@@ -69,7 +69,7 @@ async def on_message(message):
 		klubik = message.channel.guild
 	if message.channel.id == 697015129199607843:
 		obecne = message.channel
-		print("on_msg", obecne, klubik)
+		#print("on_msg", obecne, klubik)
 	await spamProtection(message, 5, f"{message.author.mention} nespamuj tady!", spamDelValue = 10)#, spamDelWarnMsg = f"{message.author.mention} další zprávy už ti smažu!")
 
 	for i in ["hi","dobrý den","brý den","čau","ahoj", "zdravíčko", "tě péro", "těpéro", "zdárek párek","tě guli", "čus"]:
@@ -85,6 +85,9 @@ async def on_message(message):
 
 	if (re.search("(\W|^)ji+ří+(\W|$)", message.content, re.I)) and not message.author.bot:
 		await message.channel.send(f"Jiří {choice([' je buzík',' nic neumí'])}")
+
+	if "fortnite" in message.content.lower():
+		await message.delete()
 
 	if (re.search("thebot", message.content, re.I) or client.user.mentioned_in(message)) and not message.author.bot:
 		await message.channel.send(choice(["Slyšel jsem snad moje jméno?",f"{message.author.mention} ty ses opovážil vyslovit moje jméno?","Ještě jednou tu zazní moje jméno a uvidíte.",f"Chceš do držky {message.author.mention}?",f"Tak to je naposledy co jste {message.author.mention} viděli."]))
