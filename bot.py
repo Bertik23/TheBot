@@ -68,10 +68,10 @@ async def on_message(message):
 		await message.channel.send("Kdo ví")
 
 	if (re.search("(\W|^)a+da+m(\W|$)", message.content, re.I)) and not message.author.bot:
-		await message.channel.send(f"A{randint(0,20)*'a'}d{randint(1,20)*'a'}m {choice(['je gay','neumí olí','už nevytírá anály',''])}")
+		await message.channel.send(f"A{randint(0,20)*'a'}d{randint(1,20)*'a'}m {choice(['je gay','neumí olí','už nevytírá anály','is trajin to solf da rubix kjub','was trajin to olín',''])}")
 
 	if (re.search("(\W|^)ji+ří+(\W|$)", message.content, re.I)) and not message.author.bot:
-		await message.channel.send(f"Jiří {choice([' je buzík',' nic neumí'])}")
+		await message.channel.send(f"Jiří {choice([' je buzík',' nic neumí','is FUCKING NORMIEEE REEEEEEEEEEEEEEEEEEEEEE'])}")
 
 	if "fortnite" in message.content.lower():
 		await message.delete()
