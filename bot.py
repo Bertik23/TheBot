@@ -6,7 +6,7 @@ import math
 import requests
 from bs4 import BeautifulSoup
 import botFunctions
-from botFunctions import getZmena, gymso, newOnGymso, getJokeTxt
+from botFunctions import getZmena, gymso, newOnGymso, getJokeTxt, getFact, wolframQuery
 import praw
 import prawcore
 import ksoftapi
@@ -164,7 +164,12 @@ async def on_message(message):
 				},
 				{
 					"name": "`~joke`",
-					"value": "Returns an random awful joke.",
+					"value": "Returns a random awful joke.",
+					"inline": True
+				},
+				{
+					"name": "`~fact`",
+					"value": "Returns a random fact.",
 					"inline": True
 				}
 				]
@@ -282,6 +287,13 @@ async def on_message(message):
 
 	if "joke" == commandos:
 		await message.channel.send(getJokeTxt())
+
+	if "fact" == commandos:
+		await message.channel.send(getFact())
+
+	if "wa" == commandos:
+		for e in wolframQuery(attributes):
+			await message.channel.send(embed=e)
 
 async def checkGymso():
 	while True:
