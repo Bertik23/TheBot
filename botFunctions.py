@@ -48,3 +48,8 @@ def newOnGymso() -> [dict]:
             clanekText = clanekDiv.find("section", attrs={"class":"article-intro"})
             clanky.append({"title": clanekTitle.a["title"], "url": f"https://gymso.cz{clanekTitle.a['href']}", "time": clanekTime, "text": clanekText.text})
     return clanky
+
+def getJokeTxt() -> str:
+    return requests.get("https://sv443.net/jokeapi/v2/joke/Any?format=txt").text
+
+print(getJokeTxt())

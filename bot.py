@@ -6,7 +6,7 @@ import math
 import requests
 from bs4 import BeautifulSoup
 import botFunctions
-from botFunctions import getZmena, gymso, newOnGymso
+from botFunctions import getZmena, gymso, newOnGymso, getJokeTxt
 import praw
 import prawcore
 import ksoftapi
@@ -274,6 +274,9 @@ async def on_message(message):
 			await message.channel.send(embed=e)
 		except ksoftapi.NoResults:
 			await message.channel.send(f"`{attributes[0]}` neexistuje!")
+
+	if "joke" == commandos:
+		await message.channel.send(getJokeTxt())
 
 async def checkGymso():
 	while True:
