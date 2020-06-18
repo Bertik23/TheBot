@@ -161,6 +161,11 @@ async def on_message(message):
 					"name": "`~mapa`",
 					"value": "**Usage:** `~mapa <place> <zoom=12>` eg. `~mapa Gymso 16`\nReturns map of given place with given zoom (default 12).",
 					"inline": True
+				},
+				{
+					"name": "`~joke`",
+					"value": "Returns an random awful joke.",
+					"inline": True
 				}
 				]
 			)
