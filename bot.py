@@ -6,7 +6,7 @@ import math
 import requests
 from bs4 import BeautifulSoup
 import botFunctions
-from botFunctions import getZmena, gymso, newOnGymso
+from botFunctions import getZmena, gymso, newOnGymso, getJokeTxt, getFact, wolframQuery
 import praw
 import prawcore
 import ksoftapi
@@ -43,19 +43,6 @@ bdbf.embedFooter= {
                 }
 bdbf.embedColor = (37, 217, 55)
 
-async def repeat(interval, func, *args, **kwargs):
-    """Run func every interval seconds.
-
-    If func has not finished before *interval*, will run again
-    immediately when the previous iteration finished.
-
-    *args and **kwargs are passed as the arguments to func.
-    """
-    while True:
-        await asyncio.gather(
-            func(*args, **kwargs),
-            asyncio.sleep(interval),
-        )
 
 @client.event # event decorator/wrapper
 async def on_ready():
@@ -69,7 +56,7 @@ async def on_message(message):
 		klubik = message.channel.guild
 	if message.channel.id == 697015129199607843:
 		obecne = message.channel
-		print("on_msg", obecne, klubik)
+		#print("on_msg", obecne, klubik)
 	await spamProtection(message, 5, f"{message.author.mention} nespamuj tady!", spamDelValue = 10)#, spamDelWarnMsg = f"{message.author.mention} další zprávy už ti smažu!")
 
 	for i in ["hi","dobrý den","brý den","čau","ahoj", "zdravíčko", "tě péro", "těpéro", "zdárek párek","tě guli", "čus", "olá", "ola", "guten tag"]:
@@ -81,10 +68,13 @@ async def on_message(message):
 		await message.channel.send("Kdo ví")
 
 	if (re.search("(\W|^)a+da+m(\W|$)", message.content, re.I)) and not message.author.bot:
-		await message.channel.send(f"A{randint(0,20)*'a'}d{randint(1,20)*'a'}m {choice(['je gay','neumí olí','už nevytírá anály',''])}")
+		await message.channel.send(f"A{randint(0,20)*'a'}d{randint(1,20)*'a'}m {choice(['je gay','neumí olí','už nevytírá anály','is trajin to solf da rubix kjub','was trajin to olín',''])}")
 
 	if (re.search("(\W|^)ji+ří+(\W|$)", message.content, re.I)) and not message.author.bot:
-		await message.channel.send(f"Jiří {choice([' je buzík',' nic neumí'])}")
+		await message.channel.send(f"Jiří {choice([' je buzík',' nic neumí','is FUCKING NORMIEEE REEEEEEEEEEEEEEEEEEEEEE'])}")
+
+	if "fortnite" in message.content.lower():
+		await message.delete()
 
 	if (re.search("thebot", message.content, re.I) or client.user.mentioned_in(message)) and not message.author.bot:
 		await message.channel.send(choice(["Slyšel jsem snad moje jméno?",f"{message.author.mention} ty ses opovážil vyslovit moje jméno?","Ještě jednou tu zazní moje jméno a uvidíte.",f"Chceš do držky {message.author.mention}?",f"Tak to je naposledy co jste {message.author.mention} viděli."]))
@@ -166,6 +156,21 @@ async def on_message(message):
 					"name": "`~subreddit`",
 					"value": "**Usage:** `~subreddit <subreddit> <span>` eg. `~subreddit kofola month`\nReturns random image from given subreddit and givel span.\n Spans: `hour`,`day`,`week`,`month`,`year`,`all`",
 					"inline": True
+				},
+				{
+					"name": "`~mapa`",
+					"value": "**Usage:** `~mapa <place> <zoom=12>` eg. `~mapa Gymso 16`\nReturns map of given place with given zoom (default 12).",
+					"inline": True
+				},
+				{
+					"name": "`~joke`",
+					"value": "Returns a random awful joke.",
+					"inline": True
+				},
+				{
+					"name": "`~fact`",
+					"value": "Returns a random fact.",
+					"inline": True
 				}
 				]
 			)
@@ -242,6 +247,53 @@ async def on_message(message):
 			await message.channel.send(embed = e)
 		except ksoftapi.NoResults:
 			await message.channel.send(f"No lyrics found for `{attributes}`.")
+
+	"""if "recommend" == commandos:
+		attributes = attributes.split(" ")
+		provider = "youtube"
+		recommendType = None
+		for p in ["ids","titles","spotify"]:
+			if p in attributes:
+				if p in ["ids","titles"]:
+					provider = f"youtube_{p}"
+				elif p == "spotify":
+					provider = "spotify"
+				attributes.remove(p)
+
+		for r in ["track", "link", "id"]:
+			if r in attributes:
+				if r in ["link","id"]:
+					recommendType = f"youtube_{r}"
+				elif r == "track":
+					recommendType = "track"
+				attributes.remove(r)
+
+		print(attributes, provider)
+		recommendations = await kclient.music.recommendations(attributes, provider)
+		await message.channel.send([dir(i) for i in recommendations])"""
+
+	if "mapa" == commandos:
+		attributes = attributes.rsplit(" ",1)
+		try:
+			qwertzuiopasdfghjklyxcvbnmqwertzuiopasdfghjklyxcvbnmqwertzuiopasdfghjkyxcvbnmqweuioadfghjklyxcvbnmqwertzuiopasdfghjklyxcvbnm = attributes[1]
+		except:
+			attributes.append(12)
+		try:
+			mapicka = await kclient.kumo.gis(attributes[0],map_zoom=int(attributes[1]),include_map=True, fast=True)
+			e = embed(attributes[0],description=f"{mapicka.address}\n {mapicka.lat} {mapicka.lon}",image={"url":mapicka.map})
+			await message.channel.send(embed=e)
+		except ksoftapi.NoResults:
+			await message.channel.send(f"`{attributes[0]}` neexistuje!")
+
+	if "joke" == commandos:
+		await message.channel.send(getJokeTxt())
+
+	if "fact" == commandos:
+		await message.channel.send(getFact())
+
+	if "wa" == commandos:
+		for e in wolframQuery(attributes):
+			await message.channel.send(embed=e)
 
 async def checkGymso():
 	while True:

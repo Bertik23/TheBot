@@ -3,8 +3,11 @@ from bs4 import BeautifulSoup
 import discord
 import bdbf
 from datetime import datetime, timedelta, timezone
+import wolframalpha
+import pprint
 
 commandPrefix: str = None
+wClient = wolframalpha.Client("TV7GVY-8YLJ26PPK9")
 
 def getZmena(parametr) -> str:
 	zmeny = requests.get("https://bakalari.gymso.cz/next/zmeny.aspx")
@@ -48,3 +51,19 @@ def newOnGymso() -> [dict]:
             clanekText = clanekDiv.find("section", attrs={"class":"article-intro"})
             clanky.append({"title": clanekTitle.a["title"], "url": f"https://gymso.cz{clanekTitle.a['href']}", "time": clanekTime, "text": clanekText.text})
     return clanky
+
+def getJokeTxt() -> str:
+    return requests.get("https://sv443.net/jokeapi/v2/joke/Any?format=txt").text
+
+def getFact() -> str:
+    return requests.get("https://uselessfacts.jsph.pl/random.txt?language=en").text
+
+def wolframQuery(query):
+    for pod in wClient.query(query):
+        for subpod in pod.subpods:
+            imgs = list(subpod.img)
+            for img in imgs:
+                yield bdbf.embed(f"{subpod.title}", image={"url": img.src})
+        #yield bdbf.embed("")
+
+print(wolframQuery("adam"))
