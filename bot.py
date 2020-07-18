@@ -49,7 +49,7 @@ class zmena(bdbf.commands.Command):
 	def command(self,args):
 		return f"Změny rozvrhu pro {args}:\n{getZmena(args)}",None
 
-bdbf.ommands.cmds[697015129199607839].append(zmena("Returns schedule changes for the give teacher/class today","`~zmena <teacher/class>` eg. `~zmena Lukešová Danuše` or `~zmena 6.A`"))
+bdbf.commands.cmds[697015129199607839].append(zmena("Returns schedule changes for the give teacher/class today","`~zmena <teacher/class>` eg. `~zmena Lukešová Danuše` or `~zmena 6.A`"))
 
 @client.event # event decorator/wrapper
 async def on_ready():
