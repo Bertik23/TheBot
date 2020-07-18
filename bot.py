@@ -43,6 +43,8 @@ bdbf.embedFooter= {
                 }
 bdbf.embedColor = (37, 217, 55)
 
+bdbf.commands.cmds[697015129199607839] = []
+
 ##COMMANDS
 
 class zmena(bdbf.commands.Command):
