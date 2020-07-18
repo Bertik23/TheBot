@@ -17,11 +17,11 @@ import asyncio
 import discord
 import pickle
 
-"""kclient = ksoftapi.Client(os.environ.get("ksoft_token", None))
+kclient = ksoftapi.Client(os.environ.get("ksoft_token", None))
 
 reddit = praw.Reddit(client_id = os.environ.get("reddit_client_id", None),
                      client_secret = os.environ.get("reddit_client_secret", None),
-                     user_agent = os.environ.get("reddit_user_agent", None))"""
+                     user_agent = os.environ.get("reddit_user_agent", None))
 
 botId = 540563812890443794
 #84032 permissions int
