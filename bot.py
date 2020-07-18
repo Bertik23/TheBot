@@ -17,11 +17,11 @@ import asyncio
 import discord
 import pickle
 
-kclient = ksoftapi.Client(os.environ.get("ksoft_token", None))
+"""kclient = ksoftapi.Client(os.environ.get("ksoft_token", None))
 
 reddit = praw.Reddit(client_id = os.environ.get("reddit_client_id", None),
                      client_secret = os.environ.get("reddit_client_secret", None),
-                     user_agent = os.environ.get("reddit_user_agent", None))
+                     user_agent = os.environ.get("reddit_user_agent", None))"""
 
 botId = 540563812890443794
 #84032 permissions int
@@ -43,6 +43,13 @@ bdbf.embedFooter= {
                 }
 bdbf.embedColor = (37, 217, 55)
 
+##COMMANDS
+
+class zmena(bdbf.commands.Command):
+	def command(self,args):
+		return f"Změny rozvrhu pro {args}:\n{getZmena(args)}",None
+
+bdbf.ommands.cmds[697015129199607839].append(zmena("Returns schedule changes for the give teacher/class today","`~zmena <teacher/class>` eg. `~zmena Lukešová Danuše` or `~zmena 6.A`"))
 
 @client.event # event decorator/wrapper
 async def on_ready():
@@ -175,12 +182,6 @@ async def on_message(message):
 				]
 			)
 		await message.channel.send(embed=e)
-
-	if "randomCSM" == commandos:
-		with open("teams.txt","r") as teams:
-			team = choice(teams.read().split("\n"))
-			print(team)
-			await message.channel.send(team)
 
 	if "zmena" == commandos:
 		await message.channel.send(f"Změny rozvrhu pro {attributes}:\n{getZmena(attributes)}")
