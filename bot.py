@@ -17,11 +17,11 @@ import asyncio
 import discord
 import pickle
 
-kclient = ksoftapi.Client(os.environ.get("ksoft_token", None))
+"""kclient = ksoftapi.Client(os.environ.get("ksoft_token", None))
 
 reddit = praw.Reddit(client_id = os.environ.get("reddit_client_id", None),
                      client_secret = os.environ.get("reddit_client_secret", None),
-                     user_agent = os.environ.get("reddit_user_agent", None))
+                     user_agent = os.environ.get("reddit_user_agent", None))"""
 
 botId = 540563812890443794
 #84032 permissions int
@@ -29,14 +29,18 @@ botId = 540563812890443794
 
 token = os.environ.get('TOKEN', None)
 
-
+kclient = ksoftapi.Client("6cd53eaf57fa5c15afe09df66b0028b8d56e8614")
+token = "NTQwNTYzODEyODkwNDQzNzk0.XrTvGA.h5P7x5h79QjMt1bkVDAZ_mi-JTU"
+reddit = praw.Reddit(client_id = "FlXe8KLot3DqXw",
+                     client_secret = "p7QMQTuam10A_WPfJ8U6ZDHI-x4",
+                     user_agent = "discord:thebot (by u/Bertik23)")
 
 
 client = discord.Client()
 klubik = None #client.get_guild(697015129199607839)
 obecne = None #klubik.get_channel(697015129199607843)
 
-bdbf.commandPrefix = "~"
+bdbf.commands.commandPrefix = "~"
 bdbf.embedFooter= {
                 "text": "Powered by Bertik23",
                 "icon_url": "https://cdn.discordapp.com/avatars/452478521755828224/4cfdbde44582fe6ad05383171ac1b051.png"
@@ -48,10 +52,131 @@ bdbf.commands.cmds[697015129199607839] = []
 ##COMMANDS
 
 class zmena(bdbf.commands.Command):
-	def command(self,args):
+	async def command(self,args):
 		return f"Změny rozvrhu pro {args}:\n{getZmena(args)}",None
 
-bdbf.commands.cmds[697015129199607839].append(zmena("Returns schedule changes for the give teacher/class today","`~zmena <teacher/class>` eg. `~zmena Lukešová Danuše` or `~zmena 6.A`"))
+bdbf.commands.cmds[697015129199607839].append(zmena("Returns schedule changes for the give teacher/class today","`%commandPrefix%zmena <teacher/class>` eg. `%commandPrefix%zmena Lukešová Danuše` or `%commandPrefix%zmena 6.A`"))
+
+class suggest(bdbf.commands.Command):
+	async def command(self,attributes):
+		with open("suggestions.txt","a") as suggestions:
+			suggestions.write(attributes+"\n")
+			return f"Your suggestion `{attributes}` was accepted", None
+
+bdbf.commands.cmds["all"].append(suggest("Suggest a command to the creator of the bot","`%commandPrefix%suggest <text>`"))
+
+class r(bdbf.commands.Command):
+	async def command(self,attributes):
+		try:
+			subreddit = reddit.subreddit(attributes)
+			e = embed(subreddit.title, url=f"https://reddit.com{subreddit.url}", description=subreddit.description[:2048], thumbnail={"url": subreddit.icon_img}, fields=[{"name": "Subscribers", "value": subreddit.subscribers, "inline":True}, {"name":"Online Subscribers", "value": subreddit.accounts_active, "inline": True}])
+			#print(vars(subreddit))
+			return None,e
+		except Exception as e:
+			if e == prawcore.exceptions.NotFound:
+				return "The subreddit `{attributes}` doesn't exist.",None
+			else:
+				return f"`{e}` occured while trying to find subreddit `{attributes}`.", None
+
+bdbf.commands.cmds["all"].append(r("Returns a subreddit","`%commandPrefix%r/ <subreddit>` eg. `%commandPrefix%r/ kofola`"))
+
+class gymso(bdbf.commands.Command):
+	async def command(self,attributes):
+		clanek = gymso()
+		e = embed(clanek[0], url=clanek[1], description=clanek[2][:2048])
+		return None, e
+
+bdbf.commands.cmds[697015129199607839].append(gymso("Returns last post on [gymso.cz](https://gymso.cz)"))
+
+class lyrics(bdbf.commands.Command):
+	async def command(self,attributes):
+		try:
+			results = await kclient.music.lyrics(attributes)
+		except ksoftapi.NoResults:
+			return f"No lyrics found for `{attributes}`.", None
+		else:
+			lyrics = results[0]
+			for i in range(math.ceil(len(lyrics.lyrics)/2048)):
+				e = embed(f"Lyrics for {lyrics.artist} - {lyrics.name}", description=lyrics.lyrics[(i*2048):((i+1)*2048)], thumbnail={"url": lyrics.album_art})
+				return None, e
+
+bdbf.commands.cmds["all"].append(lyrics("Returns lyrics to given song","`%commandPrefix%lyrics <song>`"))
+
+class meme(bdbf.commands.Command):
+	async def command(self,attributes):
+		meme = await kclient.images.random_meme()
+		e = embed(f"{meme.title}", url=meme.source, author={"name":meme.author,"url":f"https://reddit.com/user/{meme.author[3:]}"}, image={"url":meme.image_url})
+		return None, e
+
+bdbf.commands.cmds["all"].append(meme("Returns random meme from [Reddit](https://reddit.com)"))
+
+class evaluate(bdbf.commands.Command):
+	def command(sefl,attributes):
+		try: 
+			return eval(attributes), None
+		except Exception as e:
+			print(e)
+			return f"Hej `{attributes}` fakt neudělám", None
+
+bdbf.commands.cmds["all"].append(evaluate("Returns python expresion outcome.","`%commandPrefix%eval <python expresion>` eg. `%commandPrefix%eval math.cos(math.pi)`"))
+
+class aww(bdbf.commands.Command):
+	async def command(self,attributes):
+		aww = await kclient.images.random_aww()
+		e = embed(f"{aww.title}", url=aww.source, author={"name":aww.author,"url":f"https://reddit.com/user/{aww.author[3:]}"}, image={"url":aww.image_url})
+		return None, e
+
+bdbf.commands.cmds["all"].append(aww("Returns random aww image from [Reddit](https://reddit.com)"))
+
+class subreddit(bdbf.commands.Command):
+	async def command(self,attributes):
+		attributes = attributes.split(" ")
+		try:
+			if len(attributes) >= 2:
+				subreddit_image = await kclient.images.random_reddit(attributes[0], attributes[1])
+			else:
+				subreddit_image = await kclient.images.random_reddit(attributes[0])
+			e = embed(f"{subreddit_image.title}", url=subreddit_image.source, author={"name":subreddit_image.author,"url":f"https://reddit.com/user/{subreddit_image.author[3:]}"}, image={"url":subreddit_image.image_url})
+			return None, e
+		except ksoftapi.NoResults:
+			return f"No lyrics found for `{attributes}`.", None
+
+bdbf.commands.cmds["all"].append(subreddit("Returns random image from given subreddit and givel span.","`%commandPrefix%subreddit <subreddit> <span>` eg. `%commandPrefix%subreddit kofola month`\nSpans: `hour`,`day`,`week`,`month`,`year`,`all`"))
+
+class mapa(bdbf.commands.Command):
+	async def command(self,attributes):
+		attributes = attributes.rsplit(" ",1)
+		try:
+			qwertzuiopasdfghjklyxcvbnmqwertzuiopasdfghjklyxcvbnmqwertzuiopasdfghjkyxcvbnmqweuioadfghjklyxcvbnmqwertzuiopasdfghjklyxcvbnm = attributes[1]
+		except:
+			attributes.append(12)
+		try:
+			mapicka = await kclient.kumo.gis(attributes[0],map_zoom=int(attributes[1]),include_map=True, fast=True)
+			e = embed(attributes[0],description=f"{mapicka.address}\n {mapicka.lat} {mapicka.lon}",image={"url":mapicka.map})
+			return None, e
+		except ksoftapi.NoResults:
+			return f"`{attributes[0]}` neexistuje!", None
+
+bdbf.commands.cmds["all"].append(mapa("Returns map of given place with given zoom (default 12).","`%commandPrefix%mapa <place> <zoom=12>` eg. `%commandPrefix%mapa Gymso 16`"))
+
+class joke(bdbf.commands.Command):
+	async def command(self,attributes):
+		return getJokeTxt(), None
+
+bdbf.commands.cmds["all"].append(joke("Returns a random awful joke."))
+
+class fact(bdbf.commands.Command):
+	async def command(self,attributes):
+		return getFact(), None
+
+bdbf.commands.cmds["all"].append(fact("Returns a random fact."))
+
+class wa(bdbf.commands.Command):
+	async def command(self,attributes):
+		for e in wolframQuery(attributes):
+			yield None, e
+
+bdbf.commands.cmds["all"].append(wa())
 
 @client.event # event decorator/wrapper
 async def on_ready():
@@ -106,198 +231,9 @@ async def on_message(message):
 				e = embed(f"Lyrics for {lyrics.artist} - {lyrics.name}", description=lyrics.lyrics[(i*2048):((i+1)*2048)], thumbnail={"url": lyrics.album_art})
 				await message.channel.send(embed=e)
 		await message.delete()		
+
+	await bdbf.commands.checkForCommands(message)
 	
-	commandos, attributes = command(message.content)
-
-	if "help" == commandos:
-		e = embed("Help for TheBot", fields=[
-				{
-					"name": "`~help`",
-					"value": "returns this",
-					"inline": True
-				},
-				{
-					"name": "`~randomCSM`",
-					"value": "returns a random team from [CSM](https://www.csmweb.net/)",
-					"inline": True
-				},
-				{
-					"name": "`~lyrics`",
-					"value": "**Usage:** `~lyrics <song>`\nReturns lyrics to given song",
-					"inline": True
-				},
-				{
-					"name": "`~suggest`",
-					"value": "**Usage:** `~suggest <text>`\nsuggest a command to the creator of the bot",
-					"inline": True
-				},
-				{
-					"name": "`~zmena`",
-					"value": "**Usage:** `~zmena <teacher/class>` eg. `~zmena Lukešová Danuše` or `~zmena 6.A`\nReturns schedule changes for the give teacher/class today",
-					"inline": True
-				},
-				{
-					"name": "`~r/`",
-					"value": "**Usage:** `~r/ <subreddit>` eg. `~r/ kofola`\nReturns a subreddit",
-					"inline": True
-				},
-				{
-					"name": "`~gymso`",
-					"value": "Returns last post on [gymso.cz](https://gymso.cz)",
-					"inline": True
-				},
-				{
-					"name": "`~meme`",
-					"value": "Returns random meme from [Reddit](https://reddit.com)",
-					"inline": True
-				},
-				{
-					"name": "`~eval`",
-					"value":"**Usage:** `~eval <python expresion>` eg. `~eval math.cos(math.pi)`\nReturns python expresion outcome.",
-					"inline": True
-				},
-				{
-					"name": "`~aww`",
-					"value": "Returns random aww image from [Reddit](https://reddit.com)",
-					"inline": True
-				},
-				{
-					"name": "`~subreddit`",
-					"value": "**Usage:** `~subreddit <subreddit> <span>` eg. `~subreddit kofola month`\nReturns random image from given subreddit and givel span.\n Spans: `hour`,`day`,`week`,`month`,`year`,`all`",
-					"inline": True
-				},
-				{
-					"name": "`~mapa`",
-					"value": "**Usage:** `~mapa <place> <zoom=12>` eg. `~mapa Gymso 16`\nReturns map of given place with given zoom (default 12).",
-					"inline": True
-				},
-				{
-					"name": "`~joke`",
-					"value": "Returns a random awful joke.",
-					"inline": True
-				},
-				{
-					"name": "`~fact`",
-					"value": "Returns a random fact.",
-					"inline": True
-				}
-				]
-			)
-		await message.channel.send(embed=e)
-
-	if "zmena" == commandos:
-		await message.channel.send(f"Změny rozvrhu pro {attributes}:\n{getZmena(attributes)}")
-
-	if "suggest" == commandos:
-		with open("suggestions.txt","a") as suggestions:
-			suggestions.write(attributes+"\n")
-		await message.channel.send(f"Your suggestion `{attributes}` was accepted")
-
-	if "r/" == commandos:
-		try:
-			subreddit = reddit.subreddit(attributes)
-			e = embed(subreddit.title, url=f"https://reddit.com{subreddit.url}", description=subreddit.description[:2048], thumbnail={"url": subreddit.icon_img}, fields=[{"name": "Subscribers", "value": subreddit.subscribers, "inline":True}, {"name":"Online Subscribers", "value": subreddit.accounts_active, "inline": True}])
-			#print(vars(subreddit))
-			await message.channel.send(embed = e)
-		except Exception as e:
-			if e == prawcore.exceptions.NotFound:
-				await message.channel.send(f"The subreddit `{attributes}` doesn't exist.")
-			else:
-				await message.channel.send(f"`{e}` occured while trying to find subreddit `{attributes}`.")
-				raise e
-
-	if "gymso" == commandos:
-		clanek = gymso()
-		e = embed(clanek[0], url=clanek[1], description=clanek[2][:2048])
-		await message.channel.send(embed=e)
-
-	if "lyrics" == commandos:
-		try:
-			results = await kclient.music.lyrics(attributes)
-		except ksoftapi.NoResults:
-			await message.channel.send(f"No lyrics found for `{attributes}`.")
-		else:
-			lyrics = results[0]
-			for i in range(math.ceil(len(lyrics.lyrics)/2048)):
-				e = embed(f"Lyrics for {lyrics.artist} - {lyrics.name}", description=lyrics.lyrics[(i*2048):((i+1)*2048)], thumbnail={"url": lyrics.album_art})
-				await message.channel.send(embed=e)
-
-	if "meme" == commandos:
-		meme = await kclient.images.random_meme()
-		e = embed(f"{meme.title}", url=meme.source, author={"name":meme.author,"url":f"https://reddit.com/user/{meme.author[3:]}"}, image={"url":meme.image_url})
-		await message.channel.send(embed=e)
-
-	if "eval" == commandos:
-		try: 
-			await message.channel.send(eval(attributes))
-		except Exception as e:
-			print(e)
-			await message.channel.send(f"Hej `{attributes}` fakt neudělám")
-
-	if "aww" == commandos:
-		aww = await kclient.images.random_aww()
-		e = embed(f"{aww.title}", url=aww.source, author={"name":aww.author,"url":f"https://reddit.com/user/{aww.author[3:]}"}, image={"url":aww.image_url})
-		await message.channel.send(embed = e)
-
-	if "subreddit" == commandos:
-		attributes = attributes.split(" ")
-		try:
-			if len(attributes) >= 2:
-				subreddit_image = await kclient.images.random_reddit(attributes[0], attributes[1])
-			else:
-				subreddit_image = await kclient.images.random_reddit(attributes[0])
-			e = embed(f"{subreddit_image.title}", url=subreddit_image.source, author={"name":subreddit_image.author,"url":f"https://reddit.com/user/{subreddit_image.author[3:]}"}, image={"url":subreddit_image.image_url})
-			await message.channel.send(embed = e)
-		except ksoftapi.NoResults:
-			await message.channel.send(f"No lyrics found for `{attributes}`.")
-
-	"""if "recommend" == commandos:
-		attributes = attributes.split(" ")
-		provider = "youtube"
-		recommendType = None
-		for p in ["ids","titles","spotify"]:
-			if p in attributes:
-				if p in ["ids","titles"]:
-					provider = f"youtube_{p}"
-				elif p == "spotify":
-					provider = "spotify"
-				attributes.remove(p)
-
-		for r in ["track", "link", "id"]:
-			if r in attributes:
-				if r in ["link","id"]:
-					recommendType = f"youtube_{r}"
-				elif r == "track":
-					recommendType = "track"
-				attributes.remove(r)
-
-		print(attributes, provider)
-		recommendations = await kclient.music.recommendations(attributes, provider)
-		await message.channel.send([dir(i) for i in recommendations])"""
-
-	if "mapa" == commandos:
-		attributes = attributes.rsplit(" ",1)
-		try:
-			qwertzuiopasdfghjklyxcvbnmqwertzuiopasdfghjklyxcvbnmqwertzuiopasdfghjkyxcvbnmqweuioadfghjklyxcvbnmqwertzuiopasdfghjklyxcvbnm = attributes[1]
-		except:
-			attributes.append(12)
-		try:
-			mapicka = await kclient.kumo.gis(attributes[0],map_zoom=int(attributes[1]),include_map=True, fast=True)
-			e = embed(attributes[0],description=f"{mapicka.address}\n {mapicka.lat} {mapicka.lon}",image={"url":mapicka.map})
-			await message.channel.send(embed=e)
-		except ksoftapi.NoResults:
-			await message.channel.send(f"`{attributes[0]}` neexistuje!")
-
-	if "joke" == commandos:
-		await message.channel.send(getJokeTxt())
-
-	if "fact" == commandos:
-		await message.channel.send(getFact())
-
-	if "wa" == commandos:
-		for e in wolframQuery(attributes):
-			await message.channel.send(embed=e)
-
 async def checkGymso():
 	while True:
 		try:
