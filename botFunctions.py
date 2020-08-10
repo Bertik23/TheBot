@@ -5,9 +5,51 @@ import bdbf
 from datetime import datetime, timedelta, timezone
 import wolframalpha
 import pprint
+import os
+import json
+import tomd
 
 commandPrefix: str = None
 wClient = wolframalpha.Client("TV7GVY-8YLJ26PPK9")
+githubToken = os.environ.get("GithubToken", None)
+
+def makeGithubIssue(title: str, body: str=None, labels: list=None):
+    """Create an issue on github.com using the given parameters"""
+    # Url to create issues via POST
+    url = 'https://api.github.com/repos/Bertik23/discordbot/issues'
+    
+    # Headers
+    headers = {
+        "Authorization": f"token {githubToken}",
+        "Accept": "application/vnd.github.VERSION.html+json"
+    }
+    
+    # Create our issue
+    data = {'title': title,
+            'body': body,
+            'labels': labels
+            }
+
+    payload = json.dumps(data)
+
+    # Add the issue to our repository
+    response = requests.request("POST", url, data=payload, headers=headers)
+    if response.status_code == 201:
+        out= [eval(response.text.replace("false","False").replace("true","True").replace("null","None"))[i] for i in ("url", "title","body_html")]
+        return f"Successfully created Issue `{title}`" , bdbf.embed(out[1], out[0].replace("api.","").replace("/repos/","/"), tomd.convert(out[2]))
+    else:
+        return f"Could not create Issue {title} Response: {response.content}", None
+
+def makeSuggestion(title : str, body: str=None):
+    title = title
+    body = body
+    labels = [
+        "enhancement",
+        "automated"
+    ]
+    suggestion = makeGithubIssue(title, body, labels)
+    return suggestion[0].replace("Issue","suggestion"), suggestion[1]
+
 
 def getZmena(parametr) -> str:
 	zmeny = requests.get("https://bakalari.gymso.cz/next/zmeny.aspx")

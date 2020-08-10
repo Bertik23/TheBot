@@ -6,7 +6,7 @@ import math
 import requests
 from bs4 import BeautifulSoup
 import botFunctions
-from botFunctions import getZmena, gymso, newOnGymso, getJokeTxt, getFact, wolframQuery
+from botFunctions import getZmena, gymso, newOnGymso, getJokeTxt, getFact, wolframQuery, makeSuggestion
 import praw
 import prawcore
 import ksoftapi
@@ -54,11 +54,10 @@ bdbf.commands.cmds[697015129199607839].append(zmena("Returns schedule changes fo
 
 class suggest(bdbf.commands.Command):
 	async def command(self,attributes):
-		with open("suggestions.txt","a") as suggestions:
-			suggestions.write(attributes+"\n")
-			return f"Your suggestion `{attributes}` was accepted", None
+		out = makeSuggestion(attributes.split("*||*")[0], attributes.split("*||*")[1])
+		return out[0], out[1]
 
-bdbf.commands.cmds["all"].append(suggest("Suggest a command to the creator of the bot","`%commandPrefix%suggest <text>`"))
+bdbf.commands.cmds["all"].append(suggest("Suggest a command to the creator of the bot","`%commandPrefix%suggest <title> *||* <text>`"))
 
 class r(bdbf.commands.Command):
 	async def command(self,attributes):
