@@ -105,7 +105,7 @@ class meme(bdbf.commands.Command):
 bdbf.commands.cmds["all"].append(meme("Returns random meme from [Reddit](https://reddit.com)"))
 
 class evaluate(bdbf.commands.Command):
-	def command(sefl,attributes):
+	async def command(sefl,attributes):
 		try: 
 			return eval(attributes), None
 		except Exception as e:
