@@ -65,7 +65,7 @@ class suggest(bdbf.commands.Command):
 		out = makeSuggestion(attributes.split("*||*")[0], attributes.split("*||*")[1] +
 			f"""
 			***
-			Automaticaly issued by `{msg.author}` from `{msg.channel}` in `{message.channel.guild}`
+			Automaticaly issued by `{msg.author}` from `{msg.channel}` in `{msg.channel.guild}`
 			""")
 		return out[0], out[1]
 
