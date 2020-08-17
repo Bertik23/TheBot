@@ -52,6 +52,8 @@ class info(bdbf.commands.Command):
 		return f"""I'm a bot made by Bertik23#9997
 				   I'm running on bdbf {pkg_resources.get_distribution("bdbf").version} and discord.py {pkg_resources.get_distribution("discord.py").version}""", None
 
+bdbf.commands.cmds["all"].append(info("TheBot info"))
+
 class zmena(bdbf.commands.Command):
 	async def command(self,args, msg):
 		return f"Změny rozvrhu pro {args}:\n{getZmena(args)}",None
