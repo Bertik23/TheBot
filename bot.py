@@ -16,6 +16,9 @@ from bdbf import spamProtection, command, embed, hasLink
 import asyncio
 import discord
 import pickle
+import pkg_resources
+pkg_resources.get_distribution("construct").version
+
 
 kclient = ksoftapi.Client(os.environ.get("ksoft_token", None))
 
@@ -28,7 +31,6 @@ botId = 540563812890443794
 #https://discordapp.com/oauth2/authorize?client_id=540563812890443794&scope=bot&permissions=84032
 
 token = os.environ.get('TOKEN', None)
-
 
 
 client = discord.Client()
@@ -45,22 +47,30 @@ bdbf.embedColor = (37, 217, 55)
 bdbf.commands.cmds[697015129199607839] = []
 
 ##COMMANDS
+class info(bdbf.commands.Command):
+	async def command(self, args, msg):
+		return f"""I'm a bot made by Bertik23#9997
+				   I'm running on bdbf {pkg_resources.get_distribution("bdbf").version} and discord.py {pkg_resources.get_distribution("discord.py").version}""", None
 
 class zmena(bdbf.commands.Command):
-	async def command(self,args):
+	async def command(self,args, msg):
 		return f"Změny rozvrhu pro {args}:\n{getZmena(args)}",None
 
 bdbf.commands.cmds[697015129199607839].append(zmena("Returns schedule changes for the give teacher/class today","`%commandPrefix%zmena <teacher/class>` eg. `%commandPrefix%zmena Lukešová Danuše` or `%commandPrefix%zmena 6.A`"))
 
 class suggest(bdbf.commands.Command):
-	async def command(self,attributes):
-		out = makeSuggestion(attributes.split("*||*")[0], attributes.split("*||*")[1])
+	async def command(self,attributes, msg):
+		out = makeSuggestion(attributes.split("*||*")[0], attributes.split("*||*")[1] +
+			f"""
+			***
+			Automaticaly issued by `{msg.author}` from `{msg.channel}` in `{message.channel.guild}`
+			""")
 		return out[0], out[1]
 
 bdbf.commands.cmds["all"].append(suggest("Suggest a command to the creator of the bot","`%commandPrefix%suggest <title> *||* <text>`"))
 
 class r(bdbf.commands.Command):
-	async def command(self,attributes):
+	async def command(self,attributes, msg):
 		try:
 			subreddit = reddit.subreddit(attributes)
 			e = embed(subreddit.title, url=f"https://reddit.com{subreddit.url}", description=subreddit.description[:2048], thumbnail={"url": subreddit.icon_img}, fields=[{"name": "Subscribers", "value": subreddit.subscribers, "inline":True}, {"name":"Online Subscribers", "value": subreddit.accounts_active, "inline": True}])
@@ -75,7 +85,7 @@ class r(bdbf.commands.Command):
 bdbf.commands.cmds["all"].append(r("Returns a subreddit","`%commandPrefix%r/ <subreddit>` eg. `%commandPrefix%r/ kofola`"))
 
 class gymso(bdbf.commands.Command):
-	async def command(self,attributes):
+	async def command(self,attributes, msg):
 		clanek = gymso()
 		e = embed(clanek[0], url=clanek[1], description=clanek[2][:2048])
 		return None, e
@@ -83,7 +93,7 @@ class gymso(bdbf.commands.Command):
 bdbf.commands.cmds[697015129199607839].append(gymso("Returns last post on [gymso.cz](https://gymso.cz)"))
 
 class lyrics(bdbf.commands.Command):
-	async def command(self,attributes):
+	async def command(self,attributes, msg):
 		try:
 			results = await kclient.music.lyrics(attributes)
 		except ksoftapi.NoResults:
@@ -97,7 +107,7 @@ class lyrics(bdbf.commands.Command):
 bdbf.commands.cmds["all"].append(lyrics("Returns lyrics to given song","`%commandPrefix%lyrics <song>`"))
 
 class meme(bdbf.commands.Command):
-	async def command(self,attributes):
+	async def command(self,attributes, msg):
 		meme = await kclient.images.random_meme()
 		e = embed(f"{meme.title}", url=meme.source, author={"name":meme.author,"url":f"https://reddit.com/user/{meme.author[3:]}"}, image={"url":meme.image_url})
 		return None, e
@@ -105,7 +115,7 @@ class meme(bdbf.commands.Command):
 bdbf.commands.cmds["all"].append(meme("Returns random meme from [Reddit](https://reddit.com)"))
 
 class evaluate(bdbf.commands.Command):
-	async def command(sefl,attributes):
+	async def command(sefl,attributes, msg):
 		try: 
 			return eval(attributes), None
 		except Exception as e:
@@ -115,7 +125,7 @@ class evaluate(bdbf.commands.Command):
 bdbf.commands.cmds["all"].append(evaluate("Returns python expresion outcome.","`%commandPrefix%eval <python expresion>` eg. `%commandPrefix%eval math.cos(math.pi)`"))
 
 class aww(bdbf.commands.Command):
-	async def command(self,attributes):
+	async def command(self,attributes, msg):
 		aww = await kclient.images.random_aww()
 		e = embed(f"{aww.title}", url=aww.source, author={"name":aww.author,"url":f"https://reddit.com/user/{aww.author[3:]}"}, image={"url":aww.image_url})
 		return None, e
@@ -123,7 +133,7 @@ class aww(bdbf.commands.Command):
 bdbf.commands.cmds["all"].append(aww("Returns random aww image from [Reddit](https://reddit.com)"))
 
 class subreddit(bdbf.commands.Command):
-	async def command(self,attributes):
+	async def command(self,attributes, msg):
 		attributes = attributes.split(" ")
 		try:
 			if len(attributes) >= 2:
@@ -138,7 +148,7 @@ class subreddit(bdbf.commands.Command):
 bdbf.commands.cmds["all"].append(subreddit("Returns random image from given subreddit and givel span.","`%commandPrefix%subreddit <subreddit> <span>` eg. `%commandPrefix%subreddit kofola month`\nSpans: `hour`,`day`,`week`,`month`,`year`,`all`"))
 
 class mapa(bdbf.commands.Command):
-	async def command(self,attributes):
+	async def command(self,attributes, msg):
 		attributes = attributes.rsplit(" ",1)
 		try:
 			qwertzuiopasdfghjklyxcvbnmqwertzuiopasdfghjklyxcvbnmqwertzuiopasdfghjkyxcvbnmqweuioadfghjklyxcvbnmqwertzuiopasdfghjklyxcvbnm = attributes[1]
@@ -154,19 +164,19 @@ class mapa(bdbf.commands.Command):
 bdbf.commands.cmds["all"].append(mapa("Returns map of given place with given zoom (default 12).","`%commandPrefix%mapa <place> <zoom=12>` eg. `%commandPrefix%mapa Gymso 16`"))
 
 class joke(bdbf.commands.Command):
-	async def command(self,attributes):
+	async def command(self,attributes, msg):
 		return getJokeTxt(), None
 
 bdbf.commands.cmds["all"].append(joke("Returns a random awful joke."))
 
 class fact(bdbf.commands.Command):
-	async def command(self,attributes):
+	async def command(self,attributes, msg):
 		return getFact(), None
 
 bdbf.commands.cmds["all"].append(fact("Returns a random fact."))
 
 class wa(bdbf.commands.Command):
-	async def command(self,attributes):
+	async def command(self,attributes, msg):
 		for e in wolframQuery(attributes):
 			yield None, e
 
