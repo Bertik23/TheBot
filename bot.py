@@ -38,11 +38,11 @@ klubik = None #client.get_guild(697015129199607839)
 obecne = None #klubik.get_channel(697015129199607843)
 
 bdbf.commands.commandPrefix = "~"
-bdbf.embedFooter= {
+bdbf.options.embedFooter= {
                 "text": "Powered by Bertik23",
                 "icon_url": "https://cdn.discordapp.com/avatars/452478521755828224/4cfdbde44582fe6ad05383171ac1b051.png"
                 }
-bdbf.embedColor = (37, 217, 55)
+bdbf.options.embedColor = (37, 217, 55)
 
 bdbf.commands.cmds[697015129199607839] = []
 
