@@ -17,7 +17,7 @@ import asyncio
 import discord
 import pickle
 import pkg_resources
-pkg_resources.get_distribution("construct").version
+
 
 
 kclient = ksoftapi.Client(os.environ.get("ksoft_token", None))
