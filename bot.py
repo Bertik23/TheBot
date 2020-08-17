@@ -12,7 +12,7 @@ import prawcore
 import ksoftapi
 import re
 import bdbf
-from bdbf import spamProtection, command, embed, hasLink
+from bdbf import spamProtection, embed, hasLink
 import asyncio
 import discord
 import pickle
