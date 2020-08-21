@@ -243,11 +243,15 @@ class Game2048:
 
 
 			def check(r, u):
-				return u == self.player and r.message == self.gameMSG
+				return u == self.player
 			try:
 				reaction, user = await client.wait_for("reaction_add", timeout = 60.0, check=check)
 			except asyncio.TimeoutError:
-				await self.gameMSG.channel.send(f"{gameMSG.author.mention} your game was canceled after 60s of inactivity.")
+				await self.gameMSG.edit(content=f"{self.printGrid()}\n{self.gameMSG.author.mention} your game was canceled after 60s of inactivity.")
+				for i in bdbf.commands.cmds["all"]:
+					if str(i) == "game":
+						i.activeGame[player] = None
+				self.playing = False
 
 			await self.gameMSG.edit(content=self.makeMove(reaction.emoji))
 
