@@ -5,7 +5,7 @@ PTable == 0.9.2
 
 # D:\Python\discordbot\bot.py: 15
 # D:\Python\discordbot\botFunctions.py: 4
-bdbf == 0.2.2
+bdbf == 0.2.2.1
 
 # D:\Python\discordbot\bot.py: 7
 # D:\Python\discordbot\botFunctions.py: 2
