@@ -243,11 +243,11 @@ class Game2048:
 
 
 			def check(r, u):
-				return u == self.player
+				return u == self.player and r.message == self.gameMSG
 			try:
 				reaction, user = await client.wait_for("reaction_add", timeout = 60.0, check=check)
 			except asyncio.TimeoutError:
-				await self.gameMSG.channel.send(f"{msg.author.mention} your game was canceled after 60s of inactivity.")
+				await self.gameMSG.channel.send(f"{gameMSG.author.mention} your game was canceled after 60s of inactivity.")
 
 			await self.gameMSG.edit(content=self.makeMove(reaction.emoji))
 
