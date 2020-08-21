@@ -194,7 +194,7 @@ class play(bdbf.commands.Command):
 					for i in bdbf.commands.cmds["all"]:
 						if str(i) == "game":
 							i.activeGame[msg.author] = Game2048(msg.author, int(args[1]))
-							return "Welcome to 2048, the game where you move numbers around!\nType a number to move the numbers\n0..........up\n1........left\n2........down\n3.......right\n"+i.activeGame[msg.author].printGrid(msg.author), None
+							await i.activeGame[msg.author].startGame(msg)
 				else: 
 					return "Grid size must be between 1 and 19", None
 			except IndexError:
@@ -219,113 +219,145 @@ bdbf.commands.cmds["all"].append(game())
 
 class Game2048:
 	def __init__(self, player, gridSize):
-		self.grids = {player: []}
-		for i in range(gridSize): self.grids[player].append([0 for j in range(gridSize)])
-		self.addNumber(player)
-		self.addNumber(player)
-		self.zeroInGrid = {player: True}
+		self.player = player
+		self.grid = []
+		for i in range(gridSize): self.grid.append([0 for j in range(gridSize)])
+		self.addNumber()
+		self.addNumber()
+		self.zeroInGrid = True
+		self.playing = True
 
-	def play(self, args, msg):
-		return self.makeMove(msg.author, int(args)), None
+	async def startGame(self, msg):
+		await msg.channel.send("Welcome to 2048, the game where you move numbers around!")
+		self.gameMSG = await msg.channel.send(self.printGrid())
+		await self.playGame()
 
-	
+	async def playGame(self):
+		while self.playing:
+			#⬆️⬅️⬇️➡️
+			await self.gameMSG.clear_reactions()
+			await self.gameMSG.add_reaction("⬆️")
+			await self.gameMSG.add_reaction("⬅️")
+			await self.gameMSG.add_reaction("⬇️")
+			await self.gameMSG.add_reaction("➡️")
 
-	def addNumber(self, player):
-		x = random.randint(0, len(self.grids[player])-1)
-		y = random.randint(0, len(self.grids[player][x])-1)
+
+			def check(r, u):
+				return u == self.player
+			try:
+				reaction, user = await client.wait_for("reaction_add", timeout = 60.0, check=check)
+			except asyncio.TimeoutError:
+				await self.gameMSG.channel.send(f"{msg.author.mention} your game was canceled after 60s of inactivity.")
+
+			await self.gameMSG.edit(content=self.makeMove(reaction.emoji))
+
+	def addNumber(self):
+		x = random.randint(0, len(self.grid)-1)
+		y = random.randint(0, len(self.grid[x])-1)
 		#print(x,y)
 
-		while self.grids[player][x][y] != 0:
-			x = random.randint(0, len(self.grids[player])-1)
-			y = random.randint(0, len(self.grids[player][x])-1)
+		while self.grid[x][y] != 0:
+			x = random.randint(0, len(self.grid)-1)
+			y = random.randint(0, len(self.grid[x])-1)
 			#print(x,y)
 
-		self.grids[player][x][y] = 2
+		self.grid[x][y] = 2
 
-	def move(self, player, direction):
+	def move(self, direction):
 		if direction == 0: #up
-			for _ in range(len(self.grids[player])):
-				for j in range(len(self.grids[player][_])):
-					for i in range(len(self.grids[player])):
+			for _ in range(len(self.grid)):
+				for j in range(len(self.grid[_])):
+					for i in range(len(self.grid)):
 						try:
-							if self.grids[player][i][j] == 0:
-								self.grids[player][i][j] = self.grids[player][i+1][j]
-								self.grids[player][i+1][j] = 0
-							if self.grids[player][i][j] == self.grids[player][i+1][j]:
-								self.grids[player][i][j] += self.grids[player][i+1][j]
-								self.grids[player][i+1][j] = 0
+							if self.grid[i][j] == 0:
+								self.grid[i][j] = self.grid[i+1][j]
+								self.grid[i+1][j] = 0
+							if self.grid[i][j] == self.grid[i+1][j]:
+								self.grid[i][j] += self.grid[i+1][j]
+								self.grid[i+1][j] = 0
 						except IndexError:
 							pass
 		if direction == 1: #left
-			for i in range(len(self.grids[player])):
-				for _ in range(len(self.grids[player][i])):
-					for j in range(len(self.grids[player][i])):
+			for i in range(len(self.grid)):
+				for _ in range(len(self.grid[i])):
+					for j in range(len(self.grid[i])):
 						try:
-							if self.grids[player][i][j] == 0:
-								self.grids[player][i][j] = self.grids[player][i][j+1]
-								self.grids[player][i][j+1] = 0
-							if self.grids[player][i][j] == self.grids[player][i][j+1]:
-								self.grids[player][i][j] += self.grids[player][i][j+1]
-								self.grids[player][i][j+1] = 0
+							if self.grid[i][j] == 0:
+								self.grid[i][j] = self.grid[i][j+1]
+								self.grid[i][j+1] = 0
+							if self.grid[i][j] == self.grid[i][j+1]:
+								self.grid[i][j] += self.grid[i][j+1]
+								self.grid[i][j+1] = 0
 						except IndexError:
 							pass
 		if direction == 3: #right
-			for i in range(len(self.grids[player])):
-				for _ in range(len(self.grids[player][i])):
-					for j in range(-1, -len(self.grids[player][i])-1,-1):
+			for i in range(len(self.grid)):
+				for _ in range(len(self.grid[i])):
+					for j in range(-1, -len(self.grid[i])-1,-1):
 						#print(j)
 						try:
-							if self.grids[player][i][j] == 0:
-								self.grids[player][i][j] = self.grids[player][i][j-1]
-								self.grids[player][i][j-1] = 0
-							if self.grids[player][i][j] == self.grids[player][i][j-1]:
-								self.grids[player][i][j] += self.grids[player][i][j-1]
-								self.grids[player][i][j-1] = 0
+							if self.grid[i][j] == 0:
+								self.grid[i][j] = self.grid[i][j-1]
+								self.grid[i][j-1] = 0
+							if self.grid[i][j] == self.grid[i][j-1]:
+								self.grid[i][j] += self.grid[i][j-1]
+								self.grid[i][j-1] = 0
 						except IndexError:
 							pass
 		if direction == 2: #down
-			for _ in range(len(self.grids[player])):
-				for j in range(-1, -len(self.grids[player][_])-1,-1):
-					for i in range(len(self.grids[player])):
+			for _ in range(len(self.grid)):
+				for j in range(-1, -len(self.grid[_])-1,-1):
+					for i in range(len(self.grid)):
 						#print(j)
 						try:
-							if self.grids[player][i][j] == 0:
-								self.grids[player][i][j] = self.grids[player][i-1][j]
-								self.grids[player][i-1][j] = 0
-							if self.grids[player][i][j] == self.grids[player][i-1][j]:
-								self.grids[player][i][j] += self.grids[player][i-1][j]
-								self.grids[player][i-1][j] = 0
+							if self.grid[i][j] == 0:
+								self.grid[i][j] = self.grid[i-1][j]
+								self.grid[i-1][j] = 0
+							if self.grid[i][j] == self.grid[i-1][j]:
+								self.grid[i][j] += self.grid[i-1][j]
+								self.grid[i-1][j] = 0
 						except IndexError:
 							pass
 
-	def printGrid(self, player):
+	def printGrid(self):
 		table = PrettyTable()
-		table.field_names = [i for i in range(len(self.grids[player][0]))]
-		for i, row in enumerate(self.grids[player]):
+		table.field_names = [i for i in range(len(self.grid[0]))]
+		for i, row in enumerate(self.grid):
 			table.add_row(row)
 		return "`"+str(table)+"`"
 
-	def makeMove(self, player, direction=None):
-		if self.zeroInGrid[player]:
+	def makeMove(self, direction=None):
+		#⬆️⬅️⬇️➡️
+
+		if self.zeroInGrid:
 			if direction == None:
 				direction = int(input(""))
+			elif direction == "⬆️":
+				direction = 0
+			elif direction == "⬅️":
+				direction = 1
+			elif direction == "⬇️":
+				direction = 2
+			elif direction == "⬇️":
+				direction = 3
 			moveDirection = direction
-			self.move(player, moveDirection)
-			self.checkForZeros(player)
-			if self.zeroInGrid[player]:
-				self.addNumber(player)
+			self.move(moveDirection)
+			self.checkForZeros()
+			if self.zeroInGrid:
+				self.addNumber()
 			else:
 				for i in bdbf.commands.cmds["all"]:
 					if str(i) == "game":
 						i.activeGame[player] = None
-				return self.printGrid(player)+ "\n" + f"{player.mention} lost"
-			return self.printGrid(player)
+				self.playing = False
+				return self.printGrid()+ "\n" + f"{self.player.mention} lost"
+			return self.printGrid()
 
-	def checkForZeros(self,player):
-		self.zeroInGrid[player] = False
-		for i in self.grids[player]:
+	def checkForZeros(self):
+		self.zeroInGrid = False
+		for i in self.grid:
 			for j in i:
-				if j == 0: self.zeroInGrid[player] = True
+				if j == 0: self.zeroInGrid = True
 
 
 @client.event # event decorator/wrapper
