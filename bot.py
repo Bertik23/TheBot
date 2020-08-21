@@ -247,10 +247,10 @@ class Game2048:
 			try:
 				reaction, user = await client.wait_for("reaction_add", timeout = 60.0, check=check)
 			except asyncio.TimeoutError:
-				await self.gameMSG.edit(content=f"{self.printGrid()}\n{self.gameMSG.author.mention} your game was canceled after 60s of inactivity.")
+				await self.gameMSG.edit(content=f"{self.printGrid()}\n{self.player.mention} your game was canceled after 60s of inactivity.")
 				for i in bdbf.commands.cmds["all"]:
 					if str(i) == "game":
-						i.activeGame[player] = None
+						i.activeGame[self.player] = None
 				self.playing = False
 
 			await self.gameMSG.edit(content=self.makeMove(reaction.emoji))
