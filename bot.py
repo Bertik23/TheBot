@@ -252,8 +252,8 @@ class Game2048:
 					if str(i) == "game":
 						i.activeGame[self.player] = None
 				self.playing = False
-
-			await self.gameMSG.edit(content=self.makeMove(reaction.emoji))
+			else:
+				await self.gameMSG.edit(content=self.makeMove(reaction.emoji))
 
 	def addNumber(self):
 		x = random.randint(0, len(self.grid)-1)
@@ -352,7 +352,7 @@ class Game2048:
 			else:
 				for i in bdbf.commands.cmds["all"]:
 					if str(i) == "game":
-						i.activeGame[player] = None
+						i.activeGame[self.player] = None
 				self.playing = False
 				return self.printGrid()+ "\n" + f"{self.player.mention} lost"
 			return self.printGrid()
