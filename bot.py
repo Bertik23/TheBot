@@ -126,26 +126,26 @@ async def on_raw_reaction_add(payload):
 
 	#print(emoji)
 	
-	if message.id == 746713627104378910:
+	if message.id == 746719599982280754:
 		#1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣
 		if emoji.name == "1️⃣":
-			await member.add_roles(discord.Object(746396397280034946))
-			print(guild, channel, message, member, emoji)
+			await member.add_roles(discord.Object(746396397280034946)) #Minecraft
+			print(f"{member.name} in {guild} got role Minecraft for pressing {emoji}")
 		if emoji.name == "2️⃣":
-			await member.add_roles(discord.Object(746396668198649856))
-			print(guild, channel, message, member, emoji)
+			await member.add_roles(discord.Object(746396668198649856)) #CS:GO
+			print(f"{member.name} in {guild} got role CS:GO for pressing {emoji}")
 		if emoji.name == "3️⃣":
-			await member.add_roles(discord.Object(746712499705086013))
-			print(guild, channel, message, member, emoji)
+			await member.add_roles(discord.Object(746712499705086013)) #Rocket League
+			print(f"{member.name} in {guild} got role Rocket League for pressing {emoji}")
 		if emoji.name == "4️⃣":
-			await member.add_roles(discord.Object(746396772179378197))
-			print(guild, channel, message, member, emoji)
+			await member.add_roles(discord.Object(746396772179378197)) #Fortnite
+			print(f"{member.name} in {guild} got role Fortnite for pressing {emoji}")
 		if emoji.name == "5️⃣":
-			await member.add_roles(discord.Object(746704088070357012))
-			print(guild, channel, message, member, emoji)
+			await member.add_roles(discord.Object(746704088070357012)) #Mobile Gaming
+			print(f"{member.name} in {guild} got role Mobile Gaming for pressing {emoji}")
 		if emoji.name == "6️⃣":
-			await member.add_roles(discord.Object(746709189040275456))
-			print(guild, channel, message, member, emoji)
+			await member.add_roles(discord.Object(746709189040275456)) #PS4 Gamers
+			print(f"{member.name} in {guild} got role PS4 Gamers for pressing {emoji}")
 
 
 # @client.event
