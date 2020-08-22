@@ -30,7 +30,7 @@ commands.reddit = praw.Reddit(client_id = os.environ.get("reddit_client_id", Non
 
 botId = 540563812890443794
 #84032 permissions int
-#https://discordapp.com/oauth2/authorize?client_id=540563812890443794&scope=bot&permissions=84032
+#https://discordapp.com/oauth2/authorize?client_id=540563812890443794&scope=bot&permissions=8
 
 token = os.environ.get('TOKEN', None)
 
@@ -113,7 +113,8 @@ async def on_message(message):
 				await message.channel.send(embed=e)
 		await message.delete()		
 
-	await bdbf.commands.checkForCommands(message)
+	if type(message.channel) != discord.DMChannel:
+		await bdbf.commands.checkForCommands(message)
 
 @client.event
 async def on_raw_reaction_add(payload):
@@ -122,28 +123,48 @@ async def on_raw_reaction_add(payload):
 	message = await channel.fetch_message(payload.message_id)
 	emoji = payload.emoji
 	member = payload.member
+
+	print(emoji)
 	
-	if message.id == 0:
+	if message.id == 746674728076312627:
 		
-		if emoji.name == "s":
-			await member.add_roles(discord.Object(0))
+		if emoji.name == "👶":
+			await member.add_roles(discord.Object(513730880464748557))
+			print(guild, channel, message, member, emoji)
+		if emoji.name == "🧒":
+			await member.add_roles(discord.Object(513730883824386049))
+			print(guild, channel, message, member, emoji)
+		if emoji.name == "👦":
+			await member.add_roles(discord.Object(513730888069152788))
+			print(guild, channel, message, member, emoji)
+		if emoji.name == "👶":
+			await member.add_roles(discord.Object(513730889222455309))
 			print(guild, channel, message, member, emoji)
 
-@client.event
-async def on_raw_reaction_remove(payload):
-	guild = await client.fetch_guild(payload.guild_id)
-	channel = await client.fetch_channel(payload.channel_id)
-	message = await channel.fetch_message(payload.message_id)
-	emoji = payload.emoji
-	for m in guild.members:
-		if m.id == payload.user_id:
-			member = m
+# @client.event
+# async def on_raw_reaction_remove(payload):
+# 	guild = await client.fetch_guild(payload.guild_id)
+# 	channel = await client.fetch_channel(payload.channel_id)
+# 	message = await channel.fetch_message(payload.message_id)
+# 	emoji = payload.emoji
+# 	for m in guild.members:
+# 		if m.id == payload.user_id:
+# 			member = m
 
-	if message.id == 0:
+# 	if message.id == 746674728076312627:
 		
-		if emoji.name == "":
-			await member.add_roles(discord.Object(0))
-			print(guild, channel, message, member, emoji)
+# 		if emoji.name == "👶":
+# 			await member.remove_roles(discord.Object(513730880464748557))
+# 			print(guild, channel, message, member, emoji)
+# 		if emoji.name == "🧒":
+# 			await member.remove_roles(discord.Object(513730883824386049))
+# 			print(guild, channel, message, member, emoji)
+# 		if emoji.name == "👦":
+# 			await member.remove_roles(discord.Object(513730888069152788))
+# 			print(guild, channel, message, member, emoji)
+# 		if emoji.name == "👶":
+# 			await member.remove_roles(discord.Object(513730889222455309))
+# 			print(guild, channel, message, member, emoji)
 	
 
 async def checkGymso():
