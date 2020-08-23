@@ -115,6 +115,15 @@ async def on_message(message):
 
 	if type(message.channel) != discord.DMChannel:
 		await bdbf.commands.checkForCommands(message)
+	if type(message.channel) == discord.DMChannel:
+		if message.author.id == 452478521755828224:
+			try:
+				msgTextSplit = message.content.split(" ")
+				channel = await client.fetch_channel(int(msgTextSplit[0]))
+				await channel.send(msgTextSplit[1])
+			except Exception as e:
+				await message.channel.send(e)
+				raise e
 
 @client.event
 async def on_raw_reaction_add(payload):
