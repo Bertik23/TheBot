@@ -118,7 +118,7 @@ async def on_message(message):
 	if type(message.channel) == discord.DMChannel:
 		if message.author.id == 452478521755828224:
 			try:
-				msgTextSplit = message.content.split(" ")
+				msgTextSplit = message.content.split(" ",1)
 				channel = await client.fetch_channel(int(msgTextSplit[0]))
 				await channel.send(msgTextSplit[1])
 			except Exception as e:
