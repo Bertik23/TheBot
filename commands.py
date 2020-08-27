@@ -6,6 +6,7 @@ from botFunctions import *
 import prawcore, praw
 import math
 from botGames import Game2048
+import smaz
 
 reddit = None
 kclient = None
@@ -147,6 +148,73 @@ class wa(bdbf.commands.Command):
 			yield None, e
 
 bdbf.commands.cmds["all"].append(wa())
+
+class encrypt(bdbf.commands.Command):
+	async def command(self, attributes, msg):
+		text_to_encrypt = attributes.rsplit(" ", 1)[0]
+		try:
+			encryption_base = int(attributes.rsplit(" ", 1)[1])
+		except ValueError as e:
+			return f"The last word must be a encryption base\n{e}", None
+
+		digits = []
+		for i in range(48,48 + encryption_base):
+			try:
+				digits.append(bytes(chr(i),"utf-8").decode("utf-8"))
+			except UnicodeEncodeError:
+				pass
+		text = smaz.compress(text_to_encrypt)
+		textInts = [i for i in text]
+		textNum = ""
+		result = -1
+		remainder = -1
+		cipher = """"""
+		for i in textInts:
+			m = str(i)
+			for _ in range(3-len(m)):
+				m = f"0{m}"
+			textNum = f"{textNum}{m}"
+		try:
+			result = int(textNum)
+		except:
+			result = 0
+		while result != 0:
+			remainder = result % len(digits)
+			result = result // len(digits)
+			cipher = f"{digits[remainder]}{cipher}"
+		print(textNum)
+		return None, embed("Your encrypted text", description=f"```{cipher}```")
+
+bdbf.commands.cmds["all"].append(encrypt("Encrypt a text", "`%commandPrefix%encrypt <text> <encryptionBase>` eg. `%commandPrefix%encrypt Hello, how are you? 64`"))
+
+class decrypt(bdbf.commands.Command):
+	async def command(self, attributes, msg):
+		text_to_decrypt = attributes.rsplit(" ", 1)[0]
+		try:
+			encryption_base = int(attributes.rsplit(" ", 1)[1])
+		except ValueError as e:
+			return f"The last word must be a encryption base\n{e}", None
+
+		digits = []
+		for i in range(48,48 + encryption_base):
+			digits.append(bytes(chr(i),"utf-8").decode("utf-8"))
+		cipher = text_to_decrypt
+		num = 0
+		power = len(cipher)-1
+		text = ""
+		for c in cipher:
+			num += (digits.index(c) * (len(digits) ** power))
+			power -= 1
+		for i in range(3-(len(str(num))%3) if len(str(num))%3 != 0 else 0):
+			num = f"0{num}"
+		num = str(num)
+		n = 3
+		nums = [int(num[i:i+n]) for i in range(0, len(num), n)]
+		#return num,None
+		return None, embed("Your decrypted text", description=f"```{smaz.decompress(bytes(nums))}```")
+
+bdbf.commands.cmds["all"].append(decrypt("Decrypt a text encrypted using encrypt", "`%commandPrefix%decrypt <encryptedTest> <encryptionBase>` eg. `%commandPrefix%decrypt ^eQO3gN39aYO[>1LabKh=\_ 64`"))
+
 
 class play(bdbf.commands.Command):
 	async def command(self, args, msg):
