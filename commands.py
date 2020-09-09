@@ -68,7 +68,7 @@ class lyrics(bdbf.commands.Command):
 		else:
 			lyrics = results[0]
 			for i in range(math.ceil(len(lyrics.lyrics)/2048)):
-				e = embed(f"Lyrics for {lyrics.artist} - {lyrics.name}", description=lyrics.lyrics[(i*2048):((i+1)*2048)], thumbnail={"url": lyrics.album_art})
+				e = embed(f"Lyrics for {lyrics.artist} - {lyrics.name} from KSoft.Si API", description=lyrics.lyrics[(i*2048):((i+1)*2048)], thumbnail={"url": lyrics.album_art})
 				return None, e
 
 bdbf.commands.cmds["all"].append(lyrics("Returns lyrics to given song","`%commandPrefix%lyrics <song>`"))
