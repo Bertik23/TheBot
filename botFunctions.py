@@ -8,6 +8,7 @@ import pprint
 import os
 import json
 import tomd
+from prettytable import PrettyTable
 
 commandPrefix: str = None
 wClient = wolframalpha.Client("TV7GVY-8YLJ26PPK9")
@@ -108,4 +109,37 @@ def wolframQuery(query):
                 yield bdbf.embed(f"{subpod.title}", image={"url": img.src})
         #yield bdbf.embed("")
 
-print(wolframQuery("adam"))
+def getTimetableUrl(query: str) -> str:
+    tableSoup = BeautifulSoup(requests.get("https://bakalari.gymso.cz/timetable/public").text, features="html.parser")
+    teachers = tableSoup.find("select", id="selectedTeacher").find_all("option")
+    rooms = tableSoup.find("select", id="selectedRoom").find_all("option")
+    classes = tableSoup.find("select", id="selectedClass").find_all("option")
+
+    for teacher in teachers:
+        if query in teacher.text:
+            return "Teacher/"+teacher.get("value")
+
+    for room in rooms:
+        if query in room.text:
+            return "Room/"+room.get("value")
+
+    for c in classes:
+        if query in c.text:
+            return "Class/"+c.get("value")
+
+def getTimetable(url: str):
+    tableSoup = BeautifulSoup(requests.get("https://bakalari.gymso.cz/Timetable/Public/Actual/"+url).text,features="html.parser")
+    table = PrettyTable()
+    days = tableSoup.find_all("div",class_="bk-timetable-row")
+    table.field_names = ["Den","0.","1.","2.","3.","4.","5.","6.","7.","8.","9."]
+    for day in days:
+        row = []
+        row.append(day.find(class_="bk-day-day").text+"\n"+day.find(class_="bk-day-date").text)
+        for hour in day.find_all("div",class_="bk-timetable-cell"):
+            try:
+                row.append("\n".join(h.text for h in hour.find_all(class_="middle")))
+            except:
+                row.append("")
+        table.add_row(row)
+
+    return str(table)

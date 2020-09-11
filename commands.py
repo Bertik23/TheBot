@@ -25,6 +25,12 @@ class zmena(bdbf.commands.Command):
 
 bdbf.commands.cmds[697015129199607839].append(zmena("Returns schedule changes for the give teacher/class today","`%commandPrefix%zmena <teacher/class>` eg. `%commandPrefix%zmena Lukešová Danuše` or `%commandPrefix%zmena 6.A`"))
 
+class rozvrh(bdbf.commands.Command):
+	async def command(self, args, msg):
+		return f"```{botFunctions.getTimetable(getTimetableUrl(args))}```", None
+
+bdbf.commands.cmds[697015129199607839].append(rozvrh("Returns the timatable for given teacher/class/room","`%commandPrefix%rozvrh <teacher/class/room>` eg. `%commandPrefix%rozvrh Lukešová Danuše` or `%commandPrefix%rozvrh 7.A` or `%commandPrefix%rozvrh A307"))
+
 class suggest(bdbf.commands.Command):
 	async def command(self,attributes, msg):
 		out = makeSuggestion(attributes.split("*||*")[0], attributes.split("*||*")[1] +
