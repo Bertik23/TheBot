@@ -133,6 +133,8 @@ def getTimetable(url: str):
     try:
         if url[0] == None:
             return f"{url[1]} doesn't have a timetable."
+    except:
+        pass
     tableSoup = BeautifulSoup(requests.get("https://bakalari.gymso.cz/Timetable/Public/Actual/"+url).text,features="html.parser")
     table = PrettyTable()
     days = tableSoup.find_all("div",class_="bk-timetable-row")
