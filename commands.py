@@ -27,7 +27,13 @@ bdbf.commands.cmds[697015129199607839].append(zmena("Returns schedule changes fo
 
 class rozvrh(bdbf.commands.Command):
 	async def command(self, args, msg):
-		return f"```{getTimetable(getTimetableUrl(args))}```", None
+		try:
+			arguments = args.rsplit(" ",1)
+			if arguments[-1] == "-t":
+				room = True
+		except:
+			arguments = [args]
+		return f"```\n{getTimetable(getTimetableUrl(arguments[0]), room=room)}\n```", None
 
 bdbf.commands.cmds[697015129199607839].append(rozvrh("Returns the timatable for given teacher/class/room","`%commandPrefix%rozvrh <teacher/class/room>` eg. `%commandPrefix%rozvrh Lukešová Danuše` or `%commandPrefix%rozvrh 7.A` or `%commandPrefix%rozvrh A307"))
 

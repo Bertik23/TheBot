@@ -9,6 +9,7 @@ import os
 import json
 import tomd
 from prettytable import PrettyTable
+from prettytable import ALL
 
 commandPrefix: str = None
 wClient = wolframalpha.Client("TV7GVY-8YLJ26PPK9")
@@ -129,7 +130,7 @@ def getTimetableUrl(query: str) -> str:
 
     return None, query
 
-def getTimetable(url: str):
+def getTimetable(url: str, room=False):
     try:
         if url[0] == None:
             return f"{url[1]} doesn't have a timetable."
@@ -145,8 +146,16 @@ def getTimetable(url: str):
         for hour in day.find_all("div",class_="bk-timetable-cell"):
             try:
                 row.append("\n".join(h.text for h in hour.find_all(class_="middle")))
+                if room:
+                    row[-1] = row[-1].split("\n")
+                    for i,h in enumerate(hour.find_all(class_="first")):
+                        row[-1][i] += "\n"+h.text
+
+                    row[-1] = "\n".join(row[-1])
             except:
                 row.append("")
         table.add_row(row)
+
+    table.hrule = ALL
 
     return str(table)
