@@ -10,6 +10,9 @@ import json
 import tomd
 from prettytable import PrettyTable
 from prettytable import ALL
+import plotly.graph_objects as go
+import numpy as np
+import io
 
 commandPrefix: str = None
 wClient = wolframalpha.Client("TV7GVY-8YLJ26PPK9")
@@ -137,25 +140,59 @@ def getTimetable(url: str, room=False):
     except:
         pass
     tableSoup = BeautifulSoup(requests.get("https://bakalari.gymso.cz/Timetable/Public/Actual/"+url).text,features="html.parser")
-    table = PrettyTable()
+    table = []
     days = tableSoup.find_all("div",class_="bk-timetable-row")
-    table.field_names = ["Den","0.","1.","2.","3.","4.","5.","6.","7.","8.","9."]
+    dList = []
+    field_names = ["Den","0.","1.","2.","3.","4.","5.","6.","7.","8.","9."]
     for day in days:
         row = []
-        row.append(day.find(class_="bk-day-day").text+"\n"+day.find(class_="bk-day-date").text)
+        dList.append(day.find(class_="bk-day-day").text+"<br>"+day.find(class_="bk-day-date").text)
         for hour in day.find_all("div",class_="bk-timetable-cell"):
             try:
-                row.append("\n".join(h.text for h in hour.find_all(class_="middle")))
+                row.append("<br>".join(f"<b>{h.text}</b>" for h in hour.find_all(class_="middle")))
                 if room:
-                    row[-1] = row[-1].split("\n")
+                    row[-1] = row[-1].split("<br>")
                     for i,h in enumerate(hour.find_all(class_="first")):
-                        row[-1][i] += "\n"+h.text
+                        row[-1][i] += "<br>"+"<i>"+h.text+"</i>"
 
-                    row[-1] = "\n".join(row[-1])
+                    row[-1] = "<br>".join(row[-1])
             except:
                 row.append("")
-        table.add_row(row)
+        table.append(row)
 
-    table.hrule = ALL
+    table = np.array(table)
 
-    return str(table)
+    print(table)
+
+    table = table.transpose()
+    #table = rotateTable(table)
+    print(table)
+
+    table = list(table)
+
+    table.insert(0,dList)
+
+    fig = go.Figure(data=[go.Table(header=dict(values=field_names),
+                 cells=dict(values=table))
+                     ])
+
+    lines = []
+    for column in table:
+        lines.append(sum(map(len,[s.split("<br>") for s in column])))
+
+    print(lines)
+
+    fig_bytes = fig.to_image(format="png", width=600, height=max(lines)*30+30+100)
+    return io.BytesIO(fig_bytes)
+
+def rotateTable(table):
+    newTable = []
+    for i in range(max(map(len,table))):
+        newTable.append([])
+        for i in range(len(table)):
+            newTable[-1].append("")
+    for i, row in enumerate(table):
+        for ii, s in enumerate(row):
+            newTable[ii][i] = s
+
+    return newTable
