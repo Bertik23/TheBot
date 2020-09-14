@@ -162,11 +162,11 @@ def getTimetable(url: str, room=False):
 
     table = np.array(table)
 
-    print(table)
+    #print(table)
 
     table = table.transpose()
     #table = rotateTable(table)
-    print(table)
+    #print(table)
 
     table = list(table)
 
@@ -180,7 +180,7 @@ def getTimetable(url: str, room=False):
     for column in table:
         lines.append(sum(map(len,[s.split("<br>") for s in column])))
 
-    print(lines)
+    #print(lines)
 
     fig_bytes = fig.to_image(format="png", width=600, height=max(lines)*30+30+100)
     return io.BytesIO(fig_bytes)
