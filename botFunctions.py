@@ -13,6 +13,7 @@ from prettytable import ALL
 import plotly.graph_objects as go
 import numpy as np
 import io
+import pprint
 
 commandPrefix: str = None
 wClient = wolframalpha.Client("TV7GVY-8YLJ26PPK9")
@@ -196,3 +197,7 @@ def rotateTable(table):
             newTable[ii][i] = s
 
     return newTable
+
+def getLastInstaPost(user):
+    instaJson = json.loads(requests.get(f"https://www.instagram.com/{user}/?__a=1").text)
+    return instaJson["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]

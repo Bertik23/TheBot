@@ -6,7 +6,7 @@ import math
 import requests
 from bs4 import BeautifulSoup
 import botFunctions
-from botFunctions import getZmena, gymso, newOnGymso, getJokeTxt, getFact, wolframQuery, makeSuggestion
+from botFunctions import getZmena, gymso, newOnGymso, getJokeTxt, getFact, wolframQuery, makeSuggestion, getLastInstaPost
 import praw
 import prawcore
 import ksoftapi
@@ -20,6 +20,7 @@ import pkg_resources
 from prettytable import PrettyTable
 import commands
 import botGames
+import time
 
 
 commands.kclient = ksoftapi.Client(os.environ.get("ksoft_token", None))
@@ -51,7 +52,7 @@ bdbf.options.botName = "TheBot"
 
 
 
-klubik, obecne = None,None
+klubik, obecne, choco_afroAnouncements = None,None, None
 
 @client.event # event decorator/wrapper
 async def on_ready():
@@ -59,6 +60,7 @@ async def on_ready():
 	print(f"We have logged in as {client.user}")
 	klubik = await client.fetch_guild(697015129199607839)
 	obecne = await client.fetch_channel(697015129199607843)
+	choco_afroAnouncements = await client.fetch_channel(756497789424369737)
 	print(klubik, obecne)
 	
 	#newRolePerms = discord.Permissions(administrator=True)
@@ -183,8 +185,9 @@ async def on_raw_reaction_add(payload):
 # 			print(guild, channel, message, member, emoji)
 	
 
-async def checkGymso():
+async def checkWebistes():
 	while True:
+		#Gymso
 		try:
 			print("Checking for new posts on Gymso")
 			clanky = newOnGymso()
@@ -195,10 +198,20 @@ async def checkGymso():
 						await obecne.send(f"{klubik.default_role} nový příspěvek na Gymso", embed=e)
 		except Exception as e:
 			print(e)
+
+		#choco_afro
+		try:
+			print("Checking for new post on choco_afro")
+			lastChocoPost = getLastInstaPost("choco_afro")
+			if time.time() - lastChocoPost["taken_at_timestamp"] <= 700:
+				await choco_afroAnouncements.send(lastChocoPost["display_url"])
+		except Exception as e:
+			print(e)
+
 		await asyncio.sleep(600)
 
 
 
-client.loop.create_task(checkGymso())
+client.loop.create_task(checkWebsites())
 
 client.run(token)
