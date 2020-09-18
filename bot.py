@@ -214,7 +214,7 @@ async def checkWebsites():
 		try:
 			print("Checking for new post on choco_afro")
 			lastChocoPost = getLastInstaPost("choco_afro")
-			if time.time() - lastChocoPost["taken_at_timestamp"] <= 700:
+			if time.time() - lastChocoPost["taken_at_timestamp"] <= 7000:
 				await choco_afroAnouncements.send(lastChocoPost["display_url"])
 		except Exception as e:
 			print(e)
