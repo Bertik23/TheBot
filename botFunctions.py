@@ -200,7 +200,7 @@ def rotateTable(table):
 
 def getLastInstaPost(user):
     instaResponse = requests.get(f"https://www.instagram.com/{user}/?__a=1")
-    print(instaResponse, instaResponse.text)
+    #print(instaResponse, instaResponse.text)
     
     instaJson = instaResponse.json()#json.loads(instaResponse.text)
 
