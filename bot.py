@@ -185,7 +185,7 @@ async def on_raw_reaction_add(payload):
 # 			print(guild, channel, message, member, emoji)
 	
 
-async def checkWebistes():
+async def checkWebsites():
 	while True:
 		#Gymso
 		try:
