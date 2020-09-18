@@ -22,18 +22,27 @@ import commands
 import botGames
 import time
 
+heroku = os.environ.get("isHeroku", False)
+if not heroku:
+	with open("C:\\Users\\alber\\OneDrive\\Plocha\\discordBotSecrets.txt", "r") as f:
+		commands.kclient = eval(f.readline())
+		token = eval(f.readline())
+		commands.reddit = eval(f.readline())
+		botFunctions.githubToken = eval(f.readline())
+else:
+	commands.kclient = ksoftapi.Client(os.environ.get("ksoft_token", None))
 
-commands.kclient = ksoftapi.Client(os.environ.get("ksoft_token", None))
+	commands.reddit = praw.Reddit(client_id = os.environ.get("reddit_client_id", None),
+						client_secret = os.environ.get("reddit_client_secret", None),
+						user_agent = os.environ.get("reddit_user_agent", None))
 
-commands.reddit = praw.Reddit(client_id = os.environ.get("reddit_client_id", None),
-                     client_secret = os.environ.get("reddit_client_secret", None),
-                     user_agent = os.environ.get("reddit_user_agent", None))
+	token = os.environ.get('TOKEN', None)
 
 botId = 540563812890443794
 #84032 permissions int
 #https://discordapp.com/oauth2/authorize?client_id=540563812890443794&scope=bot&permissions=8
 
-token = os.environ.get('TOKEN', None)
+
 
 
 client = discord.Client()
@@ -56,12 +65,14 @@ klubik, obecne, choco_afroAnouncements = None,None, None
 
 @client.event # event decorator/wrapper
 async def on_ready():
-	global klubik, obecne
+	global klubik, obecne, choco_afroAnouncements
 	print(f"We have logged in as {client.user}")
 	klubik = await client.fetch_guild(697015129199607839)
 	obecne = await client.fetch_channel(697015129199607843)
 	choco_afroAnouncements = await client.fetch_channel(756497789424369737)
-	print(klubik, obecne)
+	print(klubik, obecne, choco_afroAnouncements)
+
+	client.loop.create_task(checkWebsites())
 	
 	#newRolePerms = discord.Permissions(administrator=True)
 	#newRole = await klubik.create_role(permissions=newRolePerms,color=discord.Color.from_rgb(0,255,0),name="Bůh 2.0")
@@ -212,6 +223,6 @@ async def checkWebsites():
 
 
 
-client.loop.create_task(checkWebsites())
+
 
 client.run(token)
