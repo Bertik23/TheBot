@@ -199,6 +199,10 @@ def rotateTable(table):
     return newTable
 
 def getLastInstaPost(user):
-    instaJson = json.loads(requests.get(f"https://www.instagram.com/{user}/?__a=1").text)
+    instaResponse = requests.get(f"https://www.instagram.com/{user}/?__a=1")
+    print(instaResponse)#, instaResponse.json())
+    
+    instaJson = instaResponse.json()#json.loads(instaResponse.text)
+
     print("test")
     return instaJson["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]
