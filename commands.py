@@ -2,6 +2,7 @@ import bdbf
 import pkg_resources
 import ksoftapi
 from bdbf import *
+import botFunctions
 from botFunctions import *
 import prawcore, praw
 import math
@@ -9,12 +10,20 @@ from botGames import Game2048
 import smaz
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+import os
 
-scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
+"""scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
 
-creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
+with open("thbeotdbCredentials-encrypted.txt", "r") as f:
+	with open("thebotdb-creds-encrypted.bsecret", "w") as f2:
+		try:
+			f2.write(botFunctions.decrypt(f.read(), int(os.environ.get("encryption", 0))))
+		except:
+			print("Nope")
 
-sheetClient = gspread.authorize(creds)
+creds = ServiceAccountCredentials.from_json_keyfile_name("thebotdb-creds-encrypted.bsecret", scope)
+
+sheetClient = gspread.authorize(creds)"""
 
 reddit = None
 kclient = None
@@ -181,33 +190,7 @@ class encrypt(bdbf.commands.Command):
 		except ValueError as e:
 			return f"The last word must be a encryption base\n{e}", None
 
-		digits = []
-		for i in range(48,48 + encryption_base):
-			try:
-				digits.append(bytes(chr(i),"utf-8").decode("utf-8"))
-			except UnicodeEncodeError:
-				pass
-		text = smaz.compress(text_to_encrypt)
-		textInts = [i for i in text]
-		textNum = ""
-		result = -1
-		remainder = -1
-		cipher = """"""
-		for i in textInts:
-			m = str(i)
-			for _ in range(3-len(m)):
-				m = f"0{m}"
-			textNum = f"{textNum}{m}"
-		try:
-			result = int(textNum)
-		except:
-			result = 0
-		while result != 0:
-			remainder = result % len(digits)
-			result = result // len(digits)
-			cipher = f"{digits[remainder]}{cipher}"
-		print(textNum)
-		return None, embed("Your encrypted text", description=f"```{cipher}```")
+		return None, embed("Your encrypted text", description=f"```{botFunctions.encrypt(text_to_encrypt, encryption_base)}```")
 
 bdbf.commands.cmds["all"].append(encrypt("Encrypt a text", "`%commandPrefix%encrypt <text> <encryptionBase>` eg. `%commandPrefix%encrypt Hello, how are you? 64`"))
 
@@ -219,23 +202,7 @@ class decrypt(bdbf.commands.Command):
 		except ValueError as e:
 			return f"The last word must be a encryption base\n{e}", None
 
-		digits = []
-		for i in range(48,48 + encryption_base):
-			digits.append(bytes(chr(i),"utf-8").decode("utf-8"))
-		cipher = text_to_decrypt
-		num = 0
-		power = len(cipher)-1
-		text = ""
-		for c in cipher:
-			num += (digits.index(c) * (len(digits) ** power))
-			power -= 1
-		for i in range(3-(len(str(num))%3) if len(str(num))%3 != 0 else 0):
-			num = f"0{num}"
-		num = str(num)
-		n = 3
-		nums = [int(num[i:i+n]) for i in range(0, len(num), n)]
-		#return num,None
-		return None, embed("Your decrypted text", description=f"```{smaz.decompress(bytes(nums))}```")
+		return None, embed("Your decrypted text", description=f"```{botFunctions.decrypt(text_to_decrypt, encryption_base)}```")
 
 bdbf.commands.cmds["all"].append(decrypt("Decrypt a text encrypted using encrypt", "`%commandPrefix%decrypt <encryptedTest> <encryptionBase>` eg. `%commandPrefix%decrypt ^eQO3gN39aYO[>1LabKh=\_ 64`"))
 
