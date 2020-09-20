@@ -11,30 +11,60 @@ import smaz
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os
+import datetime
 
-"""scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
+scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
 
-with open("thbeotdbCredentials-encrypted.txt", "r") as f:
-	with open("thebotdb-creds-encrypted.bsecret", "w") as f2:
+with open("thebotdbCredentials-encrypted.nottxt", "rb") as f:
+	with open("thebotdb-creds-decrypted.bsecret", "w") as f2:
 		try:
-			f2.write(botFunctions.decrypt(f.read(), int(os.environ.get("encryption", 0))))
-		except:
-			print("Nope")
+			encryptionKey = int(os.environ.get("encrypt",0))
+			fr = f.read()
+			f2.write(botFunctions.decrypt(fr.decode("utf-8"), encryptionKey))
+		except Exception as e:
+			print(e)
 
-creds = ServiceAccountCredentials.from_json_keyfile_name("thebotdb-creds-encrypted.bsecret", scope)
+# with open("thebotdbCredentials-encrypted.nottxt", "wb") as f:
+# 	with open("TheBotBD-credentials.bsecret", "r") as f2:
+# 		#print(f2.read())
+# 		fr = f2.read()
+# 		encrypted = botFunctions.encrypt(fr,key)
+# 		print(encrypted)
+# 		f.write(bytes(botFunctions.encrypt(fr,key),"utf-8"))
 
-sheetClient = gspread.authorize(creds)"""
+creds = ServiceAccountCredentials.from_json_keyfile_name("thebotdb-creds-decrypted.bsecret", scope)
+
+sheetClient = gspread.authorize(creds)
+
+sheet = sheetClient.open("TheBotDB").sheet1
+
+print(sheet.col_values(1))
+
 
 reddit = None
 kclient = None
 
 bdbf.commands.cmds[697015129199607839] = []
 
+class test(bdbf.commands.Command):
+	async def command(self, args, msg):
+		r = [datetime.datetime.utcnow().isoformat() ,"test","testoo"]
+		try:
+			sheet.append_row(r, 2)
+		except Exception as e:
+			print(e)
+			return r, None
+
+bdbf.commands.cmds["all"].append(test("TheBot info"))
+
 class info(bdbf.commands.Command):
 	async def command(self, args, msg):
 		return f"I'm a bot made by Bertik23#9997\nI'm running on bdbf {pkg_resources.get_distribution('bdbf').version} and discord.py {pkg_resources.get_distribution('discord.py').version}"+"\nI'm and open source bot, that means that you can contribute to me on https://github.com/Bertik23/DiscordBot", None
 
 bdbf.commands.cmds["all"].append(info("TheBot info"))
+
+
+
 
 class zmena(bdbf.commands.Command):
 	async def command(self,args, msg):
