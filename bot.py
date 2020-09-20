@@ -24,11 +24,19 @@ import time
 
 heroku = os.environ.get("isHeroku", False)
 if not heroku:
-	with open("C:\\Users\\alber\\OneDrive\\Plocha\\discordBotSecrets.txt", "r") as f:
-		commands.kclient = eval(f.readline())
-		token = eval(f.readline())
-		commands.reddit = eval(f.readline())
-		botFunctions.githubToken = eval(f.readline())
+	try:
+		with open("C:\\Users\\alber\\OneDrive\\Plocha\\discordBotSecrets.txt", "r") as f:
+			commands.kclient = eval(f.readline())
+			token = eval(f.readline())
+			commands.reddit = eval(f.readline())
+			botFunctions.githubToken = eval(f.readline())
+	except:
+		with open("/home/bertik23/Plocha/discordBotSecrets.txt", "r") as f:
+			commands.kclient = eval(f.readline())
+			token = eval(f.readline())
+			commands.reddit = eval(f.readline())
+			botFunctions.githubToken = eval(f.readline())
+
 else:
 	commands.kclient = ksoftapi.Client(os.environ.get("ksoft_token", None))
 
@@ -41,8 +49,6 @@ else:
 botId = 540563812890443794
 #84032 permissions int
 #https://discordapp.com/oauth2/authorize?client_id=540563812890443794&scope=bot&permissions=8
-
-
 
 
 client = discord.Client()
