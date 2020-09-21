@@ -58,9 +58,9 @@ botGames.client = client
 
 bdbf.commands.commandPrefix = "~"
 bdbf.options.embedFooter= {
-                "text": "Powered by Bertik23",
-                "icon_url": "https://cdn.discordapp.com/avatars/452478521755828224/4cfdbde44582fe6ad05383171ac1b051.png"
-                }
+				"text": "Powered by Bertik23",
+				"icon_url": "https://cdn.discordapp.com/avatars/452478521755828224/4cfdbde44582fe6ad05383171ac1b051.png"
+				}
 bdbf.options.embedColor = (37, 217, 55)
 
 bdbf.options.botName = "TheBot"
@@ -209,7 +209,7 @@ async def checkWebsites():
 		try:
 			print("Checking for new posts on Gymso")
 			with stopit.ThreadingTimeout(10) as to_ctx_mgr:
-			    assert to_ctx_mgr.state == to_ctx_mgr.EXECUTING
+				assert to_ctx_mgr.state == to_ctx_mgr.EXECUTING
 
 				clanky = newOnGymso()
 				if clanky:
@@ -223,7 +223,7 @@ async def checkWebsites():
 		#choco_afro
 		try:
 			with stopit.ThreadingTimeout(10) as to_ctx_mgr:
-			    assert to_ctx_mgr.state == to_ctx_mgr.EXECUTING
+				assert to_ctx_mgr.state == to_ctx_mgr.EXECUTING
 
 				print("Checking for new post on choco_afro")
 				lastChocoPost = getLastInstaPost("choco_afro")

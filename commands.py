@@ -287,15 +287,15 @@ bdbf.commands.cmds["all"].append(game())
 bdbf.commands.cmds[507484929001652224] = []
 
 class support(bdbf.commands.Command):
-    async def command(self, args, msg):
-        if 562713869957726208 not in [r.id for r in msg.author.roles]:
-            await msg.author.add_roles(discord.Object(562713869957726208))
-            if msg.author.dm_channel == None:
-                await msg.author.create_dm()
-            await msg.author.send("You now have the tag Needs Support, which means you can access the Support Text and Voice Channels. Ask for any support you may need. We ask that you please remain patient, the Support Team has been notified and we will be with you as soon as possible. Thank you.\n\nNyní máš tag Needs Support, který ti dává přístup k textovým a hlasovým kanálům podpory. Obrať se na podporu s jakýmkoli dotazem. Prosím buď trpělivý, tým podpory byl informován a bude se ti věnovat co nejdříve. Děkujem.")
-        else:
-            if msg.author.dm_channel == None:
-                await msg.author.create_dm()
-            await msg.author.send("You already have the Needs Support tag, please be patient.\n\nUž máš tag Needs Support. Prosíme, abys byl trpělivý")
+	async def command(self, args, msg):
+		if 562713869957726208 not in [r.id for r in msg.author.roles]:
+			await msg.author.add_roles(discord.Object(562713869957726208))
+			if msg.author.dm_channel == None:
+				await msg.author.create_dm()
+			await msg.author.send("You now have the tag Needs Support, which means you can access the Support Text and Voice Channels. Ask for any support you may need. We ask that you please remain patient, the Support Team has been notified and we will be with you as soon as possible. Thank you.\n\nNyní máš tag Needs Support, který ti dává přístup k textovým a hlasovým kanálům podpory. Obrať se na podporu s jakýmkoli dotazem. Prosím buď trpělivý, tým podpory byl informován a bude se ti věnovat co nejdříve. Děkujem.")
+		else:
+			if msg.author.dm_channel == None:
+				await msg.author.create_dm()
+			await msg.author.send("You already have the Needs Support tag, please be patient.\n\nUž máš tag Needs Support. Prosíme, abys byl trpělivý")
 
 bdbf.commands.cmds[507484929001652224].append(support("Gives you the Needs Support role"))
