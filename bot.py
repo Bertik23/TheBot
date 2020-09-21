@@ -21,6 +21,7 @@ from prettytable import PrettyTable
 import commands
 import botGames
 import time
+import stopit
 
 heroku = os.environ.get("isHeroku", False)
 if not heroku:
@@ -207,21 +208,27 @@ async def checkWebsites():
 		#Gymso
 		try:
 			print("Checking for new posts on Gymso")
-			clanky = newOnGymso()
-			if clanky:
-				for clanek in clanky:
-					for i in range(math.ceil(len(clanek["text"])/2048)):
-						e = embed(clanek["title"], url = clanek["url"], description=clanek["text"][(i*2048):((i+1)*2048)])
-						await obecne.send(f"{klubik.default_role} nový příspěvek na Gymso", embed=e)
+			with stopit.ThreadingTimeout(10) as to_ctx_mgr:
+			    assert to_ctx_mgr.state == to_ctx_mgr.EXECUTING
+
+				clanky = newOnGymso()
+				if clanky:
+					for clanek in clanky:
+						for i in range(math.ceil(len(clanek["text"])/2048)):
+							e = embed(clanek["title"], url = clanek["url"], description=clanek["text"][(i*2048):((i+1)*2048)])
+							await obecne.send(f"{klubik.default_role} nový příspěvek na Gymso", embed=e)
 		except Exception as e:
 			print(e)
 
 		#choco_afro
 		try:
-			print("Checking for new post on choco_afro")
-			lastChocoPost = getLastInstaPost("choco_afro")
-			if time.time() - lastChocoPost["taken_at_timestamp"] <= 7000:
-				await choco_afroAnouncements.send(lastChocoPost["display_url"])
+			with stopit.ThreadingTimeout(10) as to_ctx_mgr:
+			    assert to_ctx_mgr.state == to_ctx_mgr.EXECUTING
+
+				print("Checking for new post on choco_afro")
+				lastChocoPost = getLastInstaPost("choco_afro")
+				if time.time() - lastChocoPost["taken_at_timestamp"] <= 7000:
+					await choco_afroAnouncements.send(lastChocoPost["display_url"])
 		except Exception as e:
 			print(e)
 
