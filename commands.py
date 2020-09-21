@@ -40,6 +40,20 @@ sheet = sheetClient.open("TheBotDB").sheet1
 
 print(sheet.col_values(1))
 
+class Command(bdbf.commands.Command):
+	async def command(self, args, msg):
+		log = [datetime.datetime.utcnow().isoformat(), str(self), msg.author.id, msg.author.name, msg.channel.id, str(mgs.channel), msg.channel.guild.id, str(msg.channel.guild), msg.content]
+		try:
+			c = self.commandos(self, args,msg)
+		except Exception as e:
+			log.append("Failed")
+			log.append(e)
+			c = e, None
+		else:
+			log.append("Succeded")
+
+		sheet.append_row(r)
+		return c
 
 reddit = None
 kclient = None
@@ -50,7 +64,7 @@ class test(bdbf.commands.Command):
 	async def command(self, args, msg):
 		r = [datetime.datetime.utcnow().isoformat() ,"test","testoo"]
 		try:
-			sheet.append_row(r, 2)
+			sheet.append_row(r)
 		except Exception as e:
 			print(e)
 			return r, None
