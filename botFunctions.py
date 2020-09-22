@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import discord
 import bdbf
+import datetime
 from datetime import datetime, timedelta, timezone
 import wolframalpha
 import pprint
@@ -20,6 +21,22 @@ import zlib
 commandPrefix: str = None
 wClient = wolframalpha.Client("TV7GVY-8YLJ26PPK9")
 githubToken = os.environ.get("GithubToken", None)
+
+def mostFrequent(List): 
+    counter = 0
+    num = List[0] 
+      
+    for i in List: 
+        curr_frequency = List.count(i) 
+        if(curr_frequency> counter): 
+            counter = curr_frequency 
+            num = i 
+  
+    return num 
+
+def roundToTheLast30min(time):
+    rounded = time - (time - datetime.min) % timedelta(minutes=30)
+    return rounded
 
 def makeGithubIssue(title: str, body: str=None, labels: list=None):
 	"""Create an issue on github.com using the given parameters"""
@@ -264,3 +281,10 @@ def decrypt(text_to_decrypt, encryption_base):
 	except:
 		texto = zlib.decompress(bytes(nums)).decode("utf-8")
 	return texto
+
+def deleteDuplicates(l):
+    l2 = []
+    for i in l:
+        if i not in l2:
+            l2.append(i)
+    return l2
