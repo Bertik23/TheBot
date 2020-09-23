@@ -253,9 +253,9 @@ async def checkWebsites():
 		#MZCR MO
 		try:
 			ts = checkMZCRMO()
-			if ts[0] != database.dataLog.cell(2,1).value:
+			if ts[0] != database.dataLog.cell(2,2).value:
 				await korona_info.send(embed=embed(ts[2], url=ts[1], description=ts[3]))
-				database.dataLog.update_cell(2,1, ts[0])
+				database.dataLog.update_cell(2,2, ts[0])
 		except Exception as e:
 			print(e)
 
