@@ -250,7 +250,7 @@ class stats(Command):
 		commandTimesUno = deleteDuplicates(commandTimes)
 		commandTimeCounts = [commandTimes.count(t) for t in commandTimesUno]
 
-		print(commandTimes)
+		#print(commandTimes)
 
 		fig = go.Figure()
 

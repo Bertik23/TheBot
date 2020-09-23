@@ -30,7 +30,7 @@ except:
 
 sheetClient = gspread.authorize(creds)
 
-print(sheetClient.open("TheBotDB").worksheets())
+#print(sheetClient.open("TheBotDB").worksheets())
 
 commandLog = sheetClient.open("TheBotDB").worksheet("Command Log")
 

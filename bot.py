@@ -78,7 +78,7 @@ klubik, obecne, choco_afroAnouncements, korona_info = None,None, None, None
 
 @client.event # event decorator/wrapper
 async def on_ready():
-	global klubik, obecne, choco_afroAnouncements
+	global klubik, obecne, choco_afroAnouncements, korona_info
 	print(f"We have logged in as {client.user}")
 	klubik = await client.fetch_guild(697015129199607839)
 	obecne = await client.fetch_channel(697015129199607843)
