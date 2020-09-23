@@ -99,7 +99,7 @@ def getZmena(parametr) -> str:
 						return text
 
 def gymso() -> (str, str, str):
-	gymso = requests.get("https://www.gymso.cz")
+	gymso = requests.get("https://www.gymso.cz", timeout=10)
 	gymso = BeautifulSoup(gymso.text, features="html.parser")
 	clanekDiv = gymso.find("div",attrs={"class":"blog-item"})
 	clanekTitle = clanekDiv.find("h2", attrs={"class":"article-title"})
@@ -108,7 +108,7 @@ def gymso() -> (str, str, str):
 
 def newOnGymso() -> [dict]:
 	clanky = []
-	gymso = requests.get("https://www.gymso.cz")
+	gymso = requests.get("https://www.gymso.cz", timeout=10)
 	gymso = BeautifulSoup(gymso.text, features="html.parser")
 	clankyDiv = gymso.findAll("div",attrs={"class":"blog-item"})
 	for clanekDiv in clankyDiv:
@@ -134,7 +134,7 @@ def wolframQuery(query):
 		#yield bdbf.embed("")
 
 def getTimetableUrl(query: str) -> str:
-	tableSoup = BeautifulSoup(requests.get("https://bakalari.gymso.cz/timetable/public").text, features="html.parser")
+	tableSoup = BeautifulSoup(requests.get("https://bakalari.gymso.cz/timetable/public", timeout=10).text, features="html.parser")
 	teachers = tableSoup.find("select", id="selectedTeacher").find_all("option")
 	rooms = tableSoup.find("select", id="selectedRoom").find_all("option")
 	classes = tableSoup.find("select", id="selectedClass").find_all("option")
@@ -159,7 +159,7 @@ def getTimetable(url: str, room=False):
 			return f"{url[1]} doesn't have a timetable."
 	except:
 		pass
-	tableSoup = BeautifulSoup(requests.get("https://bakalari.gymso.cz/Timetable/Public/Actual/"+url).text,features="html.parser")
+	tableSoup = BeautifulSoup(requests.get("https://bakalari.gymso.cz/Timetable/Public/Actual/"+url, timeout=10).text,features="html.parser")
 	table = []
 	days = tableSoup.find_all("div",class_="bk-timetable-row")
 	dList = []
@@ -218,7 +218,7 @@ def rotateTable(table):
 	return newTable
 
 def getLastInstaPost(user):
-	instaResponse = requests.get(f"https://www.instagram.com/{user}/?__a=1")
+	instaResponse = requests.get(f"https://www.instagram.com/{user}/?__a=1", timeout=10)
 	#print(instaResponse, instaResponse.text)
 	
 	instaJson = instaResponse.json()#json.loads(instaResponse.text)
