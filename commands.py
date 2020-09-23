@@ -1,47 +1,22 @@
-import bdbf
-import pkg_resources
-import ksoftapi
-from bdbf import *
-import botFunctions
-from botFunctions import *
-import prawcore, praw
-import math
-from botGames import Game2048
-import smaz
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-import os
 import datetime
+import math
+import os
 
-scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
+import bdbf
+import gspread
+import ksoftapi
+import pkg_resources
+import praw
+import prawcore
+from bdbf import *
+from oauth2client.service_account import ServiceAccountCredentials
 
-with open("thebotdbCredentials-encrypted.nottxt", "rb") as f:
-	with open("thebotdb-creds-decrypted.bsecret", "w") as f2:
-		try:
-			encryptionKey = int(os.environ.get("encrypt",0))
-			fr = f.read()
-			f2.write(botFunctions.decrypt(fr.decode("utf-8"), encryptionKey))
-		except Exception as e:
-			print(e)
+import botFunctions
+import smaz
+from botFunctions import *
+from botGames import Game2048
+from database import commandLog
 
-# with open("thebotdbCredentials-encrypted.nottxt", "wb") as f:
-# 	with open("TheBotBD-credentials.bsecret", "r") as f2:
-# 		#print(f2.read())
-# 		fr = f2.read()
-# 		encrypted = botFunctions.encrypt(fr,key)
-# 		print(encrypted)
-# 		f.write(bytes(botFunctions.encrypt(fr,key),"utf-8"))
-
-try:
-	creds = ServiceAccountCredentials.from_json_keyfile_name("thebotdb-creds-decrypted.bsecret", scope)
-except:
-	creds = ServiceAccountCredentials.from_json_keyfile_name("TheBotBD-credentials.bsecret", scope)
-
-sheetClient = gspread.authorize(creds)
-
-sheet = sheetClient.open("TheBotDB").sheet1
-
-#print(sheet.col_values(1))
 
 class Command(bdbf.commands.Command):
 	async def command(self, args, msg):
@@ -57,7 +32,7 @@ class Command(bdbf.commands.Command):
 			else:
 				log.append("Succeded")
 
-			sheet.append_row(log)
+			commandLog.append_row(log)
 			return c
 		except Exception as e:
 			print(e)
@@ -74,7 +49,7 @@ class test(Command):
 	async def commandos(self, args, msg):
 		r = [datetime.datetime.utcnow().isoformat() ,"test","testoo"]
 		try:
-			sheet.append_row(r)
+			commandLog.append_row(r)
 		except Exception as e:
 			print(e)
 			return r, None
@@ -263,13 +238,13 @@ bdbf.commands.cmds["all"].append(decrypt("Decrypt a text encrypted using encrypt
 
 class stats(Command):
 	async def commandos(self, args, msg):
-		commandCountTotaly = len(sheet.col_values(1))-1
-		commandCountGuild = len([g for g in sheet.col_values(7) if g == str(msg.channel.guild.id)])
-		commandCountChannel = len([g for g in sheet.col_values(5) if g == str(msg.channel.id)])
-		mostActiveCommandor = mostFrequent(sheet.col_values(4))
-		mostUsedCommand = mostFrequent(sheet.col_values(2))
+		commandCountTotaly = len(commandLog.col_values(1))-1
+		commandCountGuild = len([g for g in commandLog.col_values(7) if g == str(msg.channel.guild.id)])
+		commandCountChannel = len([g for g in commandLog.col_values(5) if g == str(msg.channel.id)])
+		mostActiveCommandor = mostFrequent(commandLog.col_values(4))
+		mostUsedCommand = mostFrequent(commandLog.col_values(2))
 
-		commandTimes = sheet.col_values(1)[1:]
+		commandTimes = commandLog.col_values(1)[1:]
 
 		commandTimes = [time.isoformat() for time in map(roundToTheLast30min,map(datetime.datetime.fromisoformat, commandTimes))]
 		commandTimesUno = deleteDuplicates(commandTimes)

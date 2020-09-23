@@ -1,22 +1,22 @@
-import requests
-from bs4 import BeautifulSoup
-import discord
-import bdbf
 import datetime
-from datetime import datetime, timedelta, timezone
-import wolframalpha
-import pprint
-import os
-import json
-import tomd
-from prettytable import PrettyTable
-from prettytable import ALL
-import plotly.graph_objects as go
-import numpy as np
 import io
+import json
+import os
 import pprint
-import smaz
 import zlib
+from datetime import datetime, timedelta, timezone
+
+import bdbf
+import discord
+import numpy as np
+import plotly.graph_objects as go
+import requests
+import tomd
+import wolframalpha
+from bs4 import BeautifulSoup
+from prettytable import ALL, PrettyTable
+
+import smaz
 
 commandPrefix: str = None
 wClient = wolframalpha.Client("TV7GVY-8YLJ26PPK9")
@@ -288,3 +288,21 @@ def deleteDuplicates(l):
         if i not in l2:
             l2.append(i)
     return l2
+
+def checkMZCRTS():
+	ts = requests.get("https://koronavirus.mzcr.cz/category/tiskove-zpravy/")
+	tsSoup = BeautifulSoup(ts.text, features="html.parser")
+	article = tsSoup.find("article", class_="post")
+	articleLink = article.find("a")
+	return article.get("id"), articleLink.get("href"), articleLink.get("title"), article.find("p", class_="summary").text
+
+def checkMZCRMO():
+	ts = requests.get("https://koronavirus.mzcr.cz/category/mimoradna-opatreni/")
+	tsSoup = BeautifulSoup(ts.text, features="html.parser")
+	article = tsSoup.find("article", class_="post")
+	articleLink = article.find("a")
+	return article.get("id"), articleLink.get("href"), articleLink.get("title"), article.find("p", class_="summary").text
+
+
+
+print(checkMZCRMO())

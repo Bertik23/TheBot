@@ -1,27 +1,33 @@
-import random
-import numpy as np
-from random import choice, randint
-import os
+import asyncio
+import commands
+import datetime
 import math
-import requests
-from bs4 import BeautifulSoup
-import botFunctions
-from botFunctions import getZmena, gymso, newOnGymso, getJokeTxt, getFact, wolframQuery, makeSuggestion, getLastInstaPost
+import os
+import pickle
+import random
+import re
+import time
+from random import choice, randint
+
+import bdbf
+import discord
+import ksoftapi
+import numpy as np
+import pkg_resources
 import praw
 import prawcore
-import ksoftapi
-import re
-import bdbf
-from bdbf import spamProtection, embed, hasLink
-import asyncio
-import discord
-import pickle
-import pkg_resources
-from prettytable import PrettyTable
-import commands
-import botGames
-import time
+import requests
 import stopit
+from bdbf import embed, hasLink, spamProtection
+from bs4 import BeautifulSoup
+from prettytable import PrettyTable
+
+import botFunctions
+import botGames
+import database
+from botFunctions import (checkMZCRMO, checkMZCRTS, getFact, getJokeTxt, getLastInstaPost,
+                          getZmena, gymso, makeSuggestion, newOnGymso,
+                          wolframQuery)
 
 heroku = os.environ.get("isHeroku", False)
 if not heroku:
@@ -68,7 +74,7 @@ bdbf.options.botName = "TheBot"
 
 
 
-klubik, obecne, choco_afroAnouncements = None,None, None
+klubik, obecne, choco_afroAnouncements, korona_info = None,None, None, None
 
 @client.event # event decorator/wrapper
 async def on_ready():
@@ -77,7 +83,8 @@ async def on_ready():
 	klubik = await client.fetch_guild(697015129199607839)
 	obecne = await client.fetch_channel(697015129199607843)
 	choco_afroAnouncements = await client.fetch_channel(756497789424369737)
-	print(klubik, obecne, choco_afroAnouncements)
+	korona_info = await client.fetch_channel(758381540534255626)
+	print(klubik, obecne, choco_afroAnouncements, korona_info)
 
 	client.loop.create_task(checkWebsites())
 	
@@ -91,6 +98,8 @@ async def on_ready():
 async def on_message(message):
 	global klubik, obecne
 	print(f"{message.channel} ({message.channel.id}): {message.author}: {message.author.name}: {message.content}")
+	msgLog = [datetime.datetime.utcnow().isoformat(), str(message.id), message.content, str(message.author.id), message.author.name]
+	database.messageLog.append_row(msgLog)
 		#print("on_msg", obecne, klubik)
 	#await spamProtection(message, 5, f"{message.author.mention} nespamuj tady!", spamDelValue = 10)#, spamDelWarnMsg = f"{message.author.mention} další zprávy už ti smažu!")
 
@@ -229,6 +238,24 @@ async def checkWebsites():
 				lastChocoPost = getLastInstaPost("choco_afro")
 				if time.time() - lastChocoPost["taken_at_timestamp"] <= 7000:
 					await choco_afroAnouncements.send(lastChocoPost["display_url"])
+		except Exception as e:
+			print(e)
+
+		#MZCR TS
+		try:
+			ts = checkMZCRTS()
+			if ts[0] != database.dataLog.cell(2,1).value:
+				await korona_info.send(embed=embed(ts[2], url=ts[1], description=ts[3]))
+				database.dataLog.update_cell(2,1, ts[0])
+		except Exception as e:
+			print(e)
+
+		#MZCR MO
+		try:
+			ts = checkMZCRMO()
+			if ts[0] != database.dataLog.cell(2,1).value:
+				await korona_info.send(embed=embed(ts[2], url=ts[1], description=ts[3]))
+				database.dataLog.update_cell(2,1, ts[0])
 		except Exception as e:
 			print(e)
 
