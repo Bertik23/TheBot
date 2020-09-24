@@ -288,7 +288,8 @@ class stats(Command):
 
 				messageTimes = messageLog.col_values(1)[1:]
 
-				messageTimes = [time.isoformat() for time in map(roundToTheLast30min,map(datetime.fromisoformat, messageTimes))]
+				messageTimes = [time.isoformat() for i,time in enumerate(map(roundToTheLast30min,map(datetime.fromisoformat, messageTimes))) if messageLog.col_values(8)[1:][i] == str(msg.channel.guild.id)]
+				print(len(messageTimes))
 				messageTimesUno = deleteDuplicates(messageTimes)
 				messageTimeCounts = [messageTimes.count(t) for t in messageTimesUno]
 
