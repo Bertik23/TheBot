@@ -13,7 +13,7 @@ from bdbf import *
 from oauth2client.service_account import ServiceAccountCredentials
 
 import botFunctions
-#import smaz
+import smaz
 from botFunctions import *
 from botGames import Game2048
 from database import commandLog, messageLog
