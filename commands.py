@@ -58,7 +58,7 @@ class test(Command):
 			print(e)
 			return r, None
 
-bdbf.commands.cmds["all"].append(test("TheBot info"))
+#bdbf.commands.cmds["all"].append(test("TheBot info"))
 
 class info(Command):
 	async def commandos(self, args, msg):
