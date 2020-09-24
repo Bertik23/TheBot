@@ -289,20 +289,13 @@ def deleteDuplicates(l):
             l2.append(i)
     return l2
 
-def checkMZCRTS():
-	ts = requests.get("https://koronavirus.mzcr.cz/category/tiskove-zpravy/")
+def checkMZCR(url):
+	ts = requests.get(url)
 	tsSoup = BeautifulSoup(ts.text, features="html.parser")
-	article = tsSoup.find("article", class_="post")
-	articleLink = article.find("a")
-	return article.get("id"), articleLink.get("href"), articleLink.get("title"), article.find("p", class_="summary").text
-
-def checkMZCRMO():
-	ts = requests.get("https://koronavirus.mzcr.cz/category/mimoradna-opatreni/")
-	tsSoup = BeautifulSoup(ts.text, features="html.parser")
-	article = tsSoup.find("article", class_="post")
-	articleLink = article.find("a")
-	return article.get("id"), articleLink.get("href"), articleLink.get("title"), article.find("p", class_="summary").text
+	articles = tsSoup.find_all("article", class_="post")
+	articleLinks = [article.find("a") for article in articles]
+	return [(article.get("id"), articleLinks[i].get("href"), articleLinks[i].get("title"), article.find("p", class_="summary").text) for i,article in enumerate(articles)]
 
 
 
-print(checkMZCRMO())
+

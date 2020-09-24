@@ -25,7 +25,7 @@ from prettytable import PrettyTable
 import botFunctions
 import botGames
 import database
-from botFunctions import (checkMZCRMO, checkMZCRTS, getFact, getJokeTxt, getLastInstaPost,
+from botFunctions import (checkMZCR, getFact, getJokeTxt, getLastInstaPost,
                           getZmena, gymso, makeSuggestion, newOnGymso,
                           wolframQuery)
 
@@ -248,19 +248,26 @@ async def checkWebsites():
 
 		#MZCR TS
 		try:
-			ts = checkMZCRTS()
-			if ts[0] != database.dataLog.cell(2,1).value:
-				await korona_info.send(embed=embed(ts[2], url=ts[1], description=ts[3]))
-				database.dataLog.update_cell(2,1, ts[0])
+			tss = checkMZCR("https://koronavirus.mzcr.cz/category/tiskove-zpravy/")
+			for ts in tss:
+				if ts[0] != database.dataLog.cell(2,1).value:
+					await korona_info.send(embed=embed(ts[2], url=ts[1], description=ts[3]))
+				else:
+					break
+			database.dataLog.update_cell(2,1, tss[0][0])
+
 		except Exception as e:
 			print(e)
 
 		#MZCR MO
 		try:
-			ts = checkMZCRMO()
-			if ts[0] != database.dataLog.cell(2,2).value:
-				await korona_info.send(embed=embed(ts[2], url=ts[1], description=ts[3]))
-				database.dataLog.update_cell(2,2, ts[0])
+			tss = checkMZCR("https://koronavirus.mzcr.cz/category/mimoradna-opatreni/")
+			for ts in tss:
+				if ts[0] != database.dataLog.cell(2,2).value:
+					await korona_info.send(embed=embed(ts[2], url=ts[1], description=ts[3]))
+				else:
+					break
+			database.dataLog.update_cell(2,2, tss[0][0])
 		except Exception as e:
 			print(e)
 
