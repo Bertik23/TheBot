@@ -16,7 +16,7 @@ import wolframalpha
 from bs4 import BeautifulSoup
 from prettytable import ALL, PrettyTable
 
-import smaz
+#import smaz
 
 commandPrefix: str = None
 wClient = wolframalpha.Client("TV7GVY-8YLJ26PPK9")

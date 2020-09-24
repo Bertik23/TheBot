@@ -99,8 +99,12 @@ async def on_ready():
 async def on_message(message):
 	global klubik, obecne
 	print(f"{message.channel} ({message.channel.id}): {message.author}: {message.author.name}: {message.content}")
-	msgLog = [datetime.datetime.utcnow().isoformat(), str(message.id), message.content, str(message.author.id), message.author.name, str(message.channel.id), message.channel.name, str(message.channel.guild.id), message.channel.guild.name]
-	database.messageLog.append_row(msgLog)
+	if "guild" in dir(message.channel):
+		msgLog = [datetime.datetime.utcnow().isoformat(), str(message.id), message.content, str(message.author.id), message.author.name, str(message.channel.id), str(message.channel), str(message.channel.guild.id), message.channel.guild.name]
+	else:
+		msgLog = [datetime.datetime.utcnow().isoformat(), str(message.id), message.content, str(message.author.id), message.author.name, str(message.channel.id), str(message.channel)]
+	if commands.logging:
+		database.messageLog.append_row(msgLog)
 		#print("on_msg", obecne, klubik)
 	#await spamProtection(message, 5, f"{message.author.mention} nespamuj tady!", spamDelValue = 10)#, spamDelWarnMsg = f"{message.author.mention} další zprávy už ti smažu!")
 

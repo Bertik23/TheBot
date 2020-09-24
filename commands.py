@@ -6,16 +6,17 @@ import bdbf
 import gspread
 import ksoftapi
 import pkg_resources
+import plotly.express as px
 import praw
 import prawcore
 from bdbf import *
 from oauth2client.service_account import ServiceAccountCredentials
 
 import botFunctions
-import smaz
+#import smaz
 from botFunctions import *
 from botGames import Game2048
-from database import commandLog
+from database import commandLog, messageLog
 
 logging = True
 
@@ -24,7 +25,6 @@ class Command(bdbf.commands.Command):
 	async def command(self, args, msg):
 		try:
 			log = [datetime.utcnow().isoformat(), str(self), str(msg.author.id), msg.author.name, str(msg.channel.id), str(msg.channel), str(msg.channel.guild.id), str(msg.channel.guild), msg.content]
-			print("ahoj")
 			try:
 				c = await self.commandos(args, msg)
 			except Exception as e:
@@ -242,43 +242,72 @@ bdbf.commands.cmds["all"].append(decrypt("Decrypt a text encrypted using encrypt
 
 class stats(Command):
 	async def commandos(self, args, msg):
-		commandCountTotaly = len(commandLog.col_values(1))-1
-		commandCountGuild = len([g for g in commandLog.col_values(7) if g == str(msg.channel.guild.id)])
-		commandCountChannel = len([g for g in commandLog.col_values(5) if g == str(msg.channel.id)])
-		mostActiveCommandor = mostFrequent(commandLog.col_values(4))
-		mostUsedCommand = mostFrequent(commandLog.col_values(2))
+		with msg.channel.typing():
+			if args == "commands":
+				commandCountTotaly = len(commandLog.col_values(1))-1
+				commandCountGuild = len([g for g in commandLog.col_values(7) if g == str(msg.channel.guild.id)])
+				commandCountChannel = len([g for g in commandLog.col_values(5) if g == str(msg.channel.id)])
+				mostActiveCommandor = mostFrequent(commandLog.col_values(4))
+				mostUsedCommand = mostFrequent(commandLog.col_values(2))
 
-		commandTimes = commandLog.col_values(1)[1:]
+				commandTimes = commandLog.col_values(1)[1:]
 
-		commandTimes = [time.isoformat() for time in map(roundToTheLast30min,map(datetime.datetime.fromisoformat, commandTimes))]
-		commandTimesUno = deleteDuplicates(commandTimes)
-		commandTimeCounts = [commandTimes.count(t) for t in commandTimesUno]
+				commandTimes = [time.isoformat() for time in map(roundToTheLast30min,map(datetime.fromisoformat, commandTimes))]
+				commandTimesUno = deleteDuplicates(commandTimes)
+				commandTimeCounts = [commandTimes.count(t) for t in commandTimesUno]
 
-		#print(commandTimes)
+				#print(commandTimes)
 
-		fig = go.Figure()
+				#fig = go.Figure()
 
-		fig.add_trace(go.Scatter(x = commandTimesUno, y = commandTimeCounts))
+				fig = px.bar(x = commandTimesUno, y = commandTimeCounts)
 
-		fig_bytes = fig.to_image(format="png", width=600, height=800)
+				fig_bytes = fig.to_image(format="png", width=600, height=800)
 
-		await msg.channel.send(file=discord.File(io.BytesIO(fig_bytes), filename="stats.png"))
+				await msg.channel.send(file=discord.File(io.BytesIO(fig_bytes), filename="stats.png"))
 
-		return None, embed("TheBot stats", fields=[{"name": "Total Commands",
-													"value": commandCountTotaly,
-													"inline": True},
-													{"name": "Guild Commands",
-													"value": commandCountGuild,
-													"inline": True},
-													{"name": "Channel Commands",
-													"value": commandCountChannel,
-													"inline": True},
-													{"name": "Most Commands",
-													"value": mostActiveCommandor,
-													"inline": True},
-													{"name": "Most Used Command",
-													"value": mostUsedCommand,
-													"inline": True}])
+				return None, embed("TheBot stats", fields=[{"name": "Total Commands",
+															"value": commandCountTotaly,
+															"inline": True},
+															{"name": "Guild Commands",
+															"value": commandCountGuild,
+															"inline": True},
+															{"name": "Channel Commands",
+															"value": commandCountChannel,
+															"inline": True},
+															{"name": "Most Commands",
+															"value": mostActiveCommandor,
+															"inline": True},
+															{"name": "Most Used Command",
+															"value": mostUsedCommand,
+															"inline": True}])
+			elif args == "messages":
+				guildMessages = len([g for g in messageLog.col_values(8) if g == str(msg.channel.guild.id)])
+				channelMessages = len([g for g in messageLog.col_values(6) if g == str(msg.channel.id)])
+				mostActive = mostFrequent(messageLog.col_values(5))
+
+				messageTimes = messageLog.col_values(1)[1:]
+
+				messageTimes = [time.isoformat() for time in map(roundToTheLast30min,map(datetime.fromisoformat, messageTimes))]
+				messageTimesUno = deleteDuplicates(messageTimes)
+				messageTimeCounts = [messageTimes.count(t) for t in messageTimesUno]
+
+				fig = px.bar(x = messageTimesUno, y = messageTimeCounts)
+
+				fig_bytes = fig.to_image(format="png", width=600, height=800)
+
+				await msg.channel.send(file=discord.File(io.BytesIO(fig_bytes), filename="stats.png"))
+
+				return None, embed("TheBot stats", fields=[
+												{"name": "Guild Messages",
+												"value": guildMessages,
+												"inline": True},
+												{"name": "Channel Messages",
+												"value": channelMessages,
+												"inline": True},
+												{"name": "Most Messages",
+												"value": mostActive,
+												"inline": True}])
 
 bdbf.commands.cmds["all"].append(stats())
 
