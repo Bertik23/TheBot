@@ -21,13 +21,14 @@ from database import commandLog
 class Command(bdbf.commands.Command):
 	async def command(self, args, msg):
 		try:
-			log = [datetime.datetime.utcnow().isoformat(), str(self), str(msg.author.id), msg.author.name, str(msg.channel.id), str(msg.channel), str(msg.channel.guild.id), str(msg.channel.guild), msg.content]
+			log = [datetime.utcnow().isoformat(), str(self), str(msg.author.id), msg.author.name, str(msg.channel.id), str(msg.channel), str(msg.channel.guild.id), str(msg.channel.guild), msg.content]
+			print("ahoj")
 			try:
 				c = await self.commandos(args, msg)
 			except Exception as e:
 				log.append("Failed")
 				log.append(str(e))
-				c = e, None
+				c = str(e), None
 				print(e)
 			else:
 				log.append("Succeded")
