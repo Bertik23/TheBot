@@ -17,6 +17,8 @@ from botFunctions import *
 from botGames import Game2048
 from database import commandLog
 
+logging = True
+
 
 class Command(bdbf.commands.Command):
 	async def command(self, args, msg):
@@ -33,7 +35,8 @@ class Command(bdbf.commands.Command):
 			else:
 				log.append("Succeded")
 
-			commandLog.append_row(log)
+			if logging:
+				commandLog.append_row(log)
 			return c
 		except Exception as e:
 			print(e)

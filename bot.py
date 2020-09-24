@@ -31,6 +31,7 @@ from botFunctions import (checkMZCRMO, checkMZCRTS, getFact, getJokeTxt, getLast
 
 heroku = os.environ.get("isHeroku", False)
 if not heroku:
+	commands.logging = False
 	try:
 		with open("C:\\Users\\alber\\OneDrive\\Plocha\\discordBotSecrets.txt", "r") as f:
 			commands.kclient = eval(f.readline())
