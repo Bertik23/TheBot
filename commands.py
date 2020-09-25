@@ -242,7 +242,7 @@ bdbf.commands.cmds["all"].append(decrypt("Decrypt a text encrypted using encrypt
 
 class stats(Command):
 	async def commandos(self, args, msg):
-		with msg.channel.typing():
+		async with msg.channel.typing():
 			if args == "commands":
 				commandCountTotaly = len(commandLog.col_values(1))-1
 				commandCountGuild = len([g for g in commandLog.col_values(7) if g == str(msg.channel.guild.id)])
@@ -288,14 +288,16 @@ class stats(Command):
 
 				messageTimes = messageLog.col_values(1)[1:]
 
-				messageTimes = [time.isoformat() for i,time in enumerate(map(roundToTheLast30min,map(datetime.fromisoformat, messageTimes))) if messageLog.col_values(8)[1:][i] == str(msg.channel.guild.id)]
+				messageGuilds = messageLog.col_values(8)[1:]
+
+				messageTimes = [time.isoformat() for i,time in enumerate(map(roundToTheLast30min,map(datetime.fromisoformat, messageTimes))) if messageGuilds[i] == str(msg.channel.guild.id)]
 				print(len(messageTimes))
 				messageTimesUno = deleteDuplicates(messageTimes)
 				messageTimeCounts = [messageTimes.count(t) for t in messageTimesUno]
 
-				fig = px.bar(x = messageTimesUno, y = messageTimeCounts)
+				fig = px.bar(x = messageTimesUno, y = messageTimeCounts, range_x=[messageTimesUno[0], messageTimesUno[-1]])
 
-				fig_bytes = fig.to_image(format="png", width=600, height=800)
+				fig_bytes = fig.to_image(format="png", width=1800, height=800)
 
 				await msg.channel.send(file=discord.File(io.BytesIO(fig_bytes), filename="stats.png"))
 
@@ -309,6 +311,14 @@ class stats(Command):
 												{"name": "Most Messages",
 												"value": mostActive,
 												"inline": True}])
+			else:
+				return None, embed("Available stats categories", fields=[
+																		{"name":"commands",
+																		 "value":"Command stats"
+																		},
+																		{"name":"messages",
+																		 "value":"Message stats"
+																		}])
 
 bdbf.commands.cmds["all"].append(stats())
 
