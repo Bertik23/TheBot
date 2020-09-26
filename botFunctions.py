@@ -296,6 +296,14 @@ def checkMZCR(url):
 	articleLinks = [article.find("a") for article in articles]
 	return [(article.get("id"), articleLinks[i].get("href"), articleLinks[i].get("title"), article.find("p", class_="summary").text) for i,article in enumerate(articles)]
 
+def getCurrencyConversion(fromCurrency, toCurrency):
+	rates = requests.get(f"https://v6.exchangerate-api.com/v6/1782af866122d90f03c1567c/latest/{fromCurrency}").json()
+
+	if rates["result"] == "error":
+		return rates["error-type"]
+
+	return rates["conversion_rates"][toCurrency]
+
 
 
 

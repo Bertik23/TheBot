@@ -322,6 +322,16 @@ class stats(Command):
 
 bdbf.commands.cmds["all"].append(stats())
 
+class rates(Command):
+	async def commandos(self, args, msg):
+		currencies = args.split(" ")
+		rate = getCurrencyConversion(currencies[0], currencies[1])
+		if type(rate) == str:
+			return rate, None
+		else:
+			return f"{currencies[2]} {currencies[0]} is {int(currencies[2])*rate} {currencies[1]}", None
+
+bdbf.commands.cmds["all"].append(rates("Converts currencies", "`%commandPrefix%rates <from> <to> <count>` eg. `%commandPrefix%rates EUR CZK 120`"))
 
 
 
