@@ -304,6 +304,27 @@ def getCurrencyConversion(fromCurrency, toCurrency):
 
 	return rates["conversion_rates"][toCurrency]
 
+async def spamProtection(message: discord.Message, testForMessages: int):
+	lastMessages = []
+	count = 0
+
+	async for msg in message.channel.history():
+		if msg.author == message.author:
+			count += 1
+			lastMessages.append(msg.content)
+			if count >= testForMessages:
+				break
+	
+	areMessagesSame = True
+	for i, m in enumerate(lastMessages):
+		if m != lastMessages[i-1]:
+			areMessagesSame = False
+
+	if areMessagesSame:
+		await message.delete()
+
+	
+
 
 
 

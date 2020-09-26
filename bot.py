@@ -18,7 +18,7 @@ import praw
 import prawcore
 import requests
 import stopit
-from bdbf import embed, hasLink, spamProtection
+from bdbf import embed, hasLink#, spamProtection
 from bs4 import BeautifulSoup
 from prettytable import PrettyTable
 
@@ -26,7 +26,7 @@ import botFunctions
 import botGames
 import database
 from botFunctions import (checkMZCR, getFact, getJokeTxt, getLastInstaPost,
-                          getZmena, gymso, makeSuggestion, newOnGymso,
+                          getZmena, gymso, makeSuggestion, newOnGymso, spamProtection,
                           wolframQuery)
 
 heroku = os.environ.get("isHeroku", False)
@@ -107,6 +107,8 @@ async def on_message(message):
 		database.messageLog.append_row(msgLog)
 		#print("on_msg", obecne, klubik)
 	#await spamProtection(message, 5, f"{message.author.mention} nespamuj tady!", spamDelValue = 10)#, spamDelWarnMsg = f"{message.author.mention} další zprávy už ti smažu!")
+	if not message.author.bot:
+		await spamProtection(message, 3)
 
 	for i in ["hi","dobrý den","brý den","čau","ahoj", "zdravíčko", "tě péro", "těpéro", "zdárek párek","tě guli", "čus", "olá", "ola", "guten tag"]:
 		if re.search(f"(\W|^){i}(\W|$)", message.content, re.I) and not message.author.bot:
