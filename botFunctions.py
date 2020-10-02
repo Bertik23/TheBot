@@ -77,7 +77,7 @@ def makeSuggestion(title : str, body: str=None):
 
 
 def getZmena(parametr) -> str:
-	zmeny = requests.get("https://bakalari.gymso.cz/next/zmeny.aspx")
+	zmeny = requests.get("https://bakalari.gymso.eu/next/zmeny.aspx")
 	zmeny = BeautifulSoup(zmeny.text, "html.parser")
 	tables = zmeny.find_all("table", {"class":"datagrid"})
 	for table in tables:
@@ -134,7 +134,7 @@ def wolframQuery(query):
 		#yield bdbf.embed("")
 
 def getTimetableUrl(query: str) -> str:
-	tableSoup = BeautifulSoup(requests.get("https://bakalari.gymso.cz/timetable/public", timeout=10).text, features="html.parser")
+	tableSoup = BeautifulSoup(requests.get("https://bakalari.gymso.eu/timetable/public", timeout=10).text, features="html.parser")
 	teachers = tableSoup.find("select", id="selectedTeacher").find_all("option")
 	rooms = tableSoup.find("select", id="selectedRoom").find_all("option")
 	classes = tableSoup.find("select", id="selectedClass").find_all("option")
@@ -159,7 +159,7 @@ def getTimetable(url: str, room=False):
 			return f"{url[1]} doesn't have a timetable."
 	except:
 		pass
-	tableSoup = BeautifulSoup(requests.get("https://bakalari.gymso.cz/Timetable/Public/Actual/"+url, timeout=10).text,features="html.parser")
+	tableSoup = BeautifulSoup(requests.get("https://bakalari.gymso.eu/Timetable/Public/Actual/"+url, timeout=10).text,features="html.parser")
 	table = []
 	days = tableSoup.find_all("div",class_="bk-timetable-row")
 	dList = []
