@@ -180,11 +180,12 @@ def getTimetable(url: str, room=False):
 				row.append("")
 		table.append(row)
 
-	table = np.array(table)
+	table = np.array([np.array(t) for t in table])
 
-	#print(table)
+	print(table)
 
 	table = table.transpose()
+	print(table)
 	#table = rotateTable(table)
 	#print(table)
 

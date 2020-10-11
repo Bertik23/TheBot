@@ -17,6 +17,7 @@ import smaz
 from botFunctions import *
 from botGames import Game2048
 from database import commandLog, messageLog
+import uhlovod
 
 logging = True
 
@@ -383,3 +384,9 @@ class support(Command):
 			await msg.author.send("You already have the Needs Support tag, please be patient.\n\nUž máš tag Needs Support. Prosíme, abys byl trpělivý")
 
 bdbf.commands.cmds[507484929001652224].append(support("Gives you the Needs Support role"))
+
+class uhel(Command):
+	async def commandos(self, args, msg):
+		await msg.channel.send(file= discord.File(uhlovod.make_img(args), filename="uhlovodik.png"))
+
+bdbf.commands.cmds["all"].append(uhel())

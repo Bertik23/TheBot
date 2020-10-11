@@ -139,3 +139,5 @@ cython_debug/
 
 #Secret files
 *.bsecret
+
+temp.*
