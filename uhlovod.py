@@ -135,9 +135,9 @@ def make_img(uhlovodik):
     
     for i in range(hlavni_uhlovodik_delka-1):
         if i%2==0:
-            draw.line((start_x+i*50,start_y, start_x+i*50+50,start_y+50), fill=(0,0,0), width=2)
+            draw.line((start_x+i*50,start_y, start_x+i*50+50,start_y+50), fill=(0,0,0), width=5)
         else:
-            draw.line((start_x+i*50,start_y+50, start_x+i*50+50,start_y), fill=(0,0,0), width=2)
+            draw.line((start_x+i*50,start_y+50, start_x+i*50+50,start_y), fill=(0,0,0), width=5)
     #vazby
     off = 5
 
