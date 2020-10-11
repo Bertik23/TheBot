@@ -1,13 +1,12 @@
 import re 
-import pygame as pg
 import io
-from PIL import Image
+from PIL import Image, ImageDraw
 
 uhlovodiky = ["meth","eth","prop","but","pent","hex","hept","okt","non","dek"]
 cisla = ["mono","di","tri","tetra","penta","hexa","hepta","okta","nona","deka"]
 nazvy_vazeb = ["en","yn"]
 
-#uhlovodik = "3,4,6-tributyl-7-methyl-3,6-ethylokt-4-en-1-yn"
+uhlovodik = "3,6-diethyl-2,4-dimethyl-4-propylokta-1,7-dien"
 
 
 def get_uhlovodik(vstup):
@@ -51,13 +50,17 @@ def get_uhlovodik(vstup):
             for c in cisla:
                 nazev = nazev.replace(c,"")
             if i == vstup.index(hlavni_retezec):
-                nazev = nazev[:highest_index]
+                nazev = nazev.replace(hlavni_uhlovodik,"")
+
             #print(f"{nazev}: {indexy_zbytku}")
             delka = 0
+
+            if nazev[-1] == "n": nazev = nazev[:-1] #nevim proč to tam dává 'n' a jsem línej to zjišťovat
+
             for u in uhlovodiky:
                 if nazev[:-2] in u:
                     delka = uhlovodiky.index(u)+1
-
+            
             zbytky.append({"nazev":nazev,"delka": delka,"pozice":indexy_zbytku, "smer": [-1 for i in range(len(indexy_zbytku))]})
             indexy_zbytku = []
     #nalezení vazeb
@@ -97,23 +100,44 @@ def get_uhlovodik(vstup):
 def make_img(uhlovodik):
     hlavni_uhlovodik_delka,zbytky,vazby = get_uhlovodik(uhlovodik)
 
-    pg.init()
+    #velikost
+    max_zbytek_top, max_zbytek_bot = 0,0
+    add_padding_x = [0,0]
+    for i in zbytky:
+        for p in range(len(i["pozice"])):
+            #padding stuff
+            if i["pozice"][p] == 1:
+                add_padding_x[0] = 50
+            if i["pozice"][p] == hlavni_uhlovodik_delka and i["smer"][p] == 1:
+                add_padding_x[1] = 50
 
-    screen = pg.display.set_mode([500,500])
+            if i["pozice"][p]%2 == 1 and i["delka"] > max_zbytek_top:
+                max_zbytek_top = i["delka"]
+            elif i["delka"] > max_zbytek_bot:
+                max_zbytek_bot = i["delka"]
+
+    z_size_start = 45 #délka první vazby
+    z_normal_size = 35 #délka ostatních vazeb
+
+    padding_x = 20
+    padding_y = 20
+
+    start_x, start_y = padding_x+add_padding_x[0], padding_y+max_zbytek_top*z_normal_size+(z_size_start-z_normal_size)
+    width = (hlavni_uhlovodik_delka-1)*50+padding_x*2+sum(add_padding_x)
+    height = 2*padding_y + 50 + (max_zbytek_bot+max_zbytek_top)*z_normal_size+2*(z_size_start-z_normal_size)
 
     done = False
 
-    print(zbytky)
-
-    screen.fill([255,255,255])
+    img = Image.new("RGB", (width, height), (255, 255, 255))
+    draw = ImageDraw.Draw(img)
 
     #hlavní řetězec
-    start_x, start_y = 50,225
+    
     for i in range(hlavni_uhlovodik_delka-1):
         if i%2==0:
-            pg.draw.line(screen, [0,0,0], [start_x+i*50,start_y], [start_x+i*50+50,start_y+50], 2)
+            draw.line((start_x+i*50,start_y, start_x+i*50+50,start_y+50), fill=(0,0,0), width=2)
         else:
-            pg.draw.line(screen, [0,0,0], [start_x+i*50,start_y+50], [start_x+i*50+50,start_y], 2)
+            draw.line((start_x+i*50,start_y+50, start_x+i*50+50,start_y), fill=(0,0,0), width=2)
     #vazby
     off = 5
 
@@ -123,13 +147,11 @@ def make_img(uhlovodik):
                 real_x = start_x+50*(i["pozice"][x]-1)
                 off = 5*-d
                 if i["pozice"][x]%2 == 1:
-                    pg.draw.line(screen, [0,0,0], [real_x+off,start_y-off] , [real_x+off+50,start_y-off+50], 2)
+                    draw.line((real_x+off,start_y-off, real_x+off+50,start_y-off+50), fill=(0,0,0), width=2)
                 else:
-                    pg.draw.line(screen, [0,0,0], [real_x+off,start_y+off+50] , [real_x+off+50,start_y+off], 2)
+                    draw.line((real_x+off,start_y+off+50, real_x+off+50,start_y+off), fill=(0,0,0), width=2)
 
     #zbytky
-    z_size_start = 45 #délka první vazby
-    z_normal_size = 35 #délka ostatních vazeb
     for i in zbytky:
         for x in range(len(i["pozice"])):
             for d in range(i["delka"]):
@@ -155,35 +177,17 @@ def make_img(uhlovodik):
                 if d%2 == 1 and d > 0:
                     smer*=-1
                 elif d > 0:
-                    real_x+=z_size
+                   real_x+=z_size*-smer
 
                 if d == 0:
-                    pg.draw.line(screen, [0,0,0], [real_x,real_y] , [real_x+z_size*smer,real_y+z_size*y_smer], 2)
+                    draw.line((real_x,real_y, real_x+z_size*smer,real_y+z_size*y_smer), fill=(0,0,0), width=2)
                 else:
-                    pg.draw.line(screen, [0,0,0], [real_x,real_y] , [real_x+z_size*smer,real_y+z_size*y_smer], 2)
+                    draw.line((real_x,real_y, real_x+z_size*smer,real_y+z_size*y_smer), fill=(0,0,0), width=2)
+ 
 
-    pg.display.update()    
 
-
-    #imgStr = pg.image.tostring(screen,"RGBA")
-    #return io.BytesIO(imgStr)
-    # img = Image.frombytes("RGBA",(500,500), screen.get_buffer().raw)
-    # #img = io.BytesIO(Image.frombytes("RGBA",(500,500), screen.get_buffer().raw).tobytes())
-    # img.save("temp.png", format="png")
-    # with open("temp.png","rb") as f:
-    #     return io.BytesIO(f.read())
-    imgStr = pg.image.tostring(screen,"RGBA")
-    img = Image.frombytes("RGBA",(500,500), imgStr)
     img.save("temp.png", "png")
     with open("temp.png","rb") as f:
         return io.BytesIO(f.read())
 
-#img = Image.frombytes("RGBA",(500,500), imgStr)
-#f = io.StringIO()
-#img.save("ahoj.png", "png")
-#print(f.getvalue())
-
-# print(make_img("3,4,6-tributyl-7-methyl-3,6-ethylokt-4-en-1-yn"))
-# with open("f.png","wb") as f:
-#     f.write(make_img("3,4,6-tributyl-7-methyl-3,6-ethylokt-4-en-1-yn").getvalue())
-
+#make_img(uhlovodik)
