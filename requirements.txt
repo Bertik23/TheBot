@@ -71,6 +71,9 @@ setuptools == 41.2.0
 # D:\Python\TheBot\commands.py: 16
 smaz_py3 == 1.0.1
 
+# D:\Python\TheBot\pigarImports.py: 9
+spacy == 2.3.2
+
 # D:\Python\TheBot\bot.py: 19
 stopit == 1.1.2
 

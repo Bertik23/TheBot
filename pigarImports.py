@@ -5,3 +5,5 @@ It adds essential packages to the requirement.txt file, that are not imported an
 import kaleido
 
 import pandas
+
+import spacy
