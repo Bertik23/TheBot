@@ -23,7 +23,7 @@ from prettytable import PrettyTable
 
 import botFunctions
 import botGames
-import chatbot
+#import chatbot
 import commands
 import database
 from botFunctions import (checkMZCR, getFact, getJokeTxt, getLastInstaPost,
@@ -111,9 +111,9 @@ async def on_message(message):
 	"""if not message.author.bot:
 		await spamProtection(message, 3)"""
 
-	if message.channel.id == 766655158473850890:
-		chatbot.talk_to_bot(message.content)
-		return
+	# if message.channel.id == 766655158473850890:
+	# 	chatbot.talk_to_bot(message.content)
+	# 	return
 
 	for i in ["hi","dobrý den","brý den","čau","ahoj", "zdravíčko", "tě péro", "těpéro", "zdárek párek","tě guli", "čus", "olá", "ola", "guten tag"]:
 		if re.search(f"(\W|^){i}(\W|$)", message.content, re.I) and not message.author.bot:
