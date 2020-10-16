@@ -12,7 +12,7 @@ PTable == 0.9.2
 Pillow == 8.0.0
 
 # D:\Python\TheBot\pigarImports.py: 11
-PyYAML == 3.13
+PyYAML == 5.1
 
 # D:\Python\TheBot\bot.py: 20
 # D:\Python\TheBot\botFunctions.py: 9
