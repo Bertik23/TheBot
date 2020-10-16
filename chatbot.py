@@ -1,5 +1,10 @@
 from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer
+import os
+
+os.system("python -m spacy download en")
+
+os.system("python -m spacy link en_core_web_sm en")
 
 chatbot = ChatBot('TheBot',
     logic_adapters=[
