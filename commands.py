@@ -1,12 +1,14 @@
 import datetime
 import math
 import os
+import random
 
 import bdbf
 import gspread
 import ksoftapi
 import pkg_resources
 import plotly.express as px
+import plotly.graph_objects as go
 import praw
 import prawcore
 from bdbf import *
@@ -246,12 +248,28 @@ class stats(Command):
 		async with msg.channel.typing():
 			if args == "commands":
 				commandCountTotaly = len(commandLog.col_values(1))-1
+				commandsList = commandLog.col_values(2)[1:]
 				commandCountGuild = len([g for g in commandLog.col_values(7) if g == str(msg.channel.guild.id)])
 				commandCountChannel = len([g for g in commandLog.col_values(5) if g == str(msg.channel.id)])
 				mostActiveCommandor = mostFrequent(commandLog.col_values(4))
-				mostUsedCommand = mostFrequent(commandLog.col_values(2))
+				mostUsedCommand = mostFrequent(commandsList)
 
 				commandTimes = commandLog.col_values(1)[1:]
+
+				commandTimes = commandLog.col_values(1)[1:]
+
+				commandTimeUsage = {}
+				for i, t in enumerate(commandTimes):
+					if t[:10] not in commandTimeUsage.keys():
+						commandTimeUsage[t[:10]] = []
+					commandTimeUsage[t[:10]].append(commandsList[i])
+
+				for key in commandTimeUsage.keys():
+					commandTimeUsage[key] = count(commandTimeUsage[key])
+
+				# print(commandTimeUsage)
+
+				commandCounts = count(commandsList)
 
 				commandTimes = [time.isoformat() for time in map(roundToTheLast30min,map(datetime.fromisoformat, commandTimes))]
 				commandTimesUno = deleteDuplicates(commandTimes)
@@ -263,7 +281,48 @@ class stats(Command):
 
 				fig = px.bar(x = commandTimesUno, y = commandTimeCounts)
 
-				fig_bytes = fig.to_image(format="png", width=600, height=800)
+				fig.update_yaxes(type = "log", range=[0, math.log(max(commandTimeCounts),10)+0.2])
+
+				fig_bytes = fig.to_image(format="png", width=1800, height=800)
+
+				await msg.channel.send(file=discord.File(io.BytesIO(fig_bytes), filename="stats.png"))
+
+				x=[f"{t}T00:00:00.000000" for t in commandTimeUsage.keys()]
+				fig = go.Figure()
+
+				# print(rotateDict(commandTimeUsage))
+
+				cmds = {}
+
+				for c in commandsList:
+					cmds[c] = []
+					for t in commandTimeUsage.keys():
+						try:
+							cmds[c].append(commandTimeUsage[t][c])
+						except KeyError:
+							cmds[c].append(0)
+
+				#print(cmds)
+
+				for c in cmds.keys():
+					fig.add_trace(go.Scatter(
+						x=x, y=cmds[c],
+						mode='lines',
+						line=dict(width=2, color=f"rgb({random.randint(0,255)}, {random.randint(0,255)}, {random.randint(0,255)})", shape= 'spline', smoothing= 0.5),
+						name=c))
+
+				fig.update_layout(
+					showlegend=True)
+
+				fig.update_yaxes(type = "log", range=[0, math.log(max(commandCounts.values()),10)+0.2])
+
+				fig_bytes = fig.to_image(format="png", width=1800, height=800)
+
+				await msg.channel.send(file=discord.File(io.BytesIO(fig_bytes), filename="stats.png"))
+
+				fig = go.Figure(data=[go.Pie(labels=list(commandCounts.keys()), values=list(commandCounts.values()), textinfo="value+percent")])
+
+				fig_bytes = fig.to_image(format="png", width=1200, height=1200)
 
 				await msg.channel.send(file=discord.File(io.BytesIO(fig_bytes), filename="stats.png"))
 

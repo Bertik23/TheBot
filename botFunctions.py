@@ -23,20 +23,36 @@ wClient = wolframalpha.Client("TV7GVY-8YLJ26PPK9")
 githubToken = os.environ.get("GithubToken", None)
 
 def mostFrequent(List): 
-    counter = 0
-    num = List[0] 
-      
-    for i in List: 
-        curr_frequency = List.count(i) 
-        if(curr_frequency> counter): 
-            counter = curr_frequency 
-            num = i 
+	counter = 0
+	num = List[0] 
+	  
+	for i in List: 
+		curr_frequency = List.count(i) 
+		if(curr_frequency> counter): 
+			counter = curr_frequency 
+			num = i 
   
-    return num 
+	return num 
+
+def count(List):
+	out = {}
+	for i in List:
+		out[i] = List.count(i)
+	return out
+
+def rotateDict(Dict):
+	out = {}
+	for i in Dict.keys():
+		for j in Dict[i]:
+			if j not in out.keys():
+				out[j] = []
+			out[j].append(i)
+
+	return out
 
 def roundToTheLast30min(time):
-    rounded = time - (time - datetime.min) % timedelta(minutes=30)
-    return rounded
+	rounded = time - (time - datetime.min) % timedelta(minutes=30)
+	return rounded
 
 def makeGithubIssue(title: str, body: str=None, labels: list=None):
 	"""Create an issue on github.com using the given parameters"""
@@ -284,11 +300,11 @@ def decrypt(text_to_decrypt, encryption_base):
 	return texto
 
 def deleteDuplicates(l):
-    l2 = []
-    for i in l:
-        if i not in l2:
-            l2.append(i)
-    return l2
+	l2 = []
+	for i in l:
+		if i not in l2:
+			l2.append(i)
+	return l2
 
 def checkMZCR(url):
 	ts = requests.get(url)
