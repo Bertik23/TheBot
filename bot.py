@@ -242,16 +242,16 @@ async def checkWebsites():
 			print(e)
 
 		#choco_afro
-		try:
-			with stopit.ThreadingTimeout(10) as to_ctx_mgr:
-				assert to_ctx_mgr.state == to_ctx_mgr.EXECUTING
+		# try:
+		# 	with stopit.ThreadingTimeout(10) as to_ctx_mgr:
+		# 		assert to_ctx_mgr.state == to_ctx_mgr.EXECUTING
 
-				print("Checking for new post on choco_afro")
-				lastChocoPost = getLastInstaPost("choco_afro")
-				if time.time() - lastChocoPost["taken_at_timestamp"] <= 7000:
-					await choco_afroAnouncements.send(lastChocoPost["display_url"])
-		except Exception as e:
-			print(e)
+		# 		print("Checking for new post on choco_afro")
+		# 		lastChocoPost = getLastInstaPost("choco_afro")
+		# 		if time.time() - lastChocoPost["taken_at_timestamp"] <= 7000:
+		# 			await choco_afroAnouncements.send(lastChocoPost["display_url"])
+		# except Exception as e:
+		# 	print(e)
 
 		#MZCR TS
 		try:
