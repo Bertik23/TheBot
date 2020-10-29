@@ -517,6 +517,7 @@ class TimerObject():
         while True:
             try:
                 await self.sendMsg()
+                await asyncio.sleep(1)
             except GetOutOfLoop:
                 break
 
