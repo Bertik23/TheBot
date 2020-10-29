@@ -1,0 +1,2 @@
+class GetOutOfLoop(Exception):
+    pass

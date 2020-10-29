@@ -21,6 +21,7 @@ from botFunctions import *
 from botGames import Game2048
 from database import commandLog, messageLog
 import uhlovod
+from exceptions import *
 
 logging = True
 
@@ -460,7 +461,8 @@ class timer(Command):
 
         if "-Q" in args:
             try:
-                return f"{self.userTimers[msg.author].getTime()} seconds left.", None
+                await self.userTimers[msg.author].sendMsg(True)
+                return
             except:
                 return
 
@@ -486,7 +488,6 @@ class timer(Command):
             args = args.split("-t")
             t = (datetime.fromisoformat(args[1].rstrip().lstrip()) - datetime.utcnow()).total_seconds()
 
-
         self.userTimers[msg.author] = TimerObject()
         await self.userTimers[msg.author].timer(t, msg, sendMsgs)
 
@@ -494,34 +495,47 @@ class timer(Command):
 class TimerObject():
     def __init__(self):
         self.t = -10
+        self.timerMsg = None
+        self.channel = None
+        self.author = None
     async def timer(self, t, msg, sendMsgs = False):
+        self.author = msg.author
         self.start = datetime.utcnow()
         self.end = datetime.utcnow()+timedelta(seconds=t)
-        channel = msg.channel
+        self.channel = msg.channel
         self.t = t
-        while self.t > 600:
-            if self.t%600 != 0:
-                if sendMsgs: await channel.send(f"{self.t} seconds left.")
-                await asyncio.sleep(t%600)
-                self.t -= self.t%600
-            if sendMsgs: await channel.send(f"{self.t} seconds left.")
-            await asyncio.sleep(600)
-            self.t -= 600
-        while self.t > 10:
-            if self.t%10 != 0:
-                if sendMsgs: await channel.send(f"{self.t} seconds left.")
-                await asyncio.sleep(t%10)
-                self.t -= self.t%10
-            if sendMsgs: await channel.send(f"{self.t} seconds left.")
-            await asyncio.sleep(10)
-            self.t -= 10
-        while self.t >= 1:
-            if sendMsgs: await channel.send(f"{self.t} seconds left.")
-            await asyncio.sleep(1)
-            self.t -= 1
-        await channel.send(f"{msg.author.mention} Timer completed!", tts=True)
+
+        await self.sender()
+
+        await self.channel.send(f"{msg.author.mention} Timer completed!", tts=True)
         self.t = -10
+        self.channel = None
     def getTime(self):
         return (self.end-datetime.utcnow()).total_seconds()
+
+    async def sender(self):
+        while True:
+            try:
+                await self.sendMsg()
+            except GetOutOfLoop:
+                break
+
+    async def sendMsg(self, newMessage = False):
+        # print(self.getTime())
+        if self.getTime() >= 0:
+            minutes, seconds = divmod(self.getTime(), 60)
+            hours, minutes = divmod(minutes, 60)
+            days, hours = divmod(hours, 24)
+        else:
+            days, hours, minutes, seconds = 0,0,0,0
+
+
+        if self.timerMsg == None or newMessage:
+            self.timerMsg = await self.channel.send(f"{self.author.mention} {int(days)}:{int(hours)}:{int(minutes)}:{seconds} left.")
+        else:
+            await self.timerMsg.edit(content=f"{self.author.mention} {int(days)}:{int(hours)}:{int(minutes)}:{seconds} left.")
+        if (days, hours, minutes, seconds) == (0,0,0,0):
+            raise GetOutOfLoop
+
 
 bdbf.commands.cmds["all"].append(timer("Timer command.","`%commandPrefix%timer <seconds>` or `%commandPrefix%timer -t <ISO utc time>` eg. `%commandPrefix%timer 60` or `%commandPrefix%timer -t 2020-12-31T23:59:59`\nTo display countdown messages add `-M`\nTo get current time remaining use `%commandPrefix%timer -Q`"))
