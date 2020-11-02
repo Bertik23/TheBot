@@ -533,12 +533,14 @@ class TimerObject():
         def addZero(x):
             if x < 10:
                 return "0" + str(x)
-            return x
+            else:
+                return x
+            
             
         if self.timerMsg == None or newMessage:
-            self.timerMsg = await self.channel.send(f"{self.author.mention} {addZero(int(days))}:{addZero(int(hours))}:{addZero(int(minutes))}:{addZero(int(round(seconds,0)))} left.")  
+            self.timerMsg = await self.channel.send(f"{self.author.mention} {addZero(int(days))}:{addZero(int(hours))}:{addZero(int(minutes))}:{addZero(round(seconds))} left.")  
         else:
-            await self.timerMsg.edit(content=f"{self.author.mention} {addZero(int(days))}:{addZero(int(hours))}:{addZero(int(minutes))}:{addZero(int(round(seconds,0)))} left.")
+            await self.timerMsg.edit(content=f"{self.author.mention} {addZero(int(days))}:{addZero(int(hours))}:{addZero(int(minutes))}:{addZero(round(seconds))} left.")
         if (days, hours, minutes, seconds) == (0,0,0,0):
             raise GetOutOfLoop
 
