@@ -533,6 +533,9 @@ class TimerObject():
         def addZero(x):
             if x < 10:
                 return "0" + str(x)
+            else:
+                return x
+            
             
         if self.timerMsg == None or newMessage:
             self.timerMsg = await self.channel.send(f"{self.author.mention} {addZero(int(days))}:{addZero(int(hours))}:{addZero(int(minutes))}:{addZero(int(seconds))} left.")  
