@@ -18,7 +18,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 import botFunctions
 import smaz
 from botFunctions import *
-from botGames import Game2048, client
+from botGames import Game2048
+import botGames
 from database import commandLog, messageLog
 import uhlovod
 from exceptions import *
@@ -473,6 +474,7 @@ class timer(Command):
             elif self.userTimers[msg.author] and "-F" in args:
                 await channel.send(f"{msg.author.mention} you have overwritten your old timer. This action is not reversible.")
                 args = args.replace("-F", "")
+                self.userTimers[msg.author].sending = False
 
         except:
             pass
@@ -504,18 +506,29 @@ class TimerObject():
         self.end = datetime.utcnow()+timedelta(seconds=t)
         self.channel = msg.channel
         self.t = t
+        self.sending = True
+        self.commandMsg = msg
 
-        await self.sender()
+        botGames.client.loop.create_task(self.sender())
 
-        await self.channel.send(f"{msg.author.mention} Timer completed!", tts=True)
-        self.t = -10
-        self.channel = None
     def getTime(self):
         return (self.end-datetime.utcnow()).total_seconds()
 
     async def sender(self):
-        t = await self.sendMsg()
-        await asyncio.sleep(1)
+        while self.sending:
+            days, hours, minutes, seconds = await self.sendMsg()
+            if (days, hours, minutes, seconds) != (0,0,0,0):
+                if days > 0:
+                    await asyncio.sleep(minutes*60+seconds)
+                if hours > 0:
+                    await asyncio.sleep(seconds)
+                else:
+                    await asyncio.sleep(1)
+            else:
+                self.sending = False
+                await self.channel.send(f"{self.commandMsg.author.mention} Timer completed!", tts=True)
+                self.t = -10
+                self.channel = None
 
 
     async def sendMsg(self, newMessage = False):
@@ -528,13 +541,17 @@ class TimerObject():
             days, hours, minutes, seconds = 0,0,0,0
 
         if days > 0:
-            message = f"{self.author.mention} {int(days)}:{int(hours)}:{int(minutes)}:{seconds} left."
+            message = f"{self.author.mention} {addZero(int(days))} days {addZero(int(hours))} hours left."
+        elif hours > 0:
+            message = f"{self.author.mention} {addZero(int(hours))} hours {addZero(int(minutes))} minutes left."
+        else:
+            message = f"{self.author.mention} {addZero(int(minutes))}:{addZero(int(seconds))} left."
 
 
         if self.timerMsg == None or newMessage:
-            self.timerMsg = await self.channel.send(f"{self.author.mention} {int(days)}:{int(hours)}:{int(minutes)}:{seconds} left.")
+            self.timerMsg = await self.channel.send(message)
         else:
-            await self.timerMsg.edit(content=f"{self.author.mention} {int(days)}:{int(hours)}:{int(minutes)}:{seconds} left.")
+            await self.timerMsg.edit(content=message)
         return (days, hours, minutes, seconds)
 
 

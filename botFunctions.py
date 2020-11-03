@@ -340,7 +340,10 @@ async def spamProtection(message: discord.Message, testForMessages: int):
 	if areMessagesSame:
 		await message.delete()
 
-	
+def addZero(num):
+    if num < 10:
+        return "0"+str(num)
+    return num
 
 
 
