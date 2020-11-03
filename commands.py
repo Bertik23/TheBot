@@ -18,7 +18,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import botFunctions
 import smaz
 from botFunctions import *
-from botGames import Game2048
+from botGames import Game2048, client
 from database import commandLog, messageLog
 import uhlovod
 from exceptions import *
@@ -514,12 +514,9 @@ class TimerObject():
         return (self.end-datetime.utcnow()).total_seconds()
 
     async def sender(self):
-        while True:
-            try:
-                await self.sendMsg()
-                await asyncio.sleep(1)
-            except GetOutOfLoop:
-                break
+        t = await self.sendMsg()
+        await asyncio.sleep(1)
+
 
     async def sendMsg(self, newMessage = False):
         # print(self.getTime())
@@ -530,13 +527,15 @@ class TimerObject():
         else:
             days, hours, minutes, seconds = 0,0,0,0
 
+        if days > 0:
+            message = f"{self.author.mention} {int(days)}:{int(hours)}:{int(minutes)}:{seconds} left."
+
 
         if self.timerMsg == None or newMessage:
             self.timerMsg = await self.channel.send(f"{self.author.mention} {int(days)}:{int(hours)}:{int(minutes)}:{seconds} left.")
         else:
             await self.timerMsg.edit(content=f"{self.author.mention} {int(days)}:{int(hours)}:{int(minutes)}:{seconds} left.")
-        if (days, hours, minutes, seconds) == (0,0,0,0):
-            raise GetOutOfLoop
+        return (days, hours, minutes, seconds)
 
 
 bdbf.commands.cmds["all"].append(timer("Timer command.","`%commandPrefix%timer <seconds>` or `%commandPrefix%timer -t <ISO utc time>` eg. `%commandPrefix%timer 60` or `%commandPrefix%timer -t 2020-12-31T23:59:59`\nTo display countdown messages add `-M`\nTo get current time remaining use `%commandPrefix%timer -Q`"))
