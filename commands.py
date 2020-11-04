@@ -23,6 +23,9 @@ import botGames
 from database import commandLog, messageLog
 import uhlovod
 from exceptions import *
+from PIL import Image, ImageDraw, ImageFont
+import json
+
 
 logging = True
 
@@ -84,6 +87,8 @@ bdbf.commands.cmds[697015129199607839].append(zmena("Returns schedule changes fo
 class rozvrh(Command):
     async def commandos(self, args, msg):
         room = None
+        if args == None:
+            args = "7.A"
         try:
             arguments = args.rsplit(" ",1)
             if arguments[-1] == "-t":
@@ -556,3 +561,84 @@ class TimerObject():
 
 
 bdbf.commands.cmds["all"].append(timer("Timer command.","`%commandPrefix%timer <seconds>` or `%commandPrefix%timer -t <ISO utc time>` eg. `%commandPrefix%timer 60` or `%commandPrefix%timer -t 2020-12-31T23:59:59`\nTo display countdown messages add `-M`\nTo get current time remaining use `%commandPrefix%timer -Q`"))
+
+
+class image(Command):
+    async def commandos(self, args, msg):
+        roboto = ImageFont.truetype("fonts/Roboto-Regular.ttf",15)
+
+        img = Image.new("RGBA", size = (1,1), color=(int("36",16),int("39",16),int("3F",16),255))
+
+        def imgURL(url):
+            return Image.open(io.BytesIO(requests.get(url).content))
+
+        def addImgAndText(img, image=None, text="", padding=5):
+            if image == None:
+                image = Image.new("RGBA",size=(0,0))
+            y = img.size[1]
+
+            textLen = max(map(len,text.split("\n")))*10
+
+            size = [0,0]
+            print(img.size, image.size, textLen)
+            if img.size[0] > image.size[0] and img.size[0] > textLen:
+                size[0] = img.size[0]
+            elif img.size[0] < textLen and image.size[0] < textLen:
+                size[0] = padding+textLen
+            elif image.size[0] > textLen:
+                size[0] = image.size[0]+padding
+            else:
+                size[0] = padding+textLen
+
+            print(size)
+
+            size[1] = img.size[1] + image.size[1]+padding*2+len(text.split("\n")*15)
+
+
+            img2 = Image.new("RGBA", size = size, color=(int("36",16),int("39",16),int("3F",16),255))
+            img2.paste(img,(0,0,img.size[0],img.size[1]))
+            img = img2
+
+            img.paste(image,(padding,y + padding,image.size[0]+padding,image.size[1]+padding+y))
+
+            draw = ImageDraw.Draw(img)
+
+            draw.text((padding,y+image.size[1]+padding), text, font=roboto)
+
+            return img
+
+        def remove_transparency(im, bg_colour=(int("36",16),int("39",16),int("3F",16))):
+            # Only process if image has transparency (http://stackoverflow.com/a/1963146)
+            if im.mode in ('RGBA', 'LA') or (im.mode == 'P' and 'transparency' in im.info):
+
+                # Need to convert to RGBA if LA format due to a bug in PIL (http://stackoverflow.com/a/1963146)
+                alpha = im.convert('RGBA').split()[-1]
+
+                # Create a new background image of our matt color.
+                # Must be RGBA because paste requires both images have the same format
+                # (http://stackoverflow.com/a/8720632  and  http://stackoverflow.com/a/9459208)
+                bg = Image.new("RGBA", im.size, bg_colour + (255,))
+                bg.paste(im, mask=alpha)
+                return bg
+
+            else:
+                return im
+
+        while "%image:" in args:
+            args = args.split("%image:",1)[1]
+            img = addImgAndText(img, imgURL(args.split(" ")[0]), args.split("%image:")[0].split(" ",1)[1])
+        img = remove_transparency(img)
+        img.save("temp.png")
+        with open("temp.png", "rb") as f:
+            await msg.channel.send(file = discord.File(f))
+
+bdbf.commands.cmds["all"].append(image())
+
+class makeEmbed(Command):
+    async def commandos(self, args, msg):
+        embedDict = json.loads(args)
+        embedDict.pop("timestamp","")
+        return None, discord.Embed.from_dict(embedDict)
+
+
+bdbf.commands.cmds["all"].append(makeEmbed())
