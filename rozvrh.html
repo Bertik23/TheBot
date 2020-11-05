@@ -1,0 +1,2888 @@
+
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta id="bkViewport" name="viewport" content="width=device-width" />
+
+    <title>WEB Bakaláøi - Rozvrh</title>
+
+    <link rel="stylesheet" href="/next/css/jquery-ui.min.css" />
+    <link rel="shortcut icon" href="/next/images/favicon.ico">
+    <!-- Bootstrap -->
+    <link href="/next/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- CSS -->
+    <!--Fonts-->
+    <link href="/next/icons/style.css?v=20201006" rel="stylesheet" />
+    <!--Font Awesome-->
+    <!--JQuery-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.17.0/jquery.validate.min.js"></script>
+    <!--Fastclisk.js - fix double tap on iOS-->
+    <!--Knockout.js -->
+    <!--JSBootstrap-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <!-- Resolving name collision between jQuery UI and Twitter Bootstrap -->
+    <script>
+        $.widget.bridge('uitooltip', $.ui.tooltip);
+    </script>
+    <!-- Cldr -->
+    <!-- Globalize -->
+    <!-- A DevExtreme library -->
+    <!-- Tiny MCE/CK Editor -->
+    <!-- Localizationc -->
+    <!--App root for scripts-->
+    <script type="text/javascript">
+        var appRoot = "/";
+        var currentLangCode = "cs";
+        var loginUrl = "/login";
+    </script>
+    <!--Begin page specific -->
+    
+    <link rel="stylesheet" type="text/css" href="/next/css/rozvrh_volny.css?v=20201006" />
+    <link rel="stylesheet" type="text/css" href="/next/css/bubble.css?v1.1" />
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsrender/1.0.1/jsrender.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/jquery.marquee@1.5.0/jquery.marquee.min.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+
+
+        $(function () {
+            InitTooltips();
+        });
+
+        function InitTooltips() {
+            $('.ui-tooltip').hide();
+            $(document).uitooltip();
+        }
+
+        function thisHeight() {
+            return $(this).height();
+        }
+
+        $(function () {
+
+            $(".roll-vertical").filter(function () {
+                return this.clientHeight < this.scrollHeight;
+            })
+                .marquee({
+                    //speed in milliseconds of the marquee
+                    duration: 5000,
+                    //gap in pixels between the tickers
+                    gap: 0,
+                    //time in milliseconds before the marquee will start animating
+                    delayBeforeStart: 1,
+                    //'left' or 'right'
+                    direction: 'up',
+                    //true or false - should the marquee be duplicated to show an effect of continues flow
+                    duplicated: true
+                });
+
+            // Zobrazování bubble tooltipu
+            $(".day-item-hover, .bk-timetable-guard").tooltip({
+                items: ".day-item-hover, .bk-timetable-guard",
+                classes: {
+                    "ui-tooltip": "bubble bubble-blue",
+                    "ui-tooltip-content": ""
+                },
+                position: {
+                    my: "left-10 bottom",
+                    at: "center center-30",
+                    collision: "flip flip",
+                    using: function (position, feedback) {
+                        $(this).css(position);
+                        switch (feedback.horizontal) {
+                            case "left":
+                                $(this).addClass("bubble-right");
+                                break;
+                            case "right":
+                                $(this).addClass("bubble-left");
+                                break;
+                        }
+                        switch (feedback.vertical) {
+                            case "top":
+                                $(this).addClass("bubble-bottom");
+                                break;
+                            case "bottom":
+                                $(this).addClass("bubble-top");
+                                break;
+                        }
+                    }
+                },
+                content: function () {
+                    var element = $(this);
+                    if (element.is(".day-item-hover")) {
+                        var data = $(this).data("detail");
+                        if ((data || "") == "")
+                            return "";
+                        var templ = $.templates('#' + data.type + 'Template');
+                        var html = templ.render(data);
+                        return html;
+                    }
+                    if (element.is(".bk-timetable-guard")) {
+                        var data = $(this).data("detail");
+                        var templ = $.templates('#guardTemplate');
+                        var html = templ.render(data);
+                        return html;
+                    }
+                },
+                disabled: true,
+                close: function (event, ui) { $(this).tooltip('disable'); }
+            });
+
+            $(".day-item-hover, .bk-timetable-guard").on('click', function () {
+                $(this).tooltip('enable').tooltip("open");
+            });
+
+            $('.bk-timetable-cell .day-item .day-item-hover .middle').each(function () {
+                var el = $(this);
+                var textLength = el.html().length;
+                if (textLength >= 4) {
+                    el.css('font-size', 'calc(7px + 1vw)');
+                }
+            });
+
+            var element = $('.day-flex').find('.top-hide');
+            if (parseInt($('.day-flex').width()) < 47) {
+                element.hide();
+            } else {
+                element.show();
+            }
+
+            $('.bk-cell-wrapper').each(function () {
+                $(this).children('.bk-timetable-guard').each(function () {
+                    var guard = $(this);
+                    if (parseInt(guard.width()) > 45) {
+                        $(".withAbbrev", this).hide();
+                        $(".withName", this).show();
+                    } else {
+                        $(".withAbbrev", this).show();
+                        $(".withName", this).hide();
+
+                    }
+                    if (parseInt(guard.width()) < 60) {
+                        $(".withName-time", this).hide();
+                    }
+                    else {
+                        $(".withName-time", this).show();
+                    }
+                });
+            });
+
+            $(".bk-timetable-row").each(function () {
+                var thisMaxHeight = Math.max.apply(Math, $(this).find(".day-item:not(.green)").map(thisHeight));
+                $(this).css('min-height', (thisMaxHeight + 10) + 'px');
+                $(".bk-timetable-cell").css('max-height', (thisMaxHeight + 10) + 'px');
+            });
+
+            var heightOfTop = $('.bk-timetable-header').height();
+            $('.bk-canvas').css('top', heightOfTop);
+            $('#main').css('margin-top', heightOfTop);
+        });
+
+        // Bohužel resize event
+        $(window).resize(function () {
+        // Zkracování názvù dozorù na zkratky
+            $('.bk-cell-wrapper').each(function () {
+                $(this).children('.bk-timetable-guard').each(function () {
+                    var guard = $(this);
+                    if (parseInt(guard.width()) > 45) {
+                        $(".withAbbrev", this).hide();
+                        $(".withName", this).show();
+                    } else {
+                        $(".withAbbrev", this).show();
+                        $(".withName", this).hide();
+
+                    }
+                    if (parseInt(guard.width()) < 60) {
+                        $(".withName-time", this).hide();
+                    }
+                    else {
+                        $(".withName-time", this).show();
+                    }
+                });
+            });
+
+            //Nastavení výšky øádku (kvùli absolutní pozici lístkù s pøedmìty)
+            $(".bk-timetable-row").each(function () {
+                var thisMaxHeight = Math.max.apply(Math, $(this).find(".day-item:not(.green)").map(thisHeight));
+                $(this).css('min-height', (thisMaxHeight + 10) + 'px');
+                $(".bk-timetable-cell").css('max-height', (thisMaxHeight + 10) + 'px');
+            });
+
+            //Skrývání top elementu
+            var element = $('.day-flex').find('.top-hide');
+            if (parseInt($('.day-flex').width()) < 47) {
+                element.hide();
+            } else {
+                element.show();
+            }
+
+            //Odsazování kvùli zmìnì výšky horní lišty s filtry
+            var heightOfTop = $('.bk-timetable-header').height();
+            $('.bk-canvas').css('top', heightOfTop);
+            $('#main').css('margin-top', heightOfTop);
+        });
+
+        function changeClass() {
+            showTimetable('Class', $('#selectedClass').val());
+        }
+
+        function changeTeacher() {
+            showTimetable('Teacher', $('#selectedTeacher').val());
+        }
+
+        function changeRoom() {
+            showTimetable('Room', $('#selectedRoom').val());
+        }
+
+        function changeTerm() {
+            showTimetable('Class', 'WR');
+        }
+
+        function showTimetable(objectType, objectId) {
+            if (objectId) {
+                //var term = $('#selectedTerm').val();
+                var term = $('[name=options]:checked').val();
+                if (!term) {
+                    term = 'Permanent';
+                }
+                var href = appRoot + 'Timetable/Public/'+term+'/' + objectType + '/' + objectId + '';
+                window.location.href = href;
+            }
+        }
+
+        /* Otevírání off-canvas menu podle obsahu */
+        function openCanvas(btn) {
+            if ($(btn).is('#teacher')) {
+                $('.btn-touch').removeClass('pressed');
+                $(btn).addClass('pressed');
+                $('#teacher_canvas').css({ 'width': 'auto', 'transform': 'scaleX(1)' });
+                $('.bk-canvas:not(#teacher_canvas)').css({ 'width': '0px', 'transform': 'scaleX(0)' });
+                var lm = $('#teacher_canvas').width();
+                $("#main").css('margin-left', lm);
+            }
+            if ($(btn).is('#class')) {
+                $('.btn-touch').removeClass('pressed');
+                $(btn).addClass('pressed');
+                $('#class_canvas').css({ 'width': 'auto', 'transform': 'scaleX(1)' });
+                $('.bk-canvas:not(#class_canvas)').css({ 'width': '0px', 'transform': 'scaleX(0)' });
+                var lm = $('#class_canvas').width();
+                $("#main").css('margin-left', lm);
+            }
+            if ($(btn).is('#room')) {
+                $('.btn-touch').removeClass('pressed');
+                $(btn).addClass('pressed');
+                $('#room_canvas').css({ 'width': 'auto', 'transform': 'scaleX(1)' });
+                $('.bk-canvas:not(#room_canvas)').css({ 'width': '0px', 'transform': 'scaleX(0)' });
+                var lm = $('#room_canvas').width();
+                $("#main").css('margin-left', lm);
+            }
+        }
+
+        /* Zavøení canvasu */
+        function closeCanvas() {
+            $('.btn-touch').removeClass('pressed');
+            $(".bk-canvas").css({ 'width': '0px', 'transform': 'scaleX(0)' });
+            $("#main").css('margin-left', '0px');
+
+        }
+
+    </script>
+
+    <!--End page specific -->
+        <!--Google Analytics-->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-87382856-1"></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+            function gtag() { dataLayer.push(arguments); }
+            gtag('js', new Date());
+            gtag('set', { 'user_id': '4348' });
+            gtag('config', 'UA-87382856-1', {
+                'page_path': '/Timetable/Public/ActualClass',
+                'dimension1': 'none',
+                'dimension2': '20201006',
+                'dimension3': '4348',
+                'dimension4': '1.34.1006.1'
+                });
+        </script>
+        <!-- End Google Analytics -->
+
+    <script type="text/javascript">
+        $(function () {
+            var element = $("#bkViewport");
+            if (screen.width < 640) {
+                element.attr("content", "width=500");
+            }
+            if ((window.matchMedia("(orientation: landscape)").matches && screen.height < 640) || (window.matchMedia("(orientation: landscape)").matches && screen.width < 640)) {
+                element.attr("content", "width=750, initial-scale=0.75");
+            }
+        });
+    </script>
+
+</head>
+<body>
+    
+
+
+<script id="atomTemplate" type="text/x-jsrender">
+    <span class="line">
+        <span class="bold">{{:subjecttext}}</span>
+    </span>
+    {{if (teacher||""!="")}}
+    <span class="line">
+        Uèitel: <span class="bold">{{:teacher}}</span>
+    </span>
+    {{/if}}
+    <span class="line">
+        M&#237;stnost: <span class="bold">{{:room}}</span>
+    </span>
+    {{if (group||""!="")}}
+    <span class="line">
+        Skupina: <span class="bold">{{:group}}</span>
+    </span>
+    {{/if}}
+    {{if (theme||""!="")}}
+    <span class="line">
+        T&#233;ma:
+        <span class="bold">{{:theme}}</span>
+    </span>
+    {{/if}}
+    {{if (notice||""!="")}}
+    <span class="line">
+        Pozn&#225;mka:
+        <span class="bold">{{:notice}}</span>
+    </span>
+    {{/if}}
+    {{if (changeinfo)}}
+    <span class="line">
+        Zmena:
+        <span class="bold">{{:changeinfo}}</span>
+    </span>
+    {{/if}}
+    {{if (absencetext)}}
+    <span class="line fl clear-left">
+        Doch&#225;zka:
+        <span class="bold">{{:absencetext}}</span>
+    </span>
+    {{/if}}
+</script>
+
+<script id="absentTemplate" type="text/x-jsrender">
+    <span class="line">
+        <span class="bold">{{:subjecttext}}</span>
+    </span>
+    {{if (notice||""!="")}}
+    <span class="line">
+        Informace:
+        <span class="bold">{{:notice}}</span>
+    </span>
+    {{/if}}
+    {{if (absentinfo)}}
+    <span class="line">
+        <span class="bold">{{:absentinfo}}</span>
+    </span>
+    {{/if}}
+    {{if (removedinfo)}}
+    <span class="line">
+        <span class="bold">{{:removedinfo}}</span>
+    </span>
+    {{/if}}
+</script>
+
+<script id="removedTemplate" type="text/x-jsrender">
+    <span class="line">
+        <span class="bold">{{:subjecttext}}</span>
+    </span>
+    {{if (notice||""!="")}}
+    <span class="line">
+        Pozn&#225;mka:
+        <span class="bold bubble-item">{{:notice}}</span>
+    </span>
+    {{/if}}
+    {{if (absentinfo)}}
+    <span class="line">
+        <span class="bold">{{:absentinfo}}</span>
+    </span>
+    {{/if}}
+    {{if (removedinfo)}}
+    <span class="line">
+        <span class="bold">{{:removedinfo}}</span>
+    </span>
+    {{/if}}
+</script>
+
+<script id="guardTemplate" type="text/x-jsrender">
+    <span class="line">
+        <span class="bold">{{:day}} |</span>
+        <span class="bold">{{:name}}</span>
+    </span>
+    {{if (end && begin)}}
+    <span class="line">
+        <span class="bold">{{:begin}} - {{:end}}</span>
+    </span>
+    {{/if}}
+    {{if (info)}}
+    <span class="line">
+        Informace:
+        <span class="bold">{{:info}}</span>
+    </span>
+    {{/if}}
+</script>
+
+    <div class="bk-timetable-body">
+        <div class="container-fluid bk-timetable-header">
+                <div class="bk-header-caption">Gymn&#225;zium Sokolov a Krajsk&#233; vzdìl&#225;vac&#237; centrum, pø&#237;spìvkov&#225; organizace</div>
+
+                <div class="bk-timetable-selects row mb-1 mt-1">
+                        <div class="d-inline-flex m-1 mr-2 position-relative ico32-ovladani-smerovkaDolu">
+                            <span class="bk-timetable-label pl-0">Tø&#237;da</span>
+                            <select id="selectedClass" class="custom-select" onchange="changeClass()">
+                                <option></option>
+                                    <option value="XF"
+                                            >
+                                        1.A
+                                    </option>
+                                    <option value="XG"
+                                            >
+                                        1.B
+                                    </option>
+                                    <option value="XI"
+                                            >
+                                        1.C
+                                    </option>
+                                    <option value="XB"
+                                            >
+                                        2.A
+                                    </option>
+                                    <option value="XC"
+                                            >
+                                        2.B
+                                    </option>
+                                    <option value="XD"
+                                            >
+                                        2.C
+                                    </option>
+                                    <option value="XE"
+                                            >
+                                        2.D
+                                    </option>
+                                    <option value="AG"
+                                            >
+                                        2.E
+                                    </option>
+                                    <option value="X7"
+                                            >
+                                        3.A
+                                    </option>
+                                    <option value="XA"
+                                            >
+                                        3.B
+                                    </option>
+                                    <option value="X8"
+                                            >
+                                        3.C
+                                    </option>
+                                    <option value="X9"
+                                            >
+                                        3.D
+                                    </option>
+                                    <option value="AF"
+                                            >
+                                        3.E
+                                    </option>
+                                    <option value="X3"
+                                            >
+                                        4.A
+                                    </option>
+                                    <option value="X4"
+                                            >
+                                        4.B
+                                    </option>
+                                    <option value="X5"
+                                            >
+                                        4.C
+                                    </option>
+                                    <option value="X6"
+                                            >
+                                        4.D
+                                    </option>
+                                    <option value="AE"
+                                            >
+                                        4.E
+                                    </option>
+                                    <option value="WZ"
+                                            >
+                                        5.A
+                                    </option>
+                                    <option value="X0"
+                                            >
+                                        5.B
+                                    </option>
+                                    <option value="AD"
+                                            >
+                                        5.E
+                                    </option>
+                                    <option value="WY"
+                                            >
+                                        6.A
+                                    </option>
+                                    <option value="WX"
+                                            >
+                                        6.B
+                                    </option>
+                                    <option value="AC"
+                                            >
+                                        6.E
+                                    </option>
+                                    <option value="WR"
+                                              selected="selected"
+>
+                                        7.A
+                                    </option>
+                                    <option value="AB"
+                                            >
+                                        7.E
+                                    </option>
+                                    <option value="WO"
+                                            >
+                                        8.A
+                                    </option>
+                                    <option value="AA"
+                                            >
+                                        8.E
+                                    </option>
+                            </select>
+                        </div>
+                                            <div class="d-inline-flex m-1 mr-2 position-relative ico32-ovladani-smerovkaDolu">
+                            <span class="bk-timetable-label">Uèitel</span>
+                            <select id="selectedTeacher" class="custom-select" onchange="changeTeacher()">
+                                <option></option>
+                                    <option value="USBPB"
+                                            >
+                                        B&#225;b&#237;èkov&#225; Bechov&#225; Zdeòka
+                                    </option>
+                                    <option value="ULBOM"
+                                            >
+                                        Baborovsk&#225; Martina
+                                    </option>
+                                    <option value="UCHYP"
+                                            >
+                                        Bružeò&#225;k Vladim&#237;r
+                                    </option>
+                                    <option value="ULYN3"
+                                            >
+                                        È&#225;stkov&#225; Daniela
+                                    </option>
+                                    <option value="UOBOY"
+                                            >
+                                        Demitra Lucie
+                                    </option>
+                                    <option value="UOBOX"
+                                            >
+                                        Doležalov&#225; Renata
+                                    </option>
+                                    <option value="UHJ65"
+                                            >
+                                        Drahokoupilov&#225; Hana
+                                    </option>
+                                    <option value="UZBO2"
+                                            >
+                                        Drnovcov&#225; Pavl&#237;na
+                                    </option>
+                                    <option value="U7PBV"
+                                            >
+                                        Durn&#225; Magda
+                                    </option>
+                                    <option value="ULBOL"
+                                            >
+                                        Fenclov&#225; Monika
+                                    </option>
+                                    <option value="USBPF"
+                                            >
+                                        Gerberov&#225; Regina
+                                    </option>
+                                    <option value="UOBOU"
+                                            >
+                                        Gond&#237;k Rostislav
+                                    </option>
+                                    <option value="UQBP1"
+                                            >
+                                        Grech Martin
+                                    </option>
+                                    <option value="USBPI"
+                                            >
+                                        Hankov&#225; Lucie
+                                    </option>
+                                    <option value="UA2TE"
+                                            >
+                                        Hlav&#225;èek Jiø&#237;
+                                    </option>
+                                    <option value="U0013"
+                                            >
+                                        Honsov&#225; Veronika
+                                    </option>
+                                    <option value="UZBNG"
+                                            >
+                                        Chlebek Petr
+                                    </option>
+                                    <option value="USBPG"
+                                            >
+                                        Chval Martin
+                                    </option>
+                                    <option value="UZBNM"
+                                            >
+                                        Chvalov&#225; Lenka
+                                    </option>
+                                    <option value="USBPC"
+                                            >
+                                        Jahn Libuše
+                                    </option>
+                                    <option value="UNBOS"
+                                            >
+                                        Jel&#237;nkov&#225; Jaroslava
+                                    </option>
+                                    <option value="U0001"
+                                            >
+                                        Jirovec Karel
+                                    </option>
+                                    <option value="U0019"
+                                            >
+                                        Kadlec Jan
+                                    </option>
+                                    <option value="UTBPL"
+                                            >
+                                        Kadlecov&#225; Marie
+                                    </option>
+                                    <option value="URBP5"
+                                            >
+                                        Kaòkov&#225; Andrea
+                                    </option>
+                                    <option value="UZBND"
+                                            >
+                                        Kloudov&#225; Iva
+                                    </option>
+                                    <option value="UPBXF"
+                                            >
+                                        Kø&#237;žov&#225; V&#225;clava
+                                    </option>
+                                    <option value="U0009"
+                                            >
+                                        Kumpertov&#225; Radka
+                                    </option>
+                                    <option value="U0017"
+                                            >
+                                        Kv&#225;èa Aleš
+                                    </option>
+                                    <option value="UZBNV"
+                                            >
+                                        Liškov&#225; Ivana
+                                    </option>
+                                    <option value="UZBNR"
+                                            >
+                                        Lukešov&#225; Danuše
+                                    </option>
+                                    <option value="U0002"
+                                            >
+                                        Lukešov&#225; Hana
+                                    </option>
+                                    <option value="U0011"
+                                            >
+                                        Mal&#237;kov&#225; Jana
+                                    </option>
+                                    <option value="UO1LE"
+                                            >
+                                        Maø&#237;kov&#225; Petra
+                                    </option>
+                                    <option value="U0006"
+                                            >
+                                        Maškov&#225; Michaela
+                                    </option>
+                                    <option value="UZBNI"
+                                            >
+                                        Michalikov&#225; Jana
+                                    </option>
+                                    <option value="U0003"
+                                            >
+                                        Misakov&#225; Svatava
+                                    </option>
+                                    <option value="UQBP4"
+                                            >
+                                        Moravcov&#225; Soòa
+                                    </option>
+                                    <option value="UOBOV"
+                                            >
+                                        Motl&#237;kov&#225; Jana
+                                    </option>
+                                    <option value="UZBN6"
+                                            >
+                                        Najvarov&#225; Hana
+                                    </option>
+                                    <option value="UFGO8"
+                                            >
+                                        Novotn&#225; Hana
+                                    </option>
+                                    <option value="U0012"
+                                            >
+                                        Nyšov&#225; Jana
+                                    </option>
+                                    <option value="URBP7"
+                                            >
+                                        N&#253;vltov&#225; Eva
+                                    </option>
+                                    <option value="U0016"
+                                            >
+                                        Pozdnyakowa Helen
+                                    </option>
+                                    <option value="UQBP3"
+                                            >
+                                        Praktikant
+                                    </option>
+                                    <option value="UYGLD"
+                                            >
+                                        Prokop Vladim&#237;r
+                                    </option>
+                                    <option value="UY5SM"
+                                            >
+                                        Prokopov&#225; Nadìžda
+                                    </option>
+                                    <option value="U0004"
+                                            >
+                                        Radimersk&#253; Petr
+                                    </option>
+                                    <option value="UZBNL"
+                                            >
+                                        Rozhon Vladim&#237;r
+                                    </option>
+                                    <option value="UZBNU"
+                                            >
+                                        Rozmušov&#225; Iveta
+                                    </option>
+                                    <option value="UMBOO"
+                                            >
+                                        Ryb&#225;øov&#225; Lenka
+                                    </option>
+                                    <option value="UZBNW"
+                                            >
+                                        Sekyrov&#225; Ivana
+                                    </option>
+                                    <option value="UHDY5"
+                                            >
+                                        Siberov&#225; Blanka
+                                    </option>
+                                    <option value="UHVCS"
+                                            >
+                                        Sobotka V&#225;clav
+                                    </option>
+                                    <option value="UA64I"
+                                            >
+                                        Sojka František
+                                    </option>
+                                    <option value="UZBNK"
+                                            >
+                                        Sojkov&#225; Petra
+                                    </option>
+                                    <option value="UZBNF"
+                                            >
+                                        Soukupov&#225; Jitka
+                                    </option>
+                                    <option value="U0007"
+                                            >
+                                        Srba Stanislav
+                                    </option>
+                                    <option value="U0005"
+                                            >
+                                        Srv&#225;tka Milan
+                                    </option>
+                                    <option value="UU197"
+                                            >
+                                        Svobodov&#225; Jarmila
+                                    </option>
+                                    <option value="UPBOZ"
+                                            >
+                                        Šteklov&#225; Zuzana
+                                    </option>
+                                    <option value="UPBVZ"
+                                            >
+                                        Štursov&#225; Irena
+                                    </option>
+                                    <option value="UZBO6"
+                                            >
+                                        Šv&#225;cha Pavel
+                                    </option>
+                                    <option value="USBPA"
+                                            >
+                                        Technik Ict
+                                    </option>
+                                    <option value="UNBOQ"
+                                            >
+                                        Telievov&#225; Jana
+                                    </option>
+                                    <option value="UVBPM"
+                                            >
+                                        Trnka
+                                    </option>
+                                    <option value="UV0U8"
+                                            >
+                                        Vesel&#225; Hana
+                                    </option>
+                                    <option value="U5JMC"
+                                            >
+                                        V&#237;t Jan
+                                    </option>
+                                    <option value="URBP6"
+                                            >
+                                        V&#253;chovn&#253; poradce Hana
+                                    </option>
+                                    <option value="UZBO1"
+                                            >
+                                        V&#253;chovn&#253; poradce Petra
+                                    </option>
+                                    <option value="UIC4R"
+                                            >
+                                        Widž Jiø&#237;
+                                    </option>
+                                    <option value="U11XT"
+                                            >
+                                        Zalubilov&#225; Gabriela
+                                    </option>
+                                    <option value="URBP9"
+                                            >
+                                        Zav&#225;zalov&#225; Lada
+                                    </option>
+                                    <option value="UJHYI"
+                                            >
+                                        Z&#237;tkov&#225; Martina
+                                    </option>
+                                    <option value="ULBOJ"
+                                            >
+                                        Zoubek Ladislav
+                                    </option>
+                                    <option value="UTBPJ"
+                                            >
+                                        Ž&#225;kov&#225; Lenka
+                                    </option>
+                            </select>
+                        </div>
+                                            <div class="d-inline-flex m-1 mr-2 position-relative ico32-ovladani-smerovkaDolu">
+                            <span class="bk-timetable-label">M&#237;stnost</span>
+                            <select id="selectedRoom" class="custom-select" onchange="changeRoom()">
+                                <option></option>
+                                    <option value="AC"
+                                            >
+                                        103
+                                    </option>
+                                    <option value="AB"
+                                            >
+                                        104
+                                    </option>
+                                    <option value="AD"
+                                            >
+                                        204
+                                    </option>
+                                    <option value="AE"
+                                            >
+                                        205
+                                    </option>
+                                    <option value="AF"
+                                            >
+                                        208
+                                    </option>
+                                    <option value="AG"
+                                            >
+                                        209
+                                    </option>
+                                    <option value="AI"
+                                            >
+                                        211
+                                    </option>
+                                    <option value="AJ"
+                                            >
+                                        302
+                                    </option>
+                                    <option value="AK"
+                                            >
+                                        303
+                                    </option>
+                                    <option value="AL"
+                                            >
+                                        304
+                                    </option>
+                                    <option value="AM"
+                                            >
+                                        305
+                                    </option>
+                                    <option value="AN"
+                                            >
+                                        306
+                                    </option>
+                                    <option value="AO"
+                                            >
+                                        308
+                                    </option>
+                                    <option value="35"
+                                            >
+                                        A201
+                                    </option>
+                                    <option value="OG"
+                                            >
+                                        A203
+                                    </option>
+                                    <option value="0Q"
+                                            >
+                                        A205
+                                    </option>
+                                    <option value="0K"
+                                            >
+                                        A207
+                                    </option>
+                                    <option value="C0"
+                                            >
+                                        A209
+                                    </option>
+                                    <option value="48"
+                                            >
+                                        A211
+                                    </option>
+                                    <option value="0E"
+                                            >
+                                        A301
+                                    </option>
+                                    <option value="30"
+                                            >
+                                        A303
+                                    </option>
+                                    <option value="0O"
+                                            >
+                                        A305
+                                    </option>
+                                    <option value="ZY"
+                                            >
+                                        A307
+                                    </option>
+                                    <option value="U2"
+                                            >
+                                        A309
+                                    </option>
+                                    <option value="0G"
+                                            >
+                                        A311
+                                    </option>
+                                    <option value="50"
+                                            >
+                                        A401
+                                    </option>
+                                    <option value="0N"
+                                            >
+                                        A403
+                                    </option>
+                                    <option value="RR"
+                                            >
+                                        A405
+                                    </option>
+                                    <option value="07"
+                                            >
+                                        A407
+                                    </option>
+                                    <option value="00"
+                                            >
+                                        A409
+                                    </option>
+                                    <option value="CZ"
+                                            >
+                                        A411
+                                    </option>
+                                    <option value="FV"
+                                            >
+                                        A412
+                                    </option>
+                                    <option value="FO"
+                                            >
+                                        B201
+                                    </option>
+                                    <option value="3S"
+                                            >
+                                        B203
+                                    </option>
+                                    <option value="5Z"
+                                            >
+                                        B204
+                                    </option>
+                                    <option value="IP"
+                                            >
+                                        B207
+                                    </option>
+                                    <option value="0X"
+                                            >
+                                        B303
+                                    </option>
+                                    <option value="0I"
+                                            >
+                                        B304
+                                    </option>
+                                    <option value="0L"
+                                            >
+                                        B307
+                                    </option>
+                                    <option value="PL"
+                                            >
+                                        B401
+                                    </option>
+                                    <option value="G4"
+                                            >
+                                        B403
+                                    </option>
+                                    <option value="IZ"
+                                            >
+                                        B406
+                                    </option>
+                                    <option value="NP"
+                                            >
+                                        Baz1
+                                    </option>
+                                    <option value="VF"
+                                            >
+                                        Baz2
+                                    </option>
+                                    <option value="2F"
+                                            >
+                                        Baz3
+                                    </option>
+                                    <option value="YC"
+                                            >
+                                        Baz4
+                                    </option>
+                                    <option value="32"
+                                            >
+                                        C102
+                                    </option>
+                                    <option value="84"
+                                            >
+                                        C105
+                                    </option>
+                                    <option value="SR"
+                                            >
+                                        C202
+                                    </option>
+                                    <option value="S8"
+                                            >
+                                        C203
+                                    </option>
+                                    <option value="T0"
+                                            >
+                                        C206
+                                    </option>
+                                    <option value="T1"
+                                            >
+                                        C302
+                                    </option>
+                                    <option value="ZZ"
+                                            >
+                                        C303
+                                    </option>
+                                    <option value="02"
+                                            >
+                                        C306
+                                    </option>
+                                    <option value="FR"
+                                            >
+                                        C402
+                                    </option>
+                                    <option value="6B"
+                                            >
+                                        C403
+                                    </option>
+                                    <option value="0M"
+                                            >
+                                        C405
+                                    </option>
+                                    <option value="JI"
+                                            >
+                                        C406
+                                    </option>
+                                    <option value="0P"
+                                            >
+                                        KVC
+                                    </option>
+                                    <option value="0T"
+                                            >
+                                        PSLU
+                                    </option>
+                                    <option value="AA"
+                                            >
+                                        SH
+                                    </option>
+                                    <option value="LG"
+                                            >
+                                        TV1
+                                    </option>
+                                    <option value="5H"
+                                            >
+                                        TV2
+                                    </option>
+                                    <option value="05"
+                                            >
+                                        TV3
+                                    </option>
+                            </select>
+                        </div>
+                                            <div class="d-inline-flex m-1 mr-2">
+                            <div class="btn-group btn-group-toggle bk-timetable-btngroup" data-toggle="buttons" id="selectedTerm" style="height: 28px;">
+                                <label class="btn btn-secondary ">
+                                    <input type="radio" name="options" id="option1" value="Permanent"  onchange="changeTerm()"> St&#225;l&#253;
+                                    </label>
+                                    <label class="btn btn-secondary   active
+">
+                                        <input type="radio" name="options" id="option2" value="Actual"   checked="checked"
+ onchange="changeTerm()"> Tento t&#253;den
+                                        </label>
+                                        <label class="btn btn-secondary ">
+                                            <input type="radio" name="options" id="option3" value="Next"  onchange="changeTerm()"> Pø&#237;št&#237; t&#253;den
+                                            </label>
+                                        </div>
+                                    </div>
+                                            <div class="d-inline-flex m-1 mr-2" style="margin-top: 0px !important;">
+                            <div id="reports" runat="server" class="dropdown ml-3">
+                                <button class="dropbtn icon ico32-data-tiskarna" onclick="javascript: window.print()"></button>
+                            </div>
+                        </div>
+                </div>
+
+
+        </div>
+
+
+        <div class="container-fluid bk-timetable-header-print">
+            <span class="bk-timetable-school">
+                Gymn&#225;zium Sokolov a Krajsk&#233; vzdìl&#225;vac&#237; centrum, pø&#237;spìvkov&#225; organizace
+            </span>
+            <br />
+
+                <span class="bk-timetable-title">
+                    Tø&#237;da: 7.A
+                </span>
+                                    
+        </div>
+
+        <div id="teacher_canvas" class="bk-canvas">
+            <div class="bk-canvas-content">
+                <div class="bk-canvas-header">
+                    <span class="bk-canvas-title">Zvolte uèitele. . .</span>
+                    <span href="javascript:void(0)" class="closebtn ico32-ovladani-krizek" onclick="closeCanvas()"></span>
+                </div>
+                <div class="bk-canvas-body">
+                        <a href="/timetable/public/Actual/teacher/USBPB"
+                           >
+                            <span>B&#225;b&#237;èkov&#225; Bechov&#225; Zdeòka</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/ULBOM"
+                           >
+                            <span>Baborovsk&#225; Martina</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UCHYP"
+                           >
+                            <span>Bružeò&#225;k Vladim&#237;r</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/ULYN3"
+                           >
+                            <span>È&#225;stkov&#225; Daniela</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UOBOY"
+                           >
+                            <span>Demitra Lucie</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UOBOX"
+                           >
+                            <span>Doležalov&#225; Renata</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UHJ65"
+                           >
+                            <span>Drahokoupilov&#225; Hana</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UZBO2"
+                           >
+                            <span>Drnovcov&#225; Pavl&#237;na</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/U7PBV"
+                           >
+                            <span>Durn&#225; Magda</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/ULBOL"
+                           >
+                            <span>Fenclov&#225; Monika</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/USBPF"
+                           >
+                            <span>Gerberov&#225; Regina</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UOBOU"
+                           >
+                            <span>Gond&#237;k Rostislav</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UQBP1"
+                           >
+                            <span>Grech Martin</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/USBPI"
+                           >
+                            <span>Hankov&#225; Lucie</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UA2TE"
+                           >
+                            <span>Hlav&#225;èek Jiø&#237;</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/U0013"
+                           >
+                            <span>Honsov&#225; Veronika</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UZBNG"
+                           >
+                            <span>Chlebek Petr</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/USBPG"
+                           >
+                            <span>Chval Martin</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UZBNM"
+                           >
+                            <span>Chvalov&#225; Lenka</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/USBPC"
+                           >
+                            <span>Jahn Libuše</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UNBOS"
+                           >
+                            <span>Jel&#237;nkov&#225; Jaroslava</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/U0001"
+                           >
+                            <span>Jirovec Karel</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/U0019"
+                           >
+                            <span>Kadlec Jan</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UTBPL"
+                           >
+                            <span>Kadlecov&#225; Marie</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/URBP5"
+                           >
+                            <span>Kaòkov&#225; Andrea</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UZBND"
+                           >
+                            <span>Kloudov&#225; Iva</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UPBXF"
+                           >
+                            <span>Kø&#237;žov&#225; V&#225;clava</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/U0009"
+                           >
+                            <span>Kumpertov&#225; Radka</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/U0017"
+                           >
+                            <span>Kv&#225;èa Aleš</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UZBNV"
+                           >
+                            <span>Liškov&#225; Ivana</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UZBNR"
+                           >
+                            <span>Lukešov&#225; Danuše</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/U0002"
+                           >
+                            <span>Lukešov&#225; Hana</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/U0011"
+                           >
+                            <span>Mal&#237;kov&#225; Jana</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UO1LE"
+                           >
+                            <span>Maø&#237;kov&#225; Petra</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/U0006"
+                           >
+                            <span>Maškov&#225; Michaela</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UZBNI"
+                           >
+                            <span>Michalikov&#225; Jana</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/U0003"
+                           >
+                            <span>Misakov&#225; Svatava</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UQBP4"
+                           >
+                            <span>Moravcov&#225; Soòa</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UOBOV"
+                           >
+                            <span>Motl&#237;kov&#225; Jana</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UZBN6"
+                           >
+                            <span>Najvarov&#225; Hana</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UFGO8"
+                           >
+                            <span>Novotn&#225; Hana</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/U0012"
+                           >
+                            <span>Nyšov&#225; Jana</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/URBP7"
+                           >
+                            <span>N&#253;vltov&#225; Eva</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/U0016"
+                           >
+                            <span>Pozdnyakowa Helen</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UQBP3"
+                           >
+                            <span>Praktikant</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UYGLD"
+                           >
+                            <span>Prokop Vladim&#237;r</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UY5SM"
+                           >
+                            <span>Prokopov&#225; Nadìžda</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/U0004"
+                           >
+                            <span>Radimersk&#253; Petr</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UZBNL"
+                           >
+                            <span>Rozhon Vladim&#237;r</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UZBNU"
+                           >
+                            <span>Rozmušov&#225; Iveta</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UMBOO"
+                           >
+                            <span>Ryb&#225;øov&#225; Lenka</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UZBNW"
+                           >
+                            <span>Sekyrov&#225; Ivana</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UHDY5"
+                           >
+                            <span>Siberov&#225; Blanka</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UHVCS"
+                           >
+                            <span>Sobotka V&#225;clav</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UA64I"
+                           >
+                            <span>Sojka František</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UZBNK"
+                           >
+                            <span>Sojkov&#225; Petra</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UZBNF"
+                           >
+                            <span>Soukupov&#225; Jitka</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/U0007"
+                           >
+                            <span>Srba Stanislav</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/U0005"
+                           >
+                            <span>Srv&#225;tka Milan</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UU197"
+                           >
+                            <span>Svobodov&#225; Jarmila</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UPBOZ"
+                           >
+                            <span>Šteklov&#225; Zuzana</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UPBVZ"
+                           >
+                            <span>Štursov&#225; Irena</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UZBO6"
+                           >
+                            <span>Šv&#225;cha Pavel</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/USBPA"
+                           >
+                            <span>Technik Ict</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UNBOQ"
+                           >
+                            <span>Telievov&#225; Jana</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UVBPM"
+                           >
+                            <span>Trnka</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UV0U8"
+                           >
+                            <span>Vesel&#225; Hana</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/U5JMC"
+                           >
+                            <span>V&#237;t Jan</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/URBP6"
+                           >
+                            <span>V&#253;chovn&#253; poradce Hana</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UZBO1"
+                           >
+                            <span>V&#253;chovn&#253; poradce Petra</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UIC4R"
+                           >
+                            <span>Widž Jiø&#237;</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/U11XT"
+                           >
+                            <span>Zalubilov&#225; Gabriela</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/URBP9"
+                           >
+                            <span>Zav&#225;zalov&#225; Lada</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UJHYI"
+                           >
+                            <span>Z&#237;tkov&#225; Martina</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/ULBOJ"
+                           >
+                            <span>Zoubek Ladislav</span>
+                        </a>
+                        <a href="/timetable/public/Actual/teacher/UTBPJ"
+                           >
+                            <span>Ž&#225;kov&#225; Lenka</span>
+                        </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="class_canvas" class="bk-canvas">
+            <div class="bk-canvas-content">
+                <div class="bk-canvas-header">
+                    <span class="bk-canvas-title">Zvolte tø&#237;du. . .</span>
+                    <span href="javascript:void(0)" class="closebtn ico32-ovladani-krizek" onclick="closeCanvas()"></span>
+                </div>
+                <div class="bk-canvas-body">
+                        <a href="/timetable/public/Actual/class/XF"
+                           >
+                            <span>1.A</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/XG"
+                           >
+                            <span>1.B</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/XI"
+                           >
+                            <span>1.C</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/XB"
+                           >
+                            <span>2.A</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/XC"
+                           >
+                            <span>2.B</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/XD"
+                           >
+                            <span>2.C</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/XE"
+                           >
+                            <span>2.D</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/AG"
+                           >
+                            <span>2.E</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/X7"
+                           >
+                            <span>3.A</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/XA"
+                           >
+                            <span>3.B</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/X8"
+                           >
+                            <span>3.C</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/X9"
+                           >
+                            <span>3.D</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/AF"
+                           >
+                            <span>3.E</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/X3"
+                           >
+                            <span>4.A</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/X4"
+                           >
+                            <span>4.B</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/X5"
+                           >
+                            <span>4.C</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/X6"
+                           >
+                            <span>4.D</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/AE"
+                           >
+                            <span>4.E</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/WZ"
+                           >
+                            <span>5.A</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/X0"
+                           >
+                            <span>5.B</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/AD"
+                           >
+                            <span>5.E</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/WY"
+                           >
+                            <span>6.A</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/WX"
+                           >
+                            <span>6.B</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/AC"
+                           >
+                            <span>6.E</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/WR"
+                             class="active"
+>
+                            <span>7.A</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/AB"
+                           >
+                            <span>7.E</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/WO"
+                           >
+                            <span>8.A</span>
+                        </a>
+                        <a href="/timetable/public/Actual/class/AA"
+                           >
+                            <span>8.E</span>
+                        </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="room_canvas" class="bk-canvas">
+            <div class="bk-canvas-content">
+                <div class="bk-canvas-header">
+                    <span class="bk-canvas-title">Zvolte m&#237;stnost. . .</span>
+                    <span href="javascript:void(0)" class="closebtn ico32-ovladani-krizek" onclick="closeCanvas()"></span>
+                </div>
+                <div class="bk-canvas-body">
+                        <a href="/timetable/public/Actual/room/AC"
+                           >
+                            <span>103</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/AB"
+                           >
+                            <span>104</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/AD"
+                           >
+                            <span>204</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/AE"
+                           >
+                            <span>205</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/AF"
+                           >
+                            <span>208</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/AG"
+                           >
+                            <span>209</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/AI"
+                           >
+                            <span>211</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/AJ"
+                           >
+                            <span>302</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/AK"
+                           >
+                            <span>303</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/AL"
+                           >
+                            <span>304</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/AM"
+                           >
+                            <span>305</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/AN"
+                           >
+                            <span>306</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/AO"
+                           >
+                            <span>308</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/35"
+                           >
+                            <span>A201</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/OG"
+                           >
+                            <span>A203</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/0Q"
+                           >
+                            <span>A205</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/0K"
+                           >
+                            <span>A207</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/C0"
+                           >
+                            <span>A209</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/48"
+                           >
+                            <span>A211</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/0E"
+                           >
+                            <span>A301</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/30"
+                           >
+                            <span>A303</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/0O"
+                           >
+                            <span>A305</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/ZY"
+                           >
+                            <span>A307</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/U2"
+                           >
+                            <span>A309</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/0G"
+                           >
+                            <span>A311</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/50"
+                           >
+                            <span>A401</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/0N"
+                           >
+                            <span>A403</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/RR"
+                           >
+                            <span>A405</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/07"
+                           >
+                            <span>A407</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/00"
+                           >
+                            <span>A409</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/CZ"
+                           >
+                            <span>A411</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/FV"
+                           >
+                            <span>A412</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/FO"
+                           >
+                            <span>B201</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/3S"
+                           >
+                            <span>B203</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/5Z"
+                           >
+                            <span>B204</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/IP"
+                           >
+                            <span>B207</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/0X"
+                           >
+                            <span>B303</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/0I"
+                           >
+                            <span>B304</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/0L"
+                           >
+                            <span>B307</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/PL"
+                           >
+                            <span>B401</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/G4"
+                           >
+                            <span>B403</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/IZ"
+                           >
+                            <span>B406</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/NP"
+                           >
+                            <span>Baz1</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/VF"
+                           >
+                            <span>Baz2</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/2F"
+                           >
+                            <span>Baz3</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/YC"
+                           >
+                            <span>Baz4</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/32"
+                           >
+                            <span>C102</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/84"
+                           >
+                            <span>C105</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/SR"
+                           >
+                            <span>C202</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/S8"
+                           >
+                            <span>C203</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/T0"
+                           >
+                            <span>C206</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/T1"
+                           >
+                            <span>C302</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/ZZ"
+                           >
+                            <span>C303</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/02"
+                           >
+                            <span>C306</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/FR"
+                           >
+                            <span>C402</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/6B"
+                           >
+                            <span>C403</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/0M"
+                           >
+                            <span>C405</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/JI"
+                           >
+                            <span>C406</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/0P"
+                           >
+                            <span>KVC</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/0T"
+                           >
+                            <span>PSLU</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/AA"
+                           >
+                            <span>SH</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/LG"
+                           >
+                            <span>TV1</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/5H"
+                           >
+                            <span>TV2</span>
+                        </a>
+                        <a href="/timetable/public/Actual/room/05"
+                           >
+                            <span>TV3</span>
+                        </a>
+                </div>
+            </div>
+        </div>
+        
+<div id="main" class="bk-timetable-main px-sm-2 px-md-3 px-lg-4 pt-4">
+    
+    <div class="bk-timetable-hours">
+            <div class="bk-hour-wrapper" style="position:absolute; left:2.15%; width:7.81%;">
+                <div class="num">0</div>
+                <div class="hour"><span class="from">7:10</span><span> - </span><span>7:55</span></div>
+            </div>
+            <div class="bk-hour-wrapper" style="position:absolute; left:11.91%; width:7.81%;">
+                <div class="num">1</div>
+                <div class="hour"><span class="from">8:00</span><span> - </span><span>8:45</span></div>
+            </div>
+            <div class="bk-hour-wrapper" style="position:absolute; left:21.68%; width:7.81%;">
+                <div class="num">2</div>
+                <div class="hour"><span class="from">8:55</span><span> - </span><span>9:40</span></div>
+            </div>
+            <div class="bk-hour-wrapper" style="position:absolute; left:31.45%; width:7.81%;">
+                <div class="num">3</div>
+                <div class="hour"><span class="from">9:50</span><span> - </span><span>10:35</span></div>
+            </div>
+            <div class="bk-hour-wrapper" style="position:absolute; left:41.21%; width:7.81%;">
+                <div class="num">4</div>
+                <div class="hour"><span class="from">10:55</span><span> - </span><span>11:40</span></div>
+            </div>
+            <div class="bk-hour-wrapper" style="position:absolute; left:50.98%; width:7.81%;">
+                <div class="num">5</div>
+                <div class="hour"><span class="from">11:50</span><span> - </span><span>12:35</span></div>
+            </div>
+            <div class="bk-hour-wrapper" style="position:absolute; left:60.74%; width:7.81%;">
+                <div class="num">6</div>
+                <div class="hour"><span class="from">12:45</span><span> - </span><span>13:30</span></div>
+            </div>
+            <div class="bk-hour-wrapper" style="position:absolute; left:70.51%; width:7.81%;">
+                <div class="num">7</div>
+                <div class="hour"><span class="from">13:35</span><span> - </span><span>14:20</span></div>
+            </div>
+            <div class="bk-hour-wrapper" style="position:absolute; left:80.27%; width:7.81%;">
+                <div class="num">8</div>
+                <div class="hour"><span class="from">14:25</span><span> - </span><span>15:10</span></div>
+            </div>
+            <div class="bk-hour-wrapper" style="position:absolute; left:90.04%; width:7.81%;">
+                <div class="num">9</div>
+                <div class="hour"><span class="from">15:15</span><span> - </span><span>16:00</span></div>
+            </div>
+    </div>
+        <div class="d-flex flex-row bk-timetable-row">
+            <div class="bk-timetable-day day-name">
+                <div class="bk-day-wrapper">
+                    <div>
+                        <span class="bk-day-day">po</span>
+                        <span class="bk-day-date">2.11.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="bk-cell-wrapper">
+                        <div class="bk-timetable-cell" style="left:2.15%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:11.91%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:21.68%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:31.45%; width:7.81%;">
+
+                                <div class="day-item">
+
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Konverzace v anglick&#233;m jazyce | po 2.11. | 3 (9:50 - 10:35)&quot;,&quot;teacher&quot;:&quot;Mgr. František Sojka&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;AK1&quot;,&quot;theme&quot;:&quot;T&#233;ma 2 - bydlen&#237; - &#250;vod, slov. z&#225;soba, konverzace k t&#233;matu&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>AK1</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">AK</div>
+                                                    <div class="bottom"><span>Sj</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Semin&#225;ø ze zemìpisu | po 2.11. | 3 (9:50 - 10:35)&quot;,&quot;teacher&quot;:&quot;Mgr. Nadìžda Prokopov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;SZ1&quot;,&quot;theme&quot;:&quot;Navigace&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>SZ1</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">SZ</div>
+                                                    <div class="bottom"><span>Pk</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Semin&#225;ø z matematiky | po 2.11. | 3 (9:50 - 10:35)&quot;,&quot;teacher&quot;:&quot;PaedDr. Jana Michalikov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;SM1&quot;,&quot;theme&quot;:&quot;Iracion&#225;ln&#237; rovnice&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>SM1</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">SM</div>
+                                                    <div class="bottom"><span>Mc</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Semin&#225;ø z biologie | po 2.11. | 3 (9:50 - 10:35)&quot;,&quot;teacher&quot;:&quot;Mgr. Jitka Soukupov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;SB11&quot;,&quot;theme&quot;:&quot;Opakov&#225;n&#237; gastrulace&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>SB11</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">SB</div>
+                                                    <div class="bottom"><span>Sk</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Spoleèenskovìdn&#237; semin&#225;ø | po 2.11. | 3 (9:50 - 10:35)&quot;,&quot;teacher&quot;:&quot;Mgr. Jarmila Svobodov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;SVS1&quot;,&quot;theme&quot;:&quot;kritick&#233; èten&#237;&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>SVS1</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">SVS</div>
+                                                    <div class="bottom"><span>Sv</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Semin&#225;ø z psychologie | po 2.11. | 3 (9:50 - 10:35)&quot;,&quot;teacher&quot;:&quot;Mgr. Petra Maø&#237;kov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;SPS1&quot;,&quot;theme&quot;:&quot;Copingov&#233; strategie; nov&#233; poznatky o temperamentu&quot;,&quot;notice&quot;:&quot;Zopakovat probranou l&#225;tku (pojmy, osobnosti, rùzn&#233; pø&#237;stupy ) - pø&#237;št&#237; t&#253;den p&#237;semn&#233; opakov&#225;n&#237;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>SPS1</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">SPS3</div>
+                                                    <div class="bottom"><span>Ma</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Semin&#225;ø z biologie | po 2.11. | 3 (9:50 - 10:35)&quot;,&quot;teacher&quot;:&quot;Mgr. Jiø&#237; Hlav&#225;èek&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;SB12&quot;,&quot;theme&quot;:&quot;Evoluce svalov&#233; soustavy&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>SB12</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">SB</div>
+                                                    <div class="bottom"><span>Hl</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                </div>
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:41.21%; width:7.81%;">
+
+                                <div class="day-item">
+
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Konverzace v anglick&#233;m jazyce | po 2.11. | 4 (10:55 - 11:40)&quot;,&quot;teacher&quot;:&quot;Mgr. František Sojka&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;AK1&quot;,&quot;theme&quot;:&quot;Bydlen&#237; - diskuse k t&#233;matu&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>AK1</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">AK</div>
+                                                    <div class="bottom"><span>Sj</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Semin&#225;ø ze zemìpisu | po 2.11. | 4 (10:55 - 11:40)&quot;,&quot;teacher&quot;:&quot;Mgr. Nadìžda Prokopov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;SZ1&quot;,&quot;theme&quot;:&quot;Kalend&#225;øe&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>SZ1</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">SZ</div>
+                                                    <div class="bottom"><span>Pk</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Semin&#225;ø z matematiky | po 2.11. | 4 (10:55 - 11:40)&quot;,&quot;teacher&quot;:&quot;PaedDr. Jana Michalikov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;SM1&quot;,&quot;theme&quot;:&quot;Iracion&#225;ln&#237; rovnice&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>SM1</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">SM</div>
+                                                    <div class="bottom"><span>Mc</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Semin&#225;ø z biologie | po 2.11. | 4 (10:55 - 11:40)&quot;,&quot;teacher&quot;:&quot;Mgr. Jitka Soukupov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;SB11&quot;,&quot;theme&quot;:&quot;Opakov&#225;n&#237; neurulace&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>SB11</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">SB</div>
+                                                    <div class="bottom"><span>Sk</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Spoleèenskovìdn&#237; semin&#225;ø | po 2.11. | 4 (10:55 - 11:40)&quot;,&quot;teacher&quot;:&quot;Mgr. Jarmila Svobodov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;SVS1&quot;,&quot;theme&quot;:&quot;st&#225;topr&#225;vn&#237; dokumenty a jejich èten&#237;&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>SVS1</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">SVS</div>
+                                                    <div class="bottom"><span>Sv</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Semin&#225;ø z psychologie | po 2.11. | 4 (10:55 - 11:40)&quot;,&quot;teacher&quot;:&quot;Mgr. Petra Maø&#237;kov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;SPS1&quot;,&quot;theme&quot;:&quot;Opakov&#225;n&#237; - dìjiny psychologie (z&#225;kladn&#237; psychologick&#233; smìry)&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>SPS1</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">SPS3</div>
+                                                    <div class="bottom"><span>Ma</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Semin&#225;ø z biologie | po 2.11. | 4 (10:55 - 11:40)&quot;,&quot;teacher&quot;:&quot;Mgr. Jiø&#237; Hlav&#225;èek&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;SB12&quot;,&quot;theme&quot;:&quot;Evoluce svalov&#233; soustavy&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>SB12</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">SB</div>
+                                                    <div class="bottom"><span>Hl</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                </div>
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:50.98%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:60.74%; width:7.81%;">
+
+                                <div class="day-item">
+
+                                        <div class="day-item-hover  " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Matematika | po 2.11. | 6 (12:45 - 13:30)&quot;,&quot;teacher&quot;:&quot;Mgr. Hana Novotn&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;&quot;,&quot;theme&quot;:&quot;Užit&#237; limit, jednostrann&#233; limity&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div></div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">M</div>
+                                                    <div class="bottom"><span>No</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                </div>
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:70.51%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:80.27%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:90.04%; width:7.81%;">
+
+                                                                                </div>
+            </div>
+        </div>
+        <div class="d-flex flex-row bk-timetable-row">
+            <div class="bk-timetable-day day-name">
+                <div class="bk-day-wrapper">
+                    <div>
+                        <span class="bk-day-day">&#250;t</span>
+                        <span class="bk-day-date">3.11.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="bk-cell-wrapper">
+                        <div class="bk-timetable-cell" style="left:2.15%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:11.91%; width:7.81%;">
+
+                                <div class="day-item">
+
+                                        <div class="day-item-hover  " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Èesk&#253; jazyk a literatura | &#250;t 3.11. | 1 (8:00 - 8:45)&quot;,&quot;teacher&quot;:&quot;Mgr. Vladim&#237;r Prokop&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;&quot;,&quot;theme&quot;:&quot;Modern&#237; ismy&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div></div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">È</div>
+                                                    <div class="bottom"><span>Pr</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                </div>
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:21.68%; width:7.81%;">
+
+                                <div class="day-item">
+
+                                        <div class="day-item-hover  " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Èesk&#253; jazyk a literatura | &#250;t 3.11. | 2 (8:55 - 9:40)&quot;,&quot;teacher&quot;:&quot;Mgr. Vladim&#237;r Prokop&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;&quot;,&quot;theme&quot;:&quot;Ismy - dokonèen&#237;&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div></div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">È</div>
+                                                    <div class="bottom"><span>Pr</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                </div>
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:31.45%; width:7.81%;">
+
+                                <div class="day-item">
+
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Konverzace v anglick&#233;m jazyce | &#250;t 3.11. | 3 (9:50 - 10:35)&quot;,&quot;teacher&quot;:&quot;Mgr. František Sojka&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;AK2&quot;,&quot;theme&quot;:&quot;Bydlen&#237; - &#250;vod do t&#233;matu, konverzace&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>AK2</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">AK</div>
+                                                    <div class="bottom"><span>Sj</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Semin&#225;ø z biologie | &#250;t 3.11. | 3 (9:50 - 10:35)&quot;,&quot;teacher&quot;:&quot;Mgr. Jiø&#237; Hlav&#225;èek&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;SB2&quot;,&quot;theme&quot;:&quot;Evoluce svalov&#233; soustavy&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>SB2</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">SB</div>
+                                                    <div class="bottom"><span>Hl</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Semin&#225;ø z programov&#225;n&#237; | &#250;t 3.11. | 3 (9:50 - 10:35)&quot;,&quot;teacher&quot;:&quot;Mgr. Pavel Šv&#225;cha&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;SPG2&quot;,&quot;theme&quot;:&quot;Procvièov&#225;n&#237; seznamy&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>SPG2</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">SPG</div>
+                                                    <div class="bottom"><span>Ša</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Semin&#225;ø z chemie | &#250;t 3.11. | 3 (9:50 - 10:35)&quot;,&quot;teacher&quot;:&quot;RNDr. Jan V&#237;t&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;SCH2&quot;,&quot;theme&quot;:&quot;Kyseliny&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>SCH2</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">SCH</div>
+                                                    <div class="bottom"><span>V&#237;</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Ruština pro zaè&#225;teèn&#237;ky | &#250;t 3.11. | 3 (9:50 - 10:35)&quot;,&quot;teacher&quot;:&quot;PaedDr. Hana Drahokoupilov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;RZ2&quot;,&quot;theme&quot;:&quot;3.lekce - st&#225;ty,jazyky&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>RZ2</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">RZ1</div>
+                                                    <div class="bottom"><span>Dr</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Dìjiny 20. stolet&#237; | &#250;t 3.11. | 3 (9:50 - 10:35)&quot;,&quot;teacher&quot;:&quot;PhDr. Vladim&#237;r Bružeò&#225;k&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;MD2&quot;,&quot;theme&quot;:&quot;Versaillesk&#225; konference&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>MD2</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">ND</div>
+                                                    <div class="bottom"><span>Br</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                </div>
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:41.21%; width:7.81%;">
+
+                                <div class="day-item">
+
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Konverzace v anglick&#233;m jazyce | &#250;t 3.11. | 4 (10:55 - 11:40)&quot;,&quot;teacher&quot;:&quot;Mgr. František Sojka&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;AK2&quot;,&quot;theme&quot;:&quot;bydlen&#237; - diskuse&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>AK2</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">AK</div>
+                                                    <div class="bottom"><span>Sj</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Semin&#225;ø z biologie | &#250;t 3.11. | 4 (10:55 - 11:40)&quot;,&quot;teacher&quot;:&quot;Mgr. Jiø&#237; Hlav&#225;èek&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;SB2&quot;,&quot;theme&quot;:&quot;Evoluce svalov&#233; soustavy&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>SB2</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">SB</div>
+                                                    <div class="bottom"><span>Hl</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Semin&#225;ø z programov&#225;n&#237; | &#250;t 3.11. | 4 (10:55 - 11:40)&quot;,&quot;teacher&quot;:&quot;Mgr. Pavel Šv&#225;cha&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;SPG2&quot;,&quot;theme&quot;:&quot;Procvièov&#225;n&#237; seznamy&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>SPG2</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">SPG</div>
+                                                    <div class="bottom"><span>Ša</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Semin&#225;ø z chemie | &#250;t 3.11. | 4 (10:55 - 11:40)&quot;,&quot;teacher&quot;:&quot;RNDr. Jan V&#237;t&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;SCH2&quot;,&quot;theme&quot;:&quot;Deriv&#225;ty hydridù&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>SCH2</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">SCH</div>
+                                                    <div class="bottom"><span>V&#237;</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Ruština pro zaè&#225;teèn&#237;ky | &#250;t 3.11. | 4 (10:55 - 11:40)&quot;,&quot;teacher&quot;:&quot;PaedDr. Hana Drahokoupilov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;RZ2&quot;,&quot;theme&quot;:&quot;3.lekce - èasov&#225;n&#237; sloves&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>RZ2</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">RZ1</div>
+                                                    <div class="bottom"><span>Dr</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Dìjiny 20. stolet&#237; | &#250;t 3.11. | 4 (10:55 - 11:40)&quot;,&quot;teacher&quot;:&quot;PhDr. Vladim&#237;r Bružeò&#225;k&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;MD2&quot;,&quot;theme&quot;:&quot;Versaillesk&#225; konference&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>MD2</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">ND</div>
+                                                    <div class="bottom"><span>Br</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                </div>
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:50.98%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:60.74%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:70.51%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:80.27%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:90.04%; width:7.81%;">
+
+                                                                                </div>
+            </div>
+        </div>
+        <div class="d-flex flex-row bk-timetable-row">
+            <div class="bk-timetable-day day-name">
+                <div class="bk-day-wrapper">
+                    <div>
+                        <span class="bk-day-day">st</span>
+                        <span class="bk-day-date">4.11.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="bk-cell-wrapper">
+                        <div class="bk-timetable-cell" style="left:2.15%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:11.91%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:21.68%; width:7.81%;">
+
+                                <div class="day-item">
+
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Jazyk anglick&#253; | st 4.11. | 2 (8:55 - 9:40)&quot;,&quot;teacher&quot;:&quot;Mgr. Danuše Lukešov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;A2&quot;,&quot;theme&quot;:&quot;UK geography&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>A2</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">A</div>
+                                                    <div class="bottom"><span>Lu</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Jazyk nìmeck&#253; | st 4.11. | 2 (8:55 - 9:40)&quot;,&quot;teacher&quot;:&quot;Mgr. Martina Z&#237;tkov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;N1&quot;,&quot;theme&quot;:&quot;Shrnut&#237; 8. lekce - poslech, vztažn&#233; vìty&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>N1</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">N</div>
+                                                    <div class="bottom"><span>Z&#237;</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                </div>
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:31.45%; width:7.81%;">
+
+                                <div class="day-item">
+
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Jazyk nìmeck&#253; | st 4.11. | 3 (9:50 - 10:35)&quot;,&quot;teacher&quot;:&quot;Mgr. Lenka Ryb&#225;øov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;N2&quot;,&quot;theme&quot;:&quot;Slovn&#237; z&#225;soba 9.lekce&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>N2</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">N</div>
+                                                    <div class="bottom"><span>Ry</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Jazyk francouzsk&#253; | st 4.11. | 3 (9:50 - 10:35)&quot;,&quot;teacher&quot;:&quot;Mgr. Blanka Siberov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;Fr&quot;,&quot;theme&quot;:&quot;Slovesn&#233; vazby, poslech&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>Fr</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">Fr</div>
+                                                    <div class="bottom"><span>Si</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Jazyk anglick&#253; | st 4.11. | 3 (9:50 - 10:35)&quot;,&quot;teacher&quot;:&quot;Mgr. Danuše Lukešov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;A1&quot;,&quot;theme&quot;:&quot;&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>A1</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle ">A</div>
+                                                    <div class="bottom"><span>Lu</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                </div>
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:41.21%; width:7.81%;">
+
+                                <div class="day-item">
+
+                                        <div class="day-item-hover  " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Chemie | st 4.11. | 4 (10:55 - 11:40)&quot;,&quot;teacher&quot;:&quot;Mgr. Iveta Rozmušov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;&quot;,&quot;theme&quot;:&quot;Izomerie, konformace&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div></div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">Ch</div>
+                                                    <div class="bottom"><span>Ro</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                </div>
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:50.98%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:60.74%; width:7.81%;">
+
+                                <div class="day-item">
+
+                                        <div class="day-item-hover  " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Dìjepis | st 4.11. | 6 (12:45 - 13:30)&quot;,&quot;teacher&quot;:&quot;PhDr. Vladim&#237;r Rozhon Ph.D.&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;&quot;,&quot;theme&quot;:&quot;V&#253;voj v Evropì ve 2. pol. 19. stol.&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div></div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">D</div>
+                                                    <div class="bottom"><span>Rz</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                </div>
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:70.51%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:80.27%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:90.04%; width:7.81%;">
+
+                                                                                </div>
+            </div>
+        </div>
+        <div class="d-flex flex-row bk-timetable-row">
+            <div class="bk-timetable-day day-name">
+                <div class="bk-day-wrapper">
+                    <div>
+                        <span class="bk-day-day">èt</span>
+                        <span class="bk-day-date">5.11.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="bk-cell-wrapper">
+                        <div class="bk-timetable-cell" style="left:2.15%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:11.91%; width:7.81%;">
+
+                                <div class="day-item">
+
+                                        <div class="day-item-hover  " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Matematika | èt 5.11. | 1 (8:00 - 8:45)&quot;,&quot;teacher&quot;:&quot;Mgr. Hana Novotn&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;&quot;,&quot;theme&quot;:&quot;Asymptota funkce y=ax+c&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div></div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">M</div>
+                                                    <div class="bottom"><span>No</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                </div>
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:21.68%; width:7.81%;">
+
+                                <div class="day-item">
+
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Jazyk anglick&#253; | èt 5.11. | 2 (8:55 - 9:40)&quot;,&quot;teacher&quot;:&quot;Mgr. Danuše Lukešov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;A2&quot;,&quot;theme&quot;:&quot;Describing taste and texture&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>A2</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">A</div>
+                                                    <div class="bottom"><span>Lu</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Jazyk nìmeck&#253; | èt 5.11. | 2 (8:55 - 9:40)&quot;,&quot;teacher&quot;:&quot;Mgr. Martina Z&#237;tkov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;N1&quot;,&quot;theme&quot;:&quot;Sloveso werden, školstv&#237; v NSR&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>N1</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">N</div>
+                                                    <div class="bottom"><span>Z&#237;</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                </div>
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:31.45%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:41.21%; width:7.81%;">
+
+                                <div class="day-item">
+
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Jazyk nìmeck&#253; | èt 5.11. | 4 (10:55 - 11:40)&quot;,&quot;teacher&quot;:&quot;Mgr. Lenka Ryb&#225;øov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;N2&quot;,&quot;theme&quot;:&quot;Pr&#225;ce s textem&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>N2</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">N</div>
+                                                    <div class="bottom"><span>Ry</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Jazyk francouzsk&#253; | èt 5.11. | 4 (10:55 - 11:40)&quot;,&quot;teacher&quot;:&quot;Mgr. Blanka Siberov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;Fr&quot;,&quot;theme&quot;:&quot;Povahov&#233; vlastnosti&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>Fr</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle  zapsano">Fr</div>
+                                                    <div class="bottom"><span>Si</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                        <div class="day-item-hover multi " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Jazyk anglick&#253; | èt 5.11. | 4 (10:55 - 11:40)&quot;,&quot;teacher&quot;:&quot;Mgr. Danuše Lukešov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;A1&quot;,&quot;theme&quot;:&quot;&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div>A1</div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle ">A</div>
+                                                    <div class="bottom"><span>Lu</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                </div>
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:50.98%; width:7.81%;">
+
+                                <div class="day-item">
+
+                                        <div class="day-item-hover  " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Z&#225;klady spoleèensk&#253;ch vìd | èt 5.11. | 5 (11:50 - 12:35)&quot;,&quot;teacher&quot;:&quot;Mgr. Jarmila Svobodov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;&quot;,&quot;theme&quot;:&quot;&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div></div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle ">ZSV</div>
+                                                    <div class="bottom"><span>Sv</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                </div>
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:60.74%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:70.51%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:80.27%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:90.04%; width:7.81%;">
+
+                                                                                </div>
+            </div>
+        </div>
+        <div class="d-flex flex-row bk-timetable-row">
+            <div class="bk-timetable-day day-name">
+                <div class="bk-day-wrapper">
+                    <div>
+                        <span class="bk-day-day">p&#225;</span>
+                        <span class="bk-day-date">6.11.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="bk-cell-wrapper">
+                        <div class="bk-timetable-cell" style="left:2.15%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:11.91%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:21.68%; width:7.81%;">
+
+                                <div class="day-item">
+
+                                        <div class="day-item-hover  " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Biologie | p&#225; 6.11. | 2 (8:55 - 9:40)&quot;,&quot;teacher&quot;:&quot;Mgr. Pavl&#237;na Drnovcov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;&quot;,&quot;theme&quot;:&quot;&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div></div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle ">B</div>
+                                                    <div class="bottom"><span>Dv</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                </div>
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:31.45%; width:7.81%;">
+
+                                <div class="day-item">
+
+                                        <div class="day-item-hover  " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Fyzika | p&#225; 6.11. | 3 (9:50 - 10:35)&quot;,&quot;teacher&quot;:&quot;Mgr. Gabriela Zalubilov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;&quot;,&quot;theme&quot;:&quot;&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div></div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle ">F</div>
+                                                    <div class="bottom"><span>Za</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                </div>
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:41.21%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:50.98%; width:7.81%;">
+
+                                <div class="day-item">
+
+                                        <div class="day-item-hover  " data-detail='{&quot;type&quot;:&quot;atom&quot;,&quot;subjecttext&quot;:&quot;Zemìpis | p&#225; 6.11. | 5 (11:50 - 12:35)&quot;,&quot;teacher&quot;:&quot;PaedDr. Hana Drahokoupilov&#225;&quot;,&quot;room&quot;:&quot;DisV&quot;,&quot;group&quot;:&quot;&quot;,&quot;theme&quot;:&quot;&quot;,&quot;notice&quot;:&quot;&quot;,&quot;changeinfo&quot;:&quot;&quot;,&quot;homeworks&quot;:null,&quot;absencetext&quot;:null}'>
+                                            <div class="day-flex">
+                                                <div class="top clearfix">
+                                                    <div class="left roll-vertical top-hide">
+                                                            <div></div>
+                                                    </div>
+                                                    <div class="right top-hide">
+                                                            <div class="first">DisV</div>
+                                                                                                            </div>
+                                                </div>
+                                                <div class="middle ">Z</div>
+                                                    <div class="bottom"><span>Dr</span></div>
+                                                <div class="absence _"></div>
+                                            </div>
+                                        </div>
+                                </div>
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:60.74%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:70.51%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:80.27%; width:7.81%;">
+
+                                                                                </div>
+                        <div class="bk-timetable-cell" style="left:90.04%; width:7.81%;">
+
+                                                                                </div>
+            </div>
+        </div>
+</div>
+<span class="pr-2 pr-md-3 pr-lg-4 py-3 bk-system-baka fr">
+    Provozov&#225;no na syst&#233;mu
+    <img src="/next/images/login/login-logo.png" width="109" height="22" class="ml-3" />
+</span>
+
+
+    </div>
+
+</body>
+</html>
