@@ -642,3 +642,14 @@ class makeEmbed(Command):
 
 
 bdbf.commands.cmds["all"].append(makeEmbed())
+
+class nextHour(Command):
+    async def commandos(self, args, msg):
+        for hour in nextHoursAreAndStartsIn():
+            if hour[2] == None:
+                message = f"Za {hour[0]} začíná {hour[1]}"
+            else:
+                message = f"Za {hour[0]} začíná {hour[2]}"
+            return message, None
+
+bdbf.commands.cmds[697015129199607839].append(nextHour("Returns next hour and when it starts"))

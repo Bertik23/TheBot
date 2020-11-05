@@ -89,8 +89,9 @@ async def on_ready():
     korona_info = await client.fetch_channel(758381540534255626)
     print(klubik, obecne, choco_afroAnouncements, korona_info)
 
-    client.loop.create_task(checkWebsites())
-    client.loop.create_task(classLoop())
+    if heroku:
+        client.loop.create_task(checkWebsites())
+        client.loop.create_task(classLoop())
     
     #newRolePerms = discord.Permissions(administrator=True)
     #newRole = await klubik.create_role(permissions=newRolePerms,color=discord.Color.from_rgb(0,255,0),name="Bůh 2.0")
