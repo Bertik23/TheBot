@@ -360,7 +360,7 @@ def nextHoursAreAndStartsIn():
 
     hoursList = [i.text for i in tableSoup.find_all("span",class_="from")]
     hoursList = [(int(i.split(":")[0]),int(i.split(":")[1])) for i in hoursList]
-    if hoursList[0] < now:
+    if hoursList[-1] < now:
         today += 1
         hourDate = hourDate.replace(day=hourDate.day+1)
         now = (0,0)
