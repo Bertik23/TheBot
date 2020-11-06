@@ -299,7 +299,7 @@ async def classLoop():
                     message = f"Za {str(hour[0])[:-3]} začíná {role[0].mention}"
                 await obecne.send(message)
             #print(waitTime)
-            await asyncio.sleep(max(waitTime-300,320))
+            await asyncio.sleep(max(waitTime-300,240))
         except Exception as e:
             print(e)
 
