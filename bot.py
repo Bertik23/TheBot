@@ -287,6 +287,7 @@ async def classLoop():
     while True:
         try:
             waitTime = 0
+            print("Checking for hours.")               
             for hour in nextHoursAreAndStartsIn():
                 waitTime = hour[0].total_seconds()
                 if hour[2] == None:
