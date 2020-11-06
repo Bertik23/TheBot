@@ -289,6 +289,7 @@ async def classLoop():
             waitTime = 0
             print("Checking for hours.")               
             for hour in nextHoursAreAndStartsIn():
+                print("We are in")
                 waitTime = hour[0].total_seconds()
                 if hour[2] == None:
                     role = [r for r in klubik.roles if r.name == hour[1]]
