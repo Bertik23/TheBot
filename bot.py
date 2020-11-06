@@ -289,15 +289,19 @@ async def classLoop():
             waitTime = 0
             print("Checking for hours.")               
             for hour in nextHoursAreAndStartsIn():
-                print("We are in")
+                #print(f"We are in {hour}")
                 waitTime = hour[0].total_seconds()
-                if hour[2] == None:
-                    role = [r for r in klubik.roles if r.name == hour[1]]
-                    message = f"Za {str(hour[0])[:-3]} začíná {role[0].mention}"
-                else:
-                    role = [r for r in klubik.roles if r.name == hour[2]]
-                    message = f"Za {str(hour[0])[:-3]} začíná {role[0].mention}"
-                await obecne.send(message)
+                try:
+                    if hour[2] == None:
+                        role = [r for r in klubik.roles if r.name == hour[1]]
+                        message = f"Za {str(hour[0])[:-3]} začíná {role[0].mention}"
+                    else:
+                        role = [r for r in klubik.roles if r.name == hour[2]]
+                        message = f"Za {str(hour[0])[:-3]} začíná `{hour[1]}` pro {role[0].mention}"
+                except:
+                    message = ""
+                if message != "":
+                    await obecne.send(message)
             #print(waitTime)
             await asyncio.sleep(max(waitTime-300,240))
         except Exception as e:

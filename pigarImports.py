@@ -6,6 +6,6 @@ import kaleido
 
 import pandas
 
-import spacy
+#import spacy
 
-import yaml
+#import yaml

@@ -647,9 +647,9 @@ class nextHour(Command):
     async def commandos(self, args, msg):
         for hour in nextHoursAreAndStartsIn():
             if hour[2] == None:
-                message = f"Za {str(hour[0])[:-3]} začíná {hour[1]}"
+                message = f"Za {str(hour[0])[:-3]} začíná `{hour[1]}`"
             else:
-                message = f"Za {str(hour[0])[:-3]} začíná {hour[2]}"
-            return message, None
+                message = f"Za {str(hour[0])[:-3]} začíná `{hour[1]}` pro `{hour[2]}`"
+            await msg.channel.send(message)
 
 bdbf.commands.cmds[697015129199607839].append(nextHour("Returns next hour and when it starts"))
