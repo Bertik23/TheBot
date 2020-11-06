@@ -293,10 +293,10 @@ async def classLoop():
                 waitTime = hour[0].total_seconds()
                 if hour[2] == None:
                     role = [r for r in klubik.roles if r.name == hour[1]]
-                    message = f"Za {hour[0]} začíná {role[0].mention}"
+                    message = f"Za {str(hour[0])[:-3]} začíná {role[0].mention}"
                 else:
                     role = [r for r in klubik.roles if r.name == hour[2]]
-                    message = f"Za {hour[0]} začíná {role[0].mention}"
+                    message = f"Za {str(hour[0])[:-3]} začíná {role[0].mention}"
                 await obecne.send(message)
             #print(waitTime)
             await asyncio.sleep(max(waitTime-300,320))
