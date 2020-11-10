@@ -30,51 +30,16 @@ import database
 from botFunctions import (checkMZCR, getFact, getJokeTxt, getLastInstaPost,
                           getZmena, gymso, makeSuggestion, newOnGymso,
                           spamProtection, wolframQuery, nextHoursAreAndStartsIn)
+from variables import *
 
-heroku = os.environ.get("isHeroku", False)
-if not heroku:
-    commands.logging = False
-    try:
-        with open("C:\\Users\\alber\\OneDrive\\Plocha\\discordBotSecrets.txt", "r") as f:
-            commands.kclient = eval(f.readline())
-            token = eval(f.readline())
-            commands.reddit = eval(f.readline())
-            botFunctions.githubToken = eval(f.readline())
-    except:
-        with open("/home/bertik23/Plocha/discordBotSecrets.txt", "r") as f:
-            commands.kclient = eval(f.readline())
-            token = eval(f.readline())
-            commands.reddit = eval(f.readline())
-            botFunctions.githubToken = eval(f.readline())
-
-else:
-    commands.kclient = ksoftapi.Client(os.environ.get("ksoft_token", None))
-
-    commands.reddit = praw.Reddit(client_id = os.environ.get("reddit_client_id", None),
-                        client_secret = os.environ.get("reddit_client_secret", None),
-                        user_agent = os.environ.get("reddit_user_agent", None))
-
-    token = os.environ.get('TOKEN', None)
-
-botId = 540563812890443794
-#84032 permissions int
-#https://discordapp.com/oauth2/authorize?client_id=540563812890443794&scope=bot&permissions=8
-
-
-client = discord.Client()
-
-botGames.client = client
-
-bdbf.commands.commandPrefix = "~"
-bdbf.options.embedFooter= {
-                "text": "Powered by Bertik23",
-                "icon_url": "https://cdn.discordapp.com/avatars/452478521755828224/4cfdbde44582fe6ad05383171ac1b051.png"
-                }
-bdbf.options.embedColor = (37, 217, 55)
-
-bdbf.options.botName = "TheBot"
-
-
+@client.logMessage
+def log(message):
+    if "guild" in dir(message.channel):
+        msgLog = [datetime.datetime.utcnow().isoformat(), str(message.id), message.content, str(message.author.id), message.author.name, str(message.channel.id), str(message.channel), str(message.channel.guild.id), message.channel.guild.name]
+    else:
+        msgLog = [datetime.datetime.utcnow().isoformat(), str(message.id), message.content, str(message.author.id), message.author.name, str(message.channel.id), str(message.channel)]
+    if logging:
+        database.messageLog.append_row(msgLog)
 
 
 klubik, obecne, choco_afroAnouncements, korona_info = None,None, None, None
@@ -103,12 +68,6 @@ async def on_ready():
 async def on_message(message):
     global klubik, obecne
     print(f"{message.channel} ({message.channel.id}): {message.author}: {message.author.name}: {message.content}")
-    if "guild" in dir(message.channel):
-        msgLog = [datetime.datetime.utcnow().isoformat(), str(message.id), message.content, str(message.author.id), message.author.name, str(message.channel.id), str(message.channel), str(message.channel.guild.id), message.channel.guild.name]
-    else:
-        msgLog = [datetime.datetime.utcnow().isoformat(), str(message.id), message.content, str(message.author.id), message.author.name, str(message.channel.id), str(message.channel)]
-    if commands.logging:
-        database.messageLog.append_row(msgLog)
         #print("on_msg", obecne, klubik)
     #await spamProtection(message, 5, f"{message.author.mention} nespamuj tady!", spamDelValue = 10)#, spamDelWarnMsg = f"{message.author.mention} další zprávy už ti smažu!")
     """if not message.author.bot:
@@ -157,8 +116,6 @@ async def on_message(message):
                 await message.channel.send(embed=e)
         await message.delete()		
 
-    if type(message.channel) != discord.DMChannel:
-        await bdbf.commands.checkForCommands(message)
     if type(message.channel) == discord.DMChannel:
         if message.author.id == 452478521755828224:
             try:

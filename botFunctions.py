@@ -19,7 +19,6 @@ import typing
 
 import smaz
 
-commandPrefix: str = None
 wClient = wolframalpha.Client("TV7GVY-8YLJ26PPK9")
 githubToken = os.environ.get("GithubToken", None)
 
@@ -104,7 +103,7 @@ def getZmena(parametr) -> str:
             p = False
             for tr1 in trs:
                 for i,b in [([u.text for u in t.find_parent().find_previous_siblings()],t) for t in tr1.find_all("table")]:
-                    print(i)
+                    #print(i)
                     if i[0] == parametr:
                         e = [[d.text for d in c.find_all("td")] for c in b.find_all("tr")]
                         text = ""
@@ -147,7 +146,7 @@ def wolframQuery(query):
         for subpod in pod.subpods:
             imgs = list(subpod.img)
             for img in imgs:
-                yield bdbf.embed(f"{subpod.title}", image={"url": img.src})
+                yield bdbf.embed(f"{subpod.title}", image={"url": img.src}, fields=())
         #yield bdbf.embed("")
 
 def getTimetableUrl(query: str) -> str:
@@ -199,10 +198,10 @@ def getTimetable(url: str, room=False):
 
     table = np.array([np.array(t) for t in table])
 
-    print(table)
+    #print(table)
 
     table = table.transpose()
-    print(table)
+    #print(table)
     #table = rotateTable(table)
     #print(table)
 
@@ -241,7 +240,7 @@ def getLastInstaPost(user):
     
     instaJson = instaResponse.json()#json.loads(instaResponse.text)
 
-    print("test")
+    #print("test")
     return instaJson["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]
 
 
