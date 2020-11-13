@@ -13,7 +13,7 @@ Pillow == 8.0.0
 # D:\Python\TheBot\botGames.py: 2
 # D:\Python\TheBot\commands.py: 11
 # D:\Python\TheBot\variables.py: 1
-bdbf == 0.2.2.1
+bdbf == 1.0.0
 
 # D:\Python\TheBot\bot.py: 22
 # D:\Python\TheBot\botFunctions.py: 16
@@ -68,7 +68,7 @@ requests == 2.23.0
 setuptools == 41.2.0
 
 # D:\Python\TheBot\botFunctions.py: 20
-smaz_py3 == 1.0.1
+smaz-py3 == 1.0.1
 
 # D:\Python\TheBot\bot.py: 20
 stopit == 1.1.2
@@ -76,7 +76,8 @@ stopit == 1.1.2
 # D:\Python\TheBot\botFunctions.py: 14
 tomd == 0.1.3
 
+# D:\Python\TheBot\commands.py: 19
+uhlovodikovac == 0.0.4
+
 # D:\Python\TheBot\botFunctions.py: 15
 wolframalpha == 4.0.0
-
-uhlovodikovac == 0.0.4
