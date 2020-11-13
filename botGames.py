@@ -2,8 +2,7 @@ import asyncio
 import bdbf
 import random
 from prettytable import PrettyTable
-
-client = None
+from variables import *
 
 class Game2048:
 	def __init__(self, player, gridSize):

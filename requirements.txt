@@ -78,3 +78,5 @@ tomd == 0.1.3
 
 # D:\Python\TheBot\botFunctions.py: 15
 wolframalpha == 4.0.0
+
+uhlovodikovac == 0.0.4

@@ -6,7 +6,7 @@
         {
             "label": "bot",
             "type": "shell",
-            "command": "python bot.py",
+            "command": "& d:/Python/TheBot/venv/Scripts/Activate.ps1\npython bot.py",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
