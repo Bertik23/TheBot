@@ -639,4 +639,9 @@ async def commandos(msg):
             message = f"Za {str(hour[0])[:-3]} začíná `{hour[1]}` pro `{hour[2]}`"
         await msg.channel.send(message)
 
-# bdbf.commands.cmds[697015129199607839].append(nextHour())
+# @client.command("ak")
+# async def ak(msg, *args):
+#     out = adventniKalendar(int(args[0]))
+#     channel = client.get_guild(621413546177069081).get_channel(777201859466231808)
+#     await channel.send(f"Jej! {out[0].mention} dostáváš dnešní adventní kalendář", file=discord.File(out[1], filename=f"adventniKalendarDay{int(args[0])}.png"))
+

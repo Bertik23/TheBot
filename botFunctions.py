@@ -16,6 +16,9 @@ import wolframalpha
 from bs4 import BeautifulSoup
 from prettytable import ALL, PrettyTable
 import typing
+from PIL import Image, ImageDraw, ImageFont
+from variables import *
+import random
 
 import smaz
 
@@ -441,3 +444,44 @@ def nextHoursAreAndStartsIn():
 
 
 
+def makeAdventniCalendarImage(text, xy, padding, dayXY):
+    roboto = ImageFont.truetype("fonts/Roboto-Regular.ttf",15)
+
+    todayCalendar = Image.open("adventniKalendarMCT\\adventniKalendarLatestPROTOTYPE.png").convert("RGBA")
+    fullCalendar = Image.open("adventniKalendarMCT\\adventniKalendar1PROTOTYPE.png").convert("RGBA")
+
+    fullCalendar = fullCalendar.crop(dayXY)
+
+    todayCalendar.paste(fullCalendar, dayXY)
+
+    draw = ImageDraw.Draw(todayCalendar)
+
+    width, height = draw.textsize(text, font=roboto)
+
+    print(width)
+
+    padding = (((xy[2]-padding[0]/2)-(xy[0]+padding[0]/2))/2 - width/2, padding[1])
+
+    #draw.line((77+padding, 265-height, 77+padding+width, 265), fill=(0,0,0))
+
+    draw.text((xy[0]+padding[0], xy[1]-height), text, font=roboto, fill=(0,0,0))
+
+    todayCalendar.save("adventniKalendarMCT\\adventniKalendarLatestPROTOTYPE.png")
+
+    with open("adventniKalendarMCT\\adventniKalendarLatestPROTOTYPE.png","rb") as f:
+        return io.BytesIO(f.read())
+
+def adventniKalendar(day):
+    days = [
+        [(77,250,265,264), (67,62,267,266)],
+        [(306,250,502,264), (306,63,504,266)],
+        [(554,250,750,264), (502,63,752,266)]
+    ]
+    role = client.get_guild(621413546177069081).get_role(777201923270246440)
+    member = random.choice(role.members)
+
+    return member, makeAdventniCalendarImage(member.name, days[day][0], (8, 5), days[day][1])
+
+
+#makeAdventniCalendarImage("test",(77,250,265,264), (8,5), (67,62,267,266))
+#makeAdventniCalendarImage("test2",(306,250,502,264), (8,5), (306,63,504,266))

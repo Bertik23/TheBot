@@ -40,5 +40,6 @@ client = bdbf.Client(
         "icon_url": "https://cdn.discordapp.com/avatars/452478521755828224/4cfdbde44582fe6ad05383171ac1b051.png"
         },
     embedColor = (37, 217, 55),
-    botName = "TheBot"
+    botName = "TheBot",
+    logging=True
     )
