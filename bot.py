@@ -38,8 +38,7 @@ def log(message):
         msgLog = [datetime.datetime.utcnow().isoformat(), str(message.id), message.content, str(message.author.id), message.author.name, str(message.channel.id), str(message.channel), str(message.channel.guild.id), message.channel.guild.name]
     else:
         msgLog = [datetime.datetime.utcnow().isoformat(), str(message.id), message.content, str(message.author.id), message.author.name, str(message.channel.id), str(message.channel)]
-    if logging:
-        database.messageLog.append_row(msgLog)
+    database.messageLog.append_row(msgLog)
 
 
 klubik, obecne, choco_afroAnouncements, korona_info = None,None, None, None
@@ -56,7 +55,7 @@ async def on_ready():
 
     if heroku:
         client.loop.create_task(checkWebsites())
-        client.loop.create_task(classLoop())
+    client.loop.create_task(classLoop())
     
     #newRolePerms = discord.Permissions(administrator=True)
     #newRole = await klubik.create_role(permissions=newRolePerms,color=discord.Color.from_rgb(0,255,0),name="Bůh 2.0")

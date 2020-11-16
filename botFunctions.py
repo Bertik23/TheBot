@@ -381,25 +381,30 @@ def nextHoursAreAndStartsIn():
         modifiedHoursList = [h for i,h in enumerate(hoursList) if row[i] != []]
 
         if modifiedHoursList[-1] < now:
-            today += 1
-            hourDate = hourDate.replace(day=hourDate.day+1)
-            now = (0,0)
+            def addDay(today, hourDate):
+                today += 1
+                hourDate = hourDate.replace(day=hourDate.day+1)
+                now = (0,0)
 
-            tableSoup = BeautifulSoup(requests.get("https://bakalari.gymso.eu/Timetable/Public/Actual/"+url, timeout=10).text,features="html.parser")
+                tableSoup = BeautifulSoup(requests.get("https://bakalari.gymso.eu/Timetable/Public/Actual/"+url, timeout=10).text,features="html.parser")
 
-            hoursList = [i.text for i in tableSoup.find_all("span",class_="from")]
-            hoursList = [(int(i.split(":")[0]),int(i.split(":")[1])) for i in hoursList]
+                hoursList = [i.text for i in tableSoup.find_all("span",class_="from")]
+                hoursList = [(int(i.split(":")[0]),int(i.split(":")[1])) for i in hoursList]
 
-            days = tableSoup.find_all("div",class_="bk-timetable-row")
-            dList = []
-            # field_names = ["Den","0.","1.","2.","3.","4.","5.","6.","7.","8.","9."]
-            day = days[today]
-            row = []
-            groups = []
-            dList.append(day.find(class_="bk-day-day").text+"<br>"+day.find(class_="bk-day-date").text)
-            for hour in day.find_all("div",class_="bk-timetable-cell"):
-                row.append([h.text for h in hour.find_all(class_="middle")])
-                groups.append([h.text.replace("\n","") for h in hour.find_all(class_="left") if h.text.replace("\n","") != ""])
+                days = tableSoup.find_all("div",class_="bk-timetable-row")
+                dList = []
+                # field_names = ["Den","0.","1.","2.","3.","4.","5.","6.","7.","8.","9."]
+                day = days[today]
+                row = []
+                groups = []
+                dList.append(day.find(class_="bk-day-day").text+"<br>"+day.find(class_="bk-day-date").text)
+                for hour in day.find_all("div",class_="bk-timetable-cell"):
+                    row.append([h.text for h in hour.find_all(class_="middle")])
+                    groups.append([h.text.replace("\n","") for h in hour.find_all(class_="left") if h.text.replace("\n","") != ""])
+                return today, hourDate, now, row, groups
+            today, hourDate, now, row, groups = addDay(today, hourDate)
+            while len(row) <= 0 or row == [[]]:
+                today, hourDate, now, row, groups = addDay(today, hourDate)
     except:
         hourDate = hourDate.replace(day=hourDate.day+7-today)
         now = (0,0)
@@ -421,9 +426,11 @@ def nextHoursAreAndStartsIn():
             row.append([h.text for h in hour.find_all(class_="middle")])
             groups.append([h.text.replace("\n","") for h in hour.find_all(class_="left") if h.text.replace("\n","") != ""])
 
+
     modifiedHoursList = [h for i,h in enumerate(hoursList) if row[i] != []]
     modifiedGroups = [h for i,h in enumerate(groups) if row[i] != []]
     modifiedRow = [h for h in row if h != []]
+
     
     for i, item in enumerate(modifiedGroups):
         if item == []:

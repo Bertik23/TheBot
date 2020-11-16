@@ -27,6 +27,7 @@ else:
                         user_agent = os.environ.get("reddit_user_agent", None))
 
     token = os.environ.get('TOKEN', None)
+    logging = True
 
 botId = 540563812890443794
 #84032 permissions int
@@ -41,5 +42,5 @@ client = bdbf.Client(
         },
     embedColor = (37, 217, 55),
     botName = "TheBot",
-    logging=True
+    logging=logging
     )
