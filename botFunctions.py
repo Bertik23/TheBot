@@ -19,7 +19,7 @@ import typing
 from PIL import Image, ImageDraw, ImageFont
 from variables import *
 import random
-import database
+
 
 import smaz
 
@@ -479,7 +479,7 @@ def makeAdventniCalendarImage(text, textXY, padding, dayXY):
 
     with open("adventniKalendarMCT\\aKemptyLatest.png","rb") as f:
         return io.BytesIO(f.read())
-
+import database
 def adventniKalendar(day):
     with open("adventniKalendarMCT\\okynka.json") as f:
         days = eval(f.read())
