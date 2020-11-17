@@ -19,6 +19,7 @@ import typing
 from PIL import Image, ImageDraw, ImageFont
 from variables import *
 import random
+import database
 
 import smaz
 
@@ -451,11 +452,11 @@ def nextHoursAreAndStartsIn():
 
 
 
-def makeAdventniCalendarImage(text, xy, padding, dayXY):
-    roboto = ImageFont.truetype("fonts/Roboto-Regular.ttf",15)
+def makeAdventniCalendarImage(text, textXY, padding, dayXY):
+    roboto = ImageFont.truetype("fonts\\MinecraftRegular.ttf",30)
 
-    todayCalendar = Image.open("adventniKalendarMCT\\adventniKalendarLatestPROTOTYPE.png").convert("RGBA")
-    fullCalendar = Image.open("adventniKalendarMCT\\adventniKalendar1PROTOTYPE.png").convert("RGBA")
+    todayCalendar = Image.open("adventniKalendarMCT\\aKemptyLatest.png").convert("RGBA")
+    fullCalendar = Image.open("adventniKalendarMCT\\aKfull.png").convert("RGBA")
 
     fullCalendar = fullCalendar.crop(dayXY)
 
@@ -466,28 +467,50 @@ def makeAdventniCalendarImage(text, xy, padding, dayXY):
     width, height = draw.textsize(text, font=roboto)
 
     print(width)
+    print(height)
 
-    padding = (((xy[2]-padding[0]/2)-(xy[0]+padding[0]/2))/2 - width/2, padding[1])
+    padding = (((textXY[2]-padding[0]/2)-(textXY[0]+padding[0]/2))/2 - width/2, padding[1])
 
     #draw.line((77+padding, 265-height, 77+padding+width, 265), fill=(0,0,0))
 
-    draw.text((xy[0]+padding[0], xy[1]-height), text, font=roboto, fill=(0,0,0))
+    draw.text((textXY[0]+padding[0], textXY[1]), text, font=roboto, fill=(0,0,0))
 
-    todayCalendar.save("adventniKalendarMCT\\adventniKalendarLatestPROTOTYPE.png")
+    todayCalendar.save("adventniKalendarMCT\\aKemptyLatest.png")
 
-    with open("adventniKalendarMCT\\adventniKalendarLatestPROTOTYPE.png","rb") as f:
+    with open("adventniKalendarMCT\\aKemptyLatest.png","rb") as f:
         return io.BytesIO(f.read())
 
 def adventniKalendar(day):
-    days = [
-        [(77,250,265,264), (67,62,267,266)],
-        [(306,250,502,264), (306,63,504,266)],
-        [(554,250,750,264), (502,63,752,266)]
-    ]
+    with open("adventniKalendarMCT\\okynka.json") as f:
+        days = eval(f.read())
     role = client.get_guild(621413546177069081).get_role(777201923270246440)
-    member = random.choice(role.members)
+    never = database.advantniKalendar.col_values(1)[1:]
+    once = database.advantniKalendar.col_values(3)[1:]
+    twice = database.advantniKalendar.col_values(5)[1:]
+    thrice = database.advantniKalendar.col_values(7)[1:]
+    fourTimes = database.advantniKalendar.col_values(9)[1:]
+    gotten = 0
+    aligable = [m for m in role.members if str(m.id) not in never and str(m.id) not in once]
+    if len(aligable) == 0:
+        gotten = 1
+        aligable = [m for m in role.members if str(m.id) not in never and str(m.id) not in twice]
+    if len(aligable) == 0:
+        gotten = 2
+        aligable = [m for m in role.members if str(m.id) not in never and str(m.id) not in thrice]
+    if len(aligable) == 0:
+        gotten = 3
+        aligable = [m for m in role.members if str(m.id) not in never and str(m.id) not in fourTimes]
+    if len(aligable) == 0:
+        gotten = -1
+        aligable = [m for m in role.members if str(m.id) not in never]
+    member = random.choice(aligable)
+    if gotten != -1:
+        database.advantniKalendar.update_cell(len([once, twice, thrice, fourTimes][gotten])+2, [3,5,7,9][gotten], str(member.id))
+        database.advantniKalendar.update_cell(len([once, twice, thrice, fourTimes][gotten])+2, [4,6,8,10][gotten], str(member.name))
 
-    return member, makeAdventniCalendarImage(member.name, days[day][0], (8, 5), days[day][1])
+    print(days[day])
+
+    return member, makeAdventniCalendarImage(member.name, days[day][1], (8, 5), days[day][0])
 
 
 #makeAdventniCalendarImage("test",(77,250,265,264), (8,5), (67,62,267,266))

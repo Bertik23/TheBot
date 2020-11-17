@@ -37,3 +37,5 @@ commandLog = sheetClient.open("TheBotDB").worksheet("Command Log")
 messageLog = sheetClient.open("TheBotDB").worksheet("Message Log")
 
 dataLog = sheetClient.open("TheBotDB").worksheet("Database")
+
+advantniKalendar = sheetClient.open("TheBotDB").worksheet("AK")

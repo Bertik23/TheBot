@@ -27,7 +27,7 @@ import botGames
 #import chatbot
 import commands
 import database
-from botFunctions import (checkMZCR, getFact, getJokeTxt, getLastInstaPost,
+from botFunctions import (adventniKalendar, checkMZCR, getFact, getJokeTxt, getLastInstaPost,
                           getZmena, gymso, makeSuggestion, newOnGymso,
                           spamProtection, wolframQuery, nextHoursAreAndStartsIn)
 from variables import *
@@ -55,7 +55,8 @@ async def on_ready():
 
     if heroku:
         client.loop.create_task(checkWebsites())
-    client.loop.create_task(classLoop())
+        client.loop.create_task(classLoop())
+    client.loop.create_task(kalendarLoop())
     
     #newRolePerms = discord.Permissions(administrator=True)
     #newRole = await klubik.create_role(permissions=newRolePerms,color=discord.Color.from_rgb(0,255,0),name="Bůh 2.0")
@@ -262,6 +263,28 @@ async def classLoop():
             await asyncio.sleep(max(waitTime-300,240))
         except Exception as e:
             print(e)
+
+async def kalendarLoop():
+    while True:
+        try:
+            now = datetime.datetime.utcnow()
+            lastMessage = int(database.advantniKalendar.cell(2,11).value)
+            if lastMessage < now.day:
+                noon = now.replace(hour = 11, minute = 0, second = 0)
+                print(f"Waiting for {max((noon-now).total_seconds(), 0)} until noon.")
+                await asyncio.sleep(max((noon-now).total_seconds(), 0))
+                out = adventniKalendar(now.day-1)
+                channel = client.get_guild(621413546177069081).get_channel(777201859466231808)
+                await channel.send(f"{out[0].mention} Gratulace vyhráváš odměnu z adventního kalendáře pro potvrzení že chceš odměnu převzít reaguj :white_check_mark:  na tuto zprávu.", file=discord.File(out[1], filename=f"adventniKalendarDay{now.day}.png"))
+                database.advantniKalendar.update_cell(2,11, now.day)
+            else:
+                noon = now.replace(day=now.day+1, hour = 11, minute = 0, second = 0)
+                print(f"Waiting for {max((noon-now).total_seconds(), 0)} until noon.")
+                await asyncio.sleep(max((noon-now).total_seconds(), 0))
+        except Exception as e:
+            print(e)
+            await asyncio.sleep(60)
+
 
 
 
