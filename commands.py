@@ -24,22 +24,22 @@ import json
 from variables import *
 
 @client.command("info")
-async def info(msg):
+async def info(msg, *args):
     """"TheBot info"""
     await msg.channel.send(f"I'm a bot made by Bertik23#9997\nI'm running on bdbf {pkg_resources.get_distribution('bdbf').version} and discord.py {pkg_resources.get_distribution('discord.py').version}"+"\nI'm and open source bot, that means that you can contribute to me on https://github.com/Bertik23/DiscordBot")
 
-@client.command("zmena")
+@client.command("zmena", worksOnlyInGuilds=[697015129199607839])
 async def zmena(msg, *args):
     """Returns schedule changes for the give teacher/class today
     **Usage**: `%commandPrefix%zmena <teacher/class>` eg. `%commandPrefix%zmena Lukešová Danuše` or `%commandPrefix%zmena 6.A`"""
     await msg.channel.send(f"Změny rozvrhu pro {args[0]}:\n{getZmena(args[0])}")
 
-@client.command("rozvrh")
+@client.command("rozvrh", worksOnlyInGuilds=[697015129199607839])
 async def rozvrh(msg, *args):
     """Returns the timatable for given teacher/class/room
     **Usage**: `%commandPrefix%rozvrh <teacher/class/room>` eg. `%commandPrefix%rozvrh Lukešová Danuše` or `%commandPrefix%rozvrh 7.A` or `%commandPrefix%rozvrh A307`"""
     room = None
-    if args == ():
+    if args == (None, ):
         args = "7.A"
     else:
         args = args[0]
@@ -58,7 +58,7 @@ async def rozvrh(msg, *args):
 async def suggest(msg, *args):
     """Suggest a command to the creator of the bot
     **Usage**: `%commandPrefix%suggest <title> *||* <text>`"""
-    if args == ():
+    if args == (None, ):
         return
     else:
         attributes = args[0]
@@ -73,7 +73,7 @@ Automaticaly issued by `{msg.author}` from `{msg.channel}` in `{msg.channel.guil
 async def r(msg, *args):
     """Returns a subreddit
     **Usage**: `%commandPrefix%r/ <subreddit>` eg. `%commandPrefix%r/ kofola`"""
-    if args == ():
+    if args == (None, ):
         return
     else:
         attributes = args[0]
@@ -88,8 +88,8 @@ async def r(msg, *args):
         else:
             await msg.channel.send(f"`{e}` occured while trying to find subreddit `{attributes}`.")
 
-@client.command("gymso")
-async def gymsoCommand(msg):
+@client.command("gymso", worksOnlyInGuilds=[697015129199607839])
+async def gymsoCommand(msg, *args):
     """Returns last post on [gymso.cz](https://gymso.cz)"""
     clanek = gymso()
     e = client.embed(clanek[0], url=clanek[1], description=clanek[2][:2048], fields=())
@@ -99,7 +99,7 @@ async def gymsoCommand(msg):
 async def lyrics(msg, *args):
     """Returns lyrics to given song
     **Usage**: `%commandPrefix%lyrics <song>`"""
-    if args == ():
+    if args == (None, ):
         return
     else:
         attributes = args[0]
@@ -114,17 +114,17 @@ async def lyrics(msg, *args):
             await msg.channel.send(embed=e)
 
 @client.command("meme")
-async def meme(msg):
+async def meme(msg, *args):
     """Returns random meme from [Reddit](https://reddit.com)"""
     meme = await kclient.images.random_meme()
     e = client.embed(f"{meme.title}", url=meme.source, author={"name":meme.author,"url":f"https://reddit.com/user/{meme.author[3:]}"}, image={"url":meme.image_url}, fields=())
     await msg.channel.send(embed=e)
 
-@client.command("eval")
+@client.command("eval", worksOnlyInGuilds=[697015129199607839])
 async def evalCommand(msg, *args):
     """Returns python expresion outcome.
     **Usage**: `%commandPrefix%eval <python expresion>` eg. `%commandPrefix%eval math.cos(math.pi)`"""
-    if args == ():
+    if args == (None, ):
         return
     else:
         attributes = args[0]
@@ -134,7 +134,7 @@ async def evalCommand(msg, *args):
         await msg.channel.send(f"Hej `{attributes}` fakt neudělám\nProtože: {e}")
 
 @client.command("aww")
-async def aww(msg):
+async def aww(msg, *args):
     """Returns random aww image from [Reddit](https://reddit.com)"""
     aww = await kclient.images.random_aww()
     e = embed(f"{aww.title}", url=aww.source, author={"name":aww.author,"url":f"https://reddit.com/user/{aww.author[3:]}"}, image={"url":aww.image_url}, fields=())
@@ -145,7 +145,7 @@ async def subreddit(msg, *args):
     """Returns random image from given subreddit and givel span.
     **Usage**: `%commandPrefix%subreddit <subreddit> <span>` eg. `%commandPrefix%subreddit kofola month`
     Spans: `hour`,`day`,`week`,`month`,`year`,`all`"""
-    if args == ():
+    if args == (None, ):
         return
     else:
         attributes = args[0]
@@ -164,7 +164,7 @@ async def subreddit(msg, *args):
 async def mapa(msg, *args):
     """Returns map of given place with given zoom (default 12).
     **Usage**: `%commandPrefix%mapa <place> <zoom=12>` eg. `%commandPrefix%mapa Gymso 16`"""
-    if args == ():
+    if args == (None, ):
         return
     else:
         attributes = args[0]
@@ -182,19 +182,19 @@ async def mapa(msg, *args):
         await msg.channel.send(f"`{attributes[0]}` neexistuje!")
 
 @client.command("joke")
-async def joke(msg):
+async def joke(msg, *args):
     """Returns a random awful joke."""
     await msg.channel.send(getJokeTxt())
 
 @client.command("fact")
-async def fact(msg):
+async def fact(msg, *args):
     """Returns a random fact."""
     await msg.channel.send(getFact())
 
 @client.command("wa")
 async def wa(msg, *args):
     """Wolfram alpha query"""
-    if args == ():
+    if args == (None, ):
         return
     else:
         attributes = args[0]
@@ -205,7 +205,7 @@ async def wa(msg, *args):
 async def encryptCommand(msg, *args):
     """Encrypt a text
     **Usage**: `%commandPrefix%encrypt <text> <encryptionBase>` eg. `%commandPrefix%encrypt Hello, how are you? 64`"""
-    if args == ():
+    if args == (None, ):
         return
     else:
         attributes = args[0]
@@ -221,7 +221,7 @@ async def encryptCommand(msg, *args):
 async def decryptCommand(msg, *args):
     """Decrypt a text encrypted using encrypt
     **Usage**: `%commandPrefix%decrypt <encryptedTest> <encryptionBase>` eg. `%commandPrefix%decrypt ^eQO3gN39aYO[>1LabKh=\_ 64`"""
-    if args == ():
+    if args == (None, ):
         return
     else:
         attributes = args[0]
@@ -236,7 +236,7 @@ async def decryptCommand(msg, *args):
 @client.command("stats")
 async def stats(msg, *args):
     """Shows stats"""
-    if args == ():
+    if args == (None, ):
         args = None
     else:
         args = args[0]
@@ -360,7 +360,7 @@ async def stats(msg, *args):
 async def rates(msg, *args):
     """Converts currencies
     **Usage**: `%commandPrefix%rates <from> <to> <count>` eg. `%commandPrefix%rates EUR CZK 120`"""
-    if args == ():
+    if args == (None, ):
         return
     else:
         args = args[0]
@@ -376,7 +376,7 @@ activeGame = {}
 async def play(msg, *args):
     """Play games.\nAvailable games:\n2048
     **Usage**: `%commandPrefix%play <game> <options>` eg. `%commandPrefix%play 2048 4` or without options to show options"""
-    if args == ():
+    if args == (None, ):
         return
     else:
         args = args[0]
@@ -426,7 +426,7 @@ async def play(msg, *args):
 @client.command("uhel")
 async def uhel(msg, *args):
     """Image uhlovodik"""
-    if args == ():
+    if args == (None, ):
         return
     else:
         args = args[0]
@@ -444,7 +444,7 @@ userTimers = {}
 async def timer(msg, *args):
     """Timer command.
     **Usage**: `%commandPrefix%timer <seconds>` or `%commandPrefix%timer -t <ISO utc time>` eg. `%commandPrefix%timer 60` or `%commandPrefix%timer -t 2020-12-31T23:59:59`\nTo get current time remaining use `%commandPrefix%timer -Q`"""
-    if args == ():
+    if args == (None, ):
         return
     else:
         args = args[0]
@@ -629,8 +629,8 @@ class TimerObject():
 # bdbf.commands.cmds["all"].append(makeEmbed())
 
 
-@client.command("nextHour")
-async def commandos(msg):
+@client.command("nextHour", worksOnlyInGuilds=[697015129199607839])
+async def commandos(msg, *args):
     """Returns next hour and when it starts"""
     for hour in nextHoursAreAndStartsIn():
         if hour[2] == None:
@@ -639,9 +639,11 @@ async def commandos(msg):
             message = f"Za {str(hour[0])[:-3]} začíná `{hour[1]}` pro `{hour[2]}`"
         await msg.channel.send(message)
 
-@client.command("ak")
-async def ak(msg, *args):
-    out = adventniKalendar(int(args[0]))
-    channel = client.get_guild(621413546177069081).get_channel(777201859466231808)
-    await channel.send(f"{out[0].mention} Gratulace vyhráváš odměnu z adventního kalendáře pro potvrzení že chceš odměnu převzít reaguj :white_check_mark:  na tuto zprávu.", file=discord.File(out[1], filename=f"adventniKalendarDay{int(args[0])}.png"))
+# @client.command("ak")
+# async def ak(msg, *args):
+#     out = adventniKalendar(int(args[0]))
+#     channel = client.get_guild(621413546177069081).get_channel(777201859466231808)
+#     await channel.send(f"{out[0].mention} Gratulace vyhráváš odměnu z adventního kalendáře pro potvrzení že chceš odměnu převzít reaguj :white_check_mark:  na tuto zprávu.", file=discord.File(out[1], filename=f"adventniKalendarDay{int(args[0])}.png"))
 
+for command in client.commands:
+    client.commands[command].__doc__ = client.commands[command].__doc__.replace("%commandPrefix%", client.commandPrefix)
