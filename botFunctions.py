@@ -453,10 +453,10 @@ def nextHoursAreAndStartsIn():
 
 
 def makeAdventniCalendarImage(text, textXY, padding, dayXY):
-    roboto = ImageFont.truetype("fonts\\MinecraftRegular.ttf",30)
+    roboto = ImageFont.truetype("fonts/MinecraftRegular.ttf",30)
 
-    todayCalendar = Image.open("adventniKalendarMCT\\aKemptyLatest.png").convert("RGBA")
-    fullCalendar = Image.open("adventniKalendarMCT\\aKfull.png").convert("RGBA")
+    todayCalendar = Image.open("adventniKalendarMCT/aKemptyLatest.png").convert("RGBA")
+    fullCalendar = Image.open("adventniKalendarMCT/aKfull.png").convert("RGBA")
 
     fullCalendar = fullCalendar.crop(dayXY)
 
@@ -475,13 +475,13 @@ def makeAdventniCalendarImage(text, textXY, padding, dayXY):
 
     draw.text((textXY[0]+padding[0], textXY[1]), text, font=roboto, fill=(0,0,0))
 
-    todayCalendar.save("adventniKalendarMCT\\aKemptyLatest.png")
+    todayCalendar.save("adventniKalendarMCT/aKemptyLatest.png")
 
-    with open("adventniKalendarMCT\\aKemptyLatest.png","rb") as f:
+    with open("adventniKalendarMCT/aKemptyLatest.png","rb") as f:
         return io.BytesIO(f.read())
 import database
 def adventniKalendar(day):
-    with open("adventniKalendarMCT\\okynka.json") as f:
+    with open("adventniKalendarMCT/okynka.json") as f:
         days = eval(f.read())
     role = client.get_guild(621413546177069081).get_role(777201923270246440)
     never = database.advantniKalendar.col_values(1)[1:]
