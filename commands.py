@@ -645,5 +645,17 @@ async def commandos(msg, *args):
 #     channel = client.get_guild(621413546177069081).get_channel(777201859466231808)
 #     await channel.send(f"{out[0].mention} Gratulace vyhráváš odměnu z adventního kalendáře pro potvrzení že chceš odměnu převzít reaguj :white_check_mark:  na tuto zprávu.", file=discord.File(out[1], filename=f"adventniKalendarDay{int(args[0])}.png"))
 
+@client.command("color")
+async def color(msg, *args):
+    """Displays a color
+    **Usage**: `%commandPrefix%color <color>` eg. `%commandPrefix%color ffffff`"""
+    args = args[0]
+    args = int(args[0:2],16), int(args[2:4],16), int(args[4:6],16)
+    img = Image.new("RGBA",(50,50), args)
+    img.save("temp.png")
+    with open("temp.png","rb") as f:
+        await msg.channel.send(file=discord.File(io.BytesIO(f.read()), filename="color.png"))
+
+
 for command in client.commands:
     client.commands[command].__doc__ = client.commands[command].__doc__.replace("%commandPrefix%", client.commandPrefix)
