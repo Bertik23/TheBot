@@ -384,7 +384,7 @@ def nextHoursAreAndStartsIn():
         if modifiedHoursList[-1] < now:
             def addDay(today, hourDate):
                 today += 1
-                hourDate = hourDate.replace(day=hourDate.day+1)
+                hourDate = hourDate + timedelta(days=1)
                 now = (0,0)
 
                 tableSoup = BeautifulSoup(requests.get("https://bakalari.gymso.eu/Timetable/Public/Actual/"+url, timeout=10).text,features="html.parser")
