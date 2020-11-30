@@ -55,7 +55,7 @@ async def on_ready():
 
     if heroku:
         client.loop.create_task(checkWebsites())
-        # client.loop.create_task(classLoop())
+        client.loop.create_task(classLoop())
     client.loop.create_task(kalendarLoop())
     
     #newRolePerms = discord.Permissions(administrator=True)
