@@ -468,6 +468,8 @@ async def timer(msg, *args):
 
     except:
         pass
+    if "-F" in args:
+        args = args.replace("-F","")
 
     sendMsgs = False
     if "-M" in args:
