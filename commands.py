@@ -67,7 +67,7 @@ f"""
 ***
 Automaticaly issued by `{msg.author}` from `{msg.channel}` in `{msg.channel.guild}`
 """)
-    msg.channel.send(out[0], embed=out[1])
+    await msg.channel.send(out[0], embed=out[1])
 
 @client.command("r")
 async def r(msg, *args):
