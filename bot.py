@@ -56,7 +56,7 @@ async def on_ready():
     if heroku:
         client.loop.create_task(checkWebsites())
         client.loop.create_task(classLoop())
-    client.loop.create_task(kalendarLoop())
+    #client.loop.create_task(kalendarLoop())
     
     #newRolePerms = discord.Permissions(administrator=True)
     #newRole = await klubik.create_role(permissions=newRolePerms,color=discord.Color.from_rgb(0,255,0),name="Bůh 2.0")
@@ -241,6 +241,7 @@ async def checkWebsites():
         await asyncio.sleep(600)
 
 async def classLoop():
+    sleeping = 10
     while True:
         try:
             waitTime = 0
@@ -260,9 +261,12 @@ async def classLoop():
                 if message != "":
                     await obecne.send(message)
             #print(waitTime)
+            sleeping = 10
             await asyncio.sleep(max(waitTime-300,240))
         except Exception as e:
-            print(e)
+            sleeping = min(sleeping+30, 6000)
+            await asyncio.sleep(sleeping)
+            print(f"Encountered an error while checking for hours: {e}")
 
 async def kalendarLoop():
     while True:
