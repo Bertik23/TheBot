@@ -658,6 +658,15 @@ async def color(msg, *args):
     with open("temp.png","rb") as f:
         await msg.channel.send(file=discord.File(io.BytesIO(f.read()), filename="color.png"))
 
+@client.command("search")
+async def search(msg, *args):
+	"""Searches the web"""
+	print(args)
+	if args == ():
+		return
+	r = requests.get(f"https://api.duckduckgo.com/?q={args[0]}&format=json&kl=cz-cs").json()
+	print(msg.content)
+	await msg.channel.send(embed=client.embed(r["Heading"], description=r["AbstractText"], fields=[]))
 
 for command in client.commands:
     client.commands[command].__doc__ = client.commands[command].__doc__.replace("%commandPrefix%", client.commandPrefix)
