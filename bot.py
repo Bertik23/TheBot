@@ -53,7 +53,7 @@ async def on_ready():
     korona_info = await client.fetch_channel(758381540534255626)
     print(klubik, obecne, choco_afroAnouncements, korona_info)
 
-    obecne.send("Jsem online!")
+    await obecne.send("Jsem online!")
 
     if heroku:
         client.loop.create_task(checkWebsites())
