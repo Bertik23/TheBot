@@ -53,12 +53,11 @@ async def on_ready():
     korona_info = await client.fetch_channel(758381540534255626)
     print(klubik, obecne, choco_afroAnouncements, korona_info)
 
-    await obecne.send("Jsem online!")
-
     if heroku:
+        await obecne.send("Jsem online!")
         client.loop.create_task(checkWebsites())
         client.loop.create_task(classLoop())
-    #client.loop.create_task(kalendarLoop())
+    client.loop.create_task(rlStatsLoop())
     
     #newRolePerms = discord.Permissions(administrator=True)
     #newRole = await klubik.create_role(permissions=newRolePerms,color=discord.Color.from_rgb(0,255,0),name="Bůh 2.0")
@@ -294,6 +293,17 @@ async def kalendarLoop():
         except Exception as e:
             print(e)
             await asyncio.sleep(60)
+
+async def rlStatsLoop():
+    while True:
+        try:
+            for url in ["https://rlstats.net/profile/Steam/Bertik23","https://rlstats.net/profile/Steam/76561198417028342","https://rlstats.net/profile/Steam/nadalv2020","https://rlstats.net/profile/Steam/wertousek"]:
+                print(f"Checking for {url}")
+                r = requests.get(url)
+            await asyncio.sleep(60*60)
+        except Exception as e:
+            print(e)
+            await asyncio.sleep(60*30)
 
 
 
