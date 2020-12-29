@@ -82,7 +82,7 @@ async def on_message(message):
         await message.delete()
 
     try:
-        if message.channel.guild.id == 793152939022745610:
+        if message.channel.guild.id == 793152939022745610 and not message.author.bot:
             for i in ["bob","bohouš"]:
                 if i in message.content.lower():
                     await message.channel.send("Bohouš smrdí")
