@@ -81,50 +81,53 @@ async def on_message(message):
     if message.author.bot and message.author.id != 788873442664906752 and message.channel.id in (790630915448504390, 790630932292829214):
         await message.delete()
 
-    if message.channel.guild.id == 793152939022745610:
-        for i in ["bob","bohouš"]:
-            if i in message.content.lower():
-                await message.channel.send("Bohouš smrdí")
+    try:
+        if message.channel.guild.id == 793152939022745610:
+            for i in ["bob","bohouš"]:
+                if i in message.content.lower():
+                    await message.channel.send("Bohouš smrdí")
 
-    if message.channel.id not in (790630915448504390, 790630932292829214) and message.channel.guild.id in (697015129199607839, 540563312857841714):
-        for i in ["hi","dobrý den","brý den","čau","ahoj", "zdravíčko", "tě péro", "těpéro", "zdárek párek","tě guli", "čus", "olá", "ola", "guten tag"]:
-            if re.search(f"(\W|^){i}(\W|$)", message.content, re.I) and not message.author.bot:
-                await message.channel.send(f"Hello {message.author.mention}")
-                break
+        if message.channel.id not in (790630915448504390, 790630932292829214) and message.channel.guild.id in (697015129199607839, 540563312857841714):
+            for i in ["hi","dobrý den","brý den","čau","ahoj", "zdravíčko", "tě péro", "těpéro", "zdárek párek","tě guli", "čus", "olá", "ola", "guten tag"]:
+                if re.search(f"(\W|^){i}(\W|$)", message.content, re.I) and not message.author.bot:
+                    await message.channel.send(f"Hello {message.author.mention}")
+                    break
 
-        if "kdy" in message.content.lower() and "aktualizace" in message.content.lower():
-            await message.channel.send("Kdo ví")
+            if "kdy" in message.content.lower() and "aktualizace" in message.content.lower():
+                await message.channel.send("Kdo ví")
 
-        if (re.search("(\W|^)a+da+m(\W|$)", message.content, re.I)) and not message.author.bot:
-            await message.channel.send(f"A{randint(0,20)*'a'}d{randint(1,20)*'a'}m {choice(['je gay','neumí olí','už nevytírá anály','is trajin to solf da rubix kjub','was trajin to olín',''])}")
+            if (re.search("(\W|^)a+da+m(\W|$)", message.content, re.I)) and not message.author.bot:
+                await message.channel.send(f"A{randint(0,20)*'a'}d{randint(1,20)*'a'}m {choice(['je gay','neumí olí','už nevytírá anály','is trajin to solf da rubix kjub','was trajin to olín',''])}")
 
-        if (re.search("(\W|^)ji+ří+(\W|$)", message.content, re.I)) and not message.author.bot:
-            await message.channel.send(f"Jiří {choice([' je buzík',' nic neumí','is FUCKING NORMIEEE REEEEEEEEEEEEEEEEEEEEEE'])}")
+            if (re.search("(\W|^)ji+ří+(\W|$)", message.content, re.I)) and not message.author.bot:
+                await message.channel.send(f"Jiří {choice([' je buzík',' nic neumí','is FUCKING NORMIEEE REEEEEEEEEEEEEEEEEEEEEE'])}")
 
-        if "fortnite" in message.content.lower():
-            await message.delete()
-
-        if (re.search("thebot", message.content, re.I) or client.user.mentioned_in(message)) and not message.author.bot:
-            await message.channel.send(choice(["Slyšel jsem snad moje jméno?",f"{message.author.mention} ty ses opovážil vyslovit moje jméno?","Ještě jednou tu zazní moje jméno a uvidíte.",f"Chceš do držky {message.author.mention}?",f"Tak to je naposledy co jste {message.author.mention} viděli.", f"Naklepu ti řízek ty pomeranči {message.author.mention}", f"{message.author.mention} zmaluju ti ksicht tak, že tě ani Adam nepozná", f"Urazim ti tvé intimní partie, btw Bohouš smrdí", f"Jestli nepřestaneš psát moje jméno, tak ti pošlu fotku Vladanovo PP"]))
-
-        if message.tts and not message.author.bot:
-            await message.channel.send(f"Hej ty {message.author.mention}, žádný ttska tady.", tts = True)
-
-        if message.channel.id == 715621624950292593:
-            if not hasLink(message.content):
+            if "fortnite" in message.content.lower():
                 await message.delete()
 
-        if "No lyrics found for `" in message.content:
-            try:
-                results = await commands.kclient.music.lyrics(message.content.split("`")[1])
-            except ksoftapi.NoResults:
-                await message.channel.send(f"No lyrics found for `{message.content.split('`')[1]}`.")
-            else:
-                lyrics = results[0]
-                for i in range(math.ceil(len(lyrics.lyrics)/2048)):
-                    e = embed(f"Lyrics for {lyrics.artist} - {lyrics.name}", description=lyrics.lyrics[(i*2048):((i+1)*2048)], thumbnail={"url": lyrics.album_art})
-                    await message.channel.send(embed=e)
-            await message.delete()		
+            if (re.search("thebot", message.content, re.I) or client.user.mentioned_in(message)) and not message.author.bot:
+                await message.channel.send(choice(["Slyšel jsem snad moje jméno?",f"{message.author.mention} ty ses opovážil vyslovit moje jméno?","Ještě jednou tu zazní moje jméno a uvidíte.",f"Chceš do držky {message.author.mention}?",f"Tak to je naposledy co jste {message.author.mention} viděli.", f"Naklepu ti řízek ty pomeranči {message.author.mention}", f"{message.author.mention} zmaluju ti ksicht tak, že tě ani Adam nepozná", f"Urazim ti tvé intimní partie, btw Bohouš smrdí", f"Jestli nepřestaneš psát moje jméno, tak ti pošlu fotku Vladanovo PP"]))
+
+            if message.tts and not message.author.bot:
+                await message.channel.send(f"Hej ty {message.author.mention}, žádný ttska tady.", tts = True)
+
+            if message.channel.id == 715621624950292593:
+                if not hasLink(message.content):
+                    await message.delete()
+
+            if "No lyrics found for `" in message.content:
+                try:
+                    results = await commands.kclient.music.lyrics(message.content.split("`")[1])
+                except ksoftapi.NoResults:
+                    await message.channel.send(f"No lyrics found for `{message.content.split('`')[1]}`.")
+                else:
+                    lyrics = results[0]
+                    for i in range(math.ceil(len(lyrics.lyrics)/2048)):
+                        e = embed(f"Lyrics for {lyrics.artist} - {lyrics.name}", description=lyrics.lyrics[(i*2048):((i+1)*2048)], thumbnail={"url": lyrics.album_art})
+                        await message.channel.send(embed=e)
+                await message.delete()
+    except AttributeError:
+        pass
 
     if type(message.channel) == discord.DMChannel:
         if message.author.id == 452478521755828224:
