@@ -81,6 +81,11 @@ async def on_message(message):
     if message.author.bot and message.author.id != 788873442664906752 and message.channel.id in (790630915448504390, 790630932292829214):
         await message.delete()
 
+    if message.channel.guild.id == 793152939022745610:
+        for i in ["bob","bohouš"]:
+            if i in message.content.lower():
+                await message.channel.send("Bohouš smrdí")
+
     if message.channel.id not in (790630915448504390, 790630932292829214) and message.channel.guild.id in (697015129199607839, 540563312857841714):
         for i in ["hi","dobrý den","brý den","čau","ahoj", "zdravíčko", "tě péro", "těpéro", "zdárek párek","tě guli", "čus", "olá", "ola", "guten tag"]:
             if re.search(f"(\W|^){i}(\W|$)", message.content, re.I) and not message.author.bot:
