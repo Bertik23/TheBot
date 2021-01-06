@@ -477,7 +477,14 @@ async def timer(msg, *args):
         args = args.replace("-M", "")
 
     if "-t" not in args:
-        t = int(args)
+	if ":" in args:
+	    args = args.split(":")
+	    if len(args) == 2:
+	        t = datetime.utcnow().isoformat().split("T")
+		t = t[0]
+		t = (datetime.fromisoformat(f"{t} {args[0]}:{args[1]}".rstrip().lstrip()) - datetime.utcnow()).total_seconds()
+	else:    		   
+            t = int(args)
     else:
         args = args.split("-t")
         t = (datetime.fromisoformat(args[1].rstrip().lstrip()) - datetime.utcnow()).total_seconds()
