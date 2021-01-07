@@ -487,7 +487,7 @@ async def timer(msg, *args):
                 await msg.channel.send("To není čas")
                 return
         else:    		   
-                t = int(args)
+            t = int(args)
     else:
         args = args.split("-t")
         t = (datetime.fromisoformat(args[1].rstrip().lstrip()) - datetime.utcnow()).total_seconds()
