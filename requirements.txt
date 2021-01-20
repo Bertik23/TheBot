@@ -67,3 +67,6 @@ tomd == 0.1.3
 
 # D:\Python\TheBot\botFunctions.py: 15
 wolframalpha == 4.1.1
+
+uhlovodikovac
+kaleido
