@@ -24,7 +24,7 @@ oauth2client == 4.1.3
 
 # D:\Python\TheBot\botFunctions.py: 19
 # D:\Python\TheBot\commands.py: 21
-omelette == 1.1.6
+#omelette == 1.1.6
 
 # D:\Python\TheBot\pigarImports.py: 7
 pandas == 1.2.1
