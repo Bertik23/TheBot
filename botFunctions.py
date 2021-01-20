@@ -21,8 +21,6 @@ from variables import *
 import random
 
 
-import smaz
-
 wClient = wolframalpha.Client("TV7GVY-8YLJ26PPK9")
 githubToken = os.environ.get("GithubToken", None)
 
@@ -31,16 +29,24 @@ def mostFrequent(List):
     num = List[0] 
       
     for i in List: 
-        curr_frequency = List.count(i) 
-        if(curr_frequency> counter): 
-            counter = curr_frequency 
-            num = i 
+        if type(List) == np.ndarray:
+            a,b = np.unique(List,return_counts=True)
+            c = dict(zip(a,b))
+            return max(c, key=c.get)
+        else:
+            curr_frequency = List.count(i) 
+            if(curr_frequency> counter): 
+                counter = curr_frequency 
+                num = i 
   
     return num 
 
 def count(List):
     out = {}
     for i in List:
+        if type(List) == np.ndarray:
+            a,b = np.unique(List,return_counts=True)
+            return dict(zip(a,b))
         out[i] = List.count(i)
     return out
 
@@ -256,9 +262,7 @@ def encrypt(text_to_encrypt, encryption_base):
             digits.append(bytes(chr(i),"utf-8").decode("utf-8"))
         except UnicodeEncodeError:
             pass
-    text = smaz.compress(str(text_to_encrypt))
-    if text == b"":
-        text = zlib.compress(bytes(text_to_encrypt, encoding="utf-8"))
+    text = zlib.compress(bytes(text_to_encrypt, encoding="utf-8"))
     textInts = [i for i in text]
     textNum = ""
     result = -1
@@ -297,10 +301,7 @@ def decrypt(text_to_decrypt, encryption_base):
     num = str(num)
     n = 3
     nums = [int(num[i:i+n]) for i in range(0, len(num), n)]
-    try:
-        texto = smaz.decompress(bytes(nums))
-    except:
-        texto = zlib.decompress(bytes(nums)).decode("utf-8")
+    texto = zlib.decompress(bytes(nums)).decode("utf-8")
     return texto
 
 def deleteDuplicates(l):

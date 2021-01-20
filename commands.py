@@ -6,10 +6,9 @@ import ksoftapi
 import pkg_resources
 import plotly.express as px
 import plotly.graph_objects as go
-import praw
 import prawcore
 from bdbf import *
-from oauth2client.service_account import ServiceAccountCredentials
+import numpy as np
 
 
 import botFunctions
@@ -22,11 +21,17 @@ from exceptions import *
 from PIL import Image, ImageDraw, ImageFont
 import json
 from variables import *
+import time
 
 @client.command("info")
 async def info(msg, *args):
     """"TheBot info"""
     await msg.channel.send(f"I'm a bot made by Bertik23#9997\nI'm running on bdbf {pkg_resources.get_distribution('bdbf').version} and discord.py {pkg_resources.get_distribution('discord.py').version}"+"\nI'm and open source bot, that means that you can contribute to me on https://github.com/Bertik23/DiscordBot")
+
+@client.command("changelog")
+async def command_changelog(msg, *args):
+    """The changelog"""
+    await msg.channel.send(embed=client.embed("Changelog", fields=[(i, changelog[i]) for i in changelog]))
 
 @client.command("zmena", worksOnlyInGuilds=[697015129199607839])
 async def zmena(msg, *args):
@@ -242,29 +247,28 @@ async def stats(msg, *args):
         args = args[0]
     async with msg.channel.typing():
         if args == "commands":
-            commandCountTotaly = len(commandLog.col_values(1))-1
-            commandsList = commandLog.col_values(2)[1:]
-            commandCountGuild = len([g for g in commandLog.col_values(7) if g == str(msg.channel.guild.id)])
-            commandCountChannel = len([g for g in commandLog.col_values(5) if g == str(msg.channel.id)])
-            mostActiveCommandor = mostFrequent(commandLog.col_values(4))
-            mostUsedCommand = mostFrequent(commandsList)
+            commandsList = list(np.transpose(commandLog.get_all_values()[1:]))
+            commandCountTotaly = len(commandsList[0])
+            commandCountGuild = len([g for g in commandsList[6] if g == str(msg.channel.guild.id)])
+            commandCountChannel = len([g for g in commandsList[4] if g == str(msg.channel.id)])
+            mostActiveCommandor = mostFrequent(commandsList[3])
+            mostUsedCommand = mostFrequent(commandsList[1])
 
-            commandTimes = commandLog.col_values(1)[1:]
+            commandTimes = commandsList[0]
 
-            commandTimes = commandLog.col_values(1)[1:]
 
             commandTimeUsage = {}
             for i, t in enumerate(commandTimes):
                 if t[:10] not in commandTimeUsage.keys():
                     commandTimeUsage[t[:10]] = []
-                commandTimeUsage[t[:10]].append(commandsList[i])
+                commandTimeUsage[t[:10]].append(commandsList[1][i])
 
             for key in commandTimeUsage.keys():
                 commandTimeUsage[key] = count(commandTimeUsage[key])
 
             # print(commandTimeUsage)
 
-            commandCounts = count(commandsList)
+            commandCounts = count(commandsList[1])
 
             commandTimes = [time.isoformat() for time in map(roundToTheLast30min,map(datetime.fromisoformat, commandTimes))]
             commandTimesUno = deleteDuplicates(commandTimes)
@@ -289,7 +293,7 @@ async def stats(msg, *args):
 
             cmds = {}
 
-            for c in commandsList:
+            for c in commandsList[1]:
                 cmds[c] = []
                 for t in commandTimeUsage.keys():
                     try:
@@ -327,22 +331,23 @@ async def stats(msg, *args):
                                                         ("Most Commands", mostActiveCommandor, True),
                                                         ("Most Used Command", mostUsedCommand, True)]))
         elif args == "messages":
-            guildMessages = len([g for g in messageLog.col_values(8) if g == str(msg.channel.guild.id)])
-            channelMessages = len([g for g in messageLog.col_values(6) if g == str(msg.channel.id)])
-            mostActive = mostFrequent(messageLog.col_values(5))
+            startTime = time.time()
+            messagesList = list(np.transpose(messageLog.get_all_values()[1:]))
+            guildMessages = len([g for g in messagesList[7] if g == str(msg.channel.guild.id)])
+            channelMessages = len([g for g in messagesList[5] if g == str(msg.channel.id)])
+            mostActive = mostFrequent(messagesList[4])
 
-            messageTimes = messageLog.col_values(1)[1:]
+            messageTimes = messagesList[0]
 
-            messageGuilds = messageLog.col_values(8)[1:]
+            messageGuilds = messagesList[7]
 
             messageTimes = [time.isoformat() for i,time in enumerate(map(roundToTheLast30min,map(datetime.fromisoformat, messageTimes))) if messageGuilds[i] == str(msg.channel.guild.id)]
-            print(len(messageTimes))
             messageTimesUno = deleteDuplicates(messageTimes)
             messageTimeCounts = [messageTimes.count(t) for t in messageTimesUno]
 
             fig = px.bar(x = messageTimesUno, y = messageTimeCounts, range_x=[messageTimesUno[0], messageTimesUno[-1]])
 
-            fig_bytes = fig.to_image(format="png", width=1800, height=800)
+            fig_bytes = fig.to_image(format="png", width=3200, height=800)
 
             await msg.channel.send(file=discord.File(io.BytesIO(fig_bytes), filename="stats.png"))
 
@@ -350,6 +355,7 @@ async def stats(msg, *args):
                                             ("Guild Messages", guildMessages, True),
                                             ("Channel Messages", channelMessages, True),
                                             ("Most Messages", mostActive, True)]))
+            print(f"Took {startTime - time.time()} seconds")
         else:
             await msg.channel.send(embed=client.embed("Available stats categories", fields=[
                                                                     ("commands", "Command stats"),

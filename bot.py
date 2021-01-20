@@ -2,29 +2,15 @@ import asyncio
 from asyncio.tasks import wait
 import datetime
 import math
-import os
-import pickle
-import random
 import re
-import time
 from random import choice, randint
 
-import bdbf
 import discord
 import ksoftapi
-import numpy as np
-import pkg_resources
-import praw
-import prawcore
 import requests
 import stopit
 from bdbf import embed, hasLink  # , spamProtection
-from bs4 import BeautifulSoup
-from prettytable import PrettyTable
 
-import botFunctions
-import botGames
-#import chatbot
 import commands
 import database
 from botFunctions import (adventniKalendar, checkMZCR, getFact, getJokeTxt, getLastInstaPost,
@@ -57,7 +43,9 @@ async def on_ready():
         await obecne.send("Jsem online!")
         client.loop.create_task(checkWebsites())
         client.loop.create_task(classLoop())
-    client.loop.create_task(rlStatsLoop())
+        client.loop.create_task(rlStatsLoop())
+        if tuple(int(i) for i in database.dataLog.cell(2,3)) < version:
+            await obecne.send("Nová verze!", embed=client.embed("Changelog", description=f"{'.'.join(str(i) for i in version)} - {changelog['.'.join(str(i) for i in version)]}"))
     
     #newRolePerms = discord.Permissions(administrator=True)
     #newRole = await klubik.create_role(permissions=newRolePerms,color=discord.Color.from_rgb(0,255,0),name="Bůh 2.0")

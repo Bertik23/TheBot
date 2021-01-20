@@ -3,6 +3,12 @@ import os
 import ksoftapi
 import praw
 
+version = "2.2.1"
+changelog = {
+    "2.2.1":"Started versioning and making a changelog.\nBetter stats command.",
+    "test":"Test"
+}
+
 heroku = os.environ.get("isHeroku", False)
 if not heroku:
     logging = False

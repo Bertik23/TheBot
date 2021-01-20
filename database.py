@@ -40,3 +40,5 @@ messageLog = sheetClient.open("TheBotDB").worksheet("Message Log")
 dataLog = sheetClient.open("TheBotDB").worksheet("Database")
 
 advantniKalendar = sheetClient.open("TheBotDB").worksheet("AK")
+
+#print(advantniKalendar.get_all_values())
