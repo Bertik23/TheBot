@@ -2,6 +2,7 @@ import bdbf
 import os
 import ksoftapi
 import praw
+import datetime
 
 version = "2.2.1"
 changelog = {
@@ -49,3 +50,7 @@ client = bdbf.Client(
     botName = "TheBot",
     logging=logging
     )
+
+klubik, obecne, choco_afroAnouncements, korona_info = None,None, None, None
+botStartTime = datetime.datetime.utcnow()
+botReadyTimes = []

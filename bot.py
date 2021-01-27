@@ -17,6 +17,7 @@ from botFunctions import (adventniKalendar, checkMZCR, getFact, getJokeTxt, getL
                           getZmena, gymso, makeSuggestion, newOnGymso,
                           spamProtection, wolframQuery, nextHoursAreAndStartsIn)
 from variables import *
+import variables
 
 @client.logMessage
 def log(message):
@@ -27,25 +28,26 @@ def log(message):
     database.messageLog.append_row(msgLog)
 
 
-klubik, obecne, choco_afroAnouncements, korona_info = None,None, None, None
-
 @client.event # event decorator/wrapper
 async def on_ready():
     global klubik, obecne, choco_afroAnouncements, korona_info
     print(f"We have logged in as {client.user}")
     klubik = await client.fetch_guild(697015129199607839)
     obecne = await client.fetch_channel(697015129199607843)
+    botspam = await client.fetch_channel(804091646609850390)
     choco_afroAnouncements = await client.fetch_channel(756497789424369737)
     korona_info = await client.fetch_channel(758381540534255626)
     print(klubik, obecne, choco_afroAnouncements, korona_info)
+    variables.botReadyTimes.append(datetime.datetime.utcnow())
 
     if heroku:
-        await obecne.send("Jsem online!")
-        client.loop.create_task(checkWebsites())
-        client.loop.create_task(classLoop())
-        client.loop.create_task(rlStatsLoop())
-        if tuple(int(i) for i in database.dataLog.cell(2,3)) < version:
-            await obecne.send("Nová verze!", embed=client.embed("Changelog", description=f"{'.'.join(str(i) for i in version)} - {changelog['.'.join(str(i) for i in version)]}"))
+        await botspam.send("<@452478521755828224> Jsem online!")
+        if len(botReadyTimes) <= 1:
+            client.loop.create_task(checkWebsites())
+            client.loop.create_task(classLoop())
+            client.loop.create_task(rlStatsLoop())
+            if tuple(int(i) for i in database.dataLog.cell(2,3)) < version:
+                await obecne.send("Nová verze!", embed=client.embed("Changelog", description=f"{'.'.join(str(i) for i in version)} - {changelog['.'.join(str(i) for i in version)]}"))
     
     #newRolePerms = discord.Permissions(administrator=True)
     #newRole = await klubik.create_role(permissions=newRolePerms,color=discord.Color.from_rgb(0,255,0),name="Bůh 2.0")
