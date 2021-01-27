@@ -13,9 +13,7 @@ from bdbf import embed, hasLink  # , spamProtection
 
 import commands
 import database
-from botFunctions import (adventniKalendar, checkMZCR, getFact, getJokeTxt, getLastInstaPost,
-                          getZmena, gymso, makeSuggestion, newOnGymso,
-                          spamProtection, wolframQuery, nextHoursAreAndStartsIn)
+from botFunctions import (adventniKalendar, checkMZCR, newOnGymso, nextHoursAreAndStartsIn)
 from variables import *
 import variables
 
@@ -46,8 +44,8 @@ async def on_ready():
             client.loop.create_task(checkWebsites())
             client.loop.create_task(classLoop())
             client.loop.create_task(rlStatsLoop())
-            if tuple(int(i) for i in database.dataLog.cell(2,3)) < version:
-                await obecne.send("Nová verze!", embed=client.embed("Changelog", description=f"{'.'.join(str(i) for i in version)} - {changelog['.'.join(str(i) for i in version)]}"))
+            if tuple(int(i) for i in database.dataLog.cell(2,3).split(".")) < version:
+                await obecne.send("Nová verze!", embed=client.embed("Changelog", fields=[(i, changelog[i]) for i in changelog]))
     
     #newRolePerms = discord.Permissions(administrator=True)
     #newRole = await klubik.create_role(permissions=newRolePerms,color=discord.Color.from_rgb(0,255,0),name="Bůh 2.0")

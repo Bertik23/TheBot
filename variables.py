@@ -4,8 +4,9 @@ import ksoftapi
 import praw
 import datetime
 
-version = "2.2.1"
+version = (2,2,2)
 changelog = {
+    "2.2.2":"Small backend fixes",
     "2.2.1":"Started versioning and making a changelog.\nBetter stats command."
 }
 
