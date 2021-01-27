@@ -44,7 +44,7 @@ async def on_ready():
             client.loop.create_task(checkWebsites())
             client.loop.create_task(classLoop())
             client.loop.create_task(rlStatsLoop())
-            if tuple(int(i) for i in database.dataLog.cell(2,3).split(".")) < version:
+            if tuple(int(i) for i in database.dataLog.cell(2,3).value.split(".")) < version:
                 await obecne.send("Nová verze!", embed=client.embed("Changelog", fields=[(i, changelog[i]) for i in changelog]))
     
     #newRolePerms = discord.Permissions(administrator=True)
