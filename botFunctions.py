@@ -61,7 +61,7 @@ def rotateDict(Dict):
     return out
 
 def roundToTheLast30min(time):
-    rounded = time - (time - datetime.min) % timedelta(minutes=30)
+    rounded = time - (time - datetime.datetime.min) % timedelta(minutes=30)
     return rounded
 
 def makeGithubIssue(title: str, body: str=None, labels: list=None):

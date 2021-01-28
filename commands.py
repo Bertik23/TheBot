@@ -26,7 +26,7 @@ import time
 @client.command("info")
 async def info(msg, *args):
     """"TheBot info"""
-    await msg.channel.send(f"I'm a bot made by Bertik23#9997\nI'm running on bdbf {pkg_resources.get_distribution('bdbf').version} and discord.py {pkg_resources.get_distribution('discord.py').version}"+"\nI'm and open source bot, that means that you can contribute to me on https://github.com/Bertik23/DiscordBot")
+    await msg.channel.send(f"I'm a bot made by Bertik23#9997\nVersion {'.'.join(version)}\nI'm running on bdbf {pkg_resources.get_distribution('bdbf').version} and discord.py {pkg_resources.get_distribution('discord.py').version}"+"\nI'm and open source bot, that means that you can contribute to me on https://github.com/Bertik23/DiscordBot")
 
 @client.command("changelog")
 async def command_changelog(msg, *args):
@@ -270,7 +270,7 @@ async def stats(msg, *args):
 
             commandCounts = count(commandsList[1])
 
-            commandTimes = [time.isoformat() for time in map(roundToTheLast30min,map(datetime.fromisoformat, commandTimes))]
+            commandTimes = [time.isoformat() for time in map(roundToTheLast30min,map(datetime.datetime.fromisoformat, commandTimes))]
             commandTimesUno = deleteDuplicates(commandTimes)
             commandTimeCounts = [commandTimes.count(t) for t in commandTimesUno]
 
@@ -341,7 +341,7 @@ async def stats(msg, *args):
 
             messageGuilds = messagesList[7]
 
-            messageTimes = [time.isoformat() for i,time in enumerate(map(roundToTheLast30min,map(datetime.fromisoformat, messageTimes))) if messageGuilds[i] == str(msg.channel.guild.id)]
+            messageTimes = [time.isoformat() for i,time in enumerate(map(roundToTheLast30min,map(datetime.datetime.fromisoformat, messageTimes))) if messageGuilds[i] == str(msg.channel.guild.id)]
             messageTimesUno = deleteDuplicates(messageTimes)
             messageTimeCounts = [messageTimes.count(t) for t in messageTimesUno]
 
@@ -486,9 +486,9 @@ async def timer(msg, *args):
         if ":" in args:
             args = args.split(":")
             if len(args) == 2:
-                t = datetime.utcnow().isoformat().split("T")
+                t = datetime.datetime.utcnow().isoformat().split("T")
                 t = t[0]
-                t = (datetime.fromisoformat(f"{t} {args[0]}:{args[1]}".rstrip().lstrip()) - datetime.utcnow()).total_seconds()
+                t = (datetime.datetime.fromisoformat(f"{t} {args[0]}:{args[1]}".rstrip().lstrip()) - datetime.datetime.utcnow()).total_seconds()
             else:
                 await msg.channel.send("To není čas")
                 return
@@ -496,7 +496,7 @@ async def timer(msg, *args):
             t = int(args)
     else:
         args = args.split("-t")
-        t = (datetime.fromisoformat(args[1].rstrip().lstrip()) - datetime.utcnow()).total_seconds()
+        t = (datetime.datetime.fromisoformat(args[1].rstrip().lstrip()) - datetime.datetime.utcnow()).total_seconds()
 
     userTimers[msg.author] = TimerObject()
     await userTimers[msg.author].timer(t, msg, sendMsgs)
@@ -510,8 +510,8 @@ class TimerObject():
         self.author = None
     async def timer(self, t, msg, sendMsgs = False):
         self.author = msg.author
-        self.start = datetime.utcnow()
-        self.end = datetime.utcnow()+timedelta(seconds=t)
+        self.start = datetime.datetime.utcnow()
+        self.end = datetime.datetime.utcnow()+timedelta(seconds=t)
         self.channel = msg.channel
         self.t = t
         self.sending = True
@@ -520,7 +520,7 @@ class TimerObject():
         botGames.client.loop.create_task(self.sender())
 
     def getTime(self):
-        return (self.end-datetime.utcnow()).total_seconds()
+        return (self.end-datetime.datetime.utcnow()).total_seconds()
 
     async def sender(self):
         while self.sending:

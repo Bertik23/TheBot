@@ -25,6 +25,10 @@ def log(message):
         msgLog = [datetime.datetime.utcnow().isoformat(), str(message.id), message.content, str(message.author.id), message.author.name, str(message.channel.id), str(message.channel)]
     database.messageLog.append_row(msgLog)
 
+@client.logCommand
+def logC(command, msg, time, e):
+    Clog = [datetime.datetime.utcnow().isoformat(), command, str(msg.author.id), msg.author.name, str(msg.channel.id), str(msg.channel), str(msg.channel.guild.id) if "guild" in dir(msg.channel) else "", str(msg.channel.guild) if "guild" in dir(msg.channel) else "", msg.content, "Succeded" if e == "" else "Failed", e, time]
+    database.commandLog.append_row(Clog)
 
 @client.event # event decorator/wrapper
 async def on_ready():
