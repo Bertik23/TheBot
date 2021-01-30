@@ -4,7 +4,7 @@ import ksoftapi
 import praw
 import datetime
 
-version = (2,2,4)
+version = (2,2,5)
 changelog = {
     "2.2.5":"Added the makeEmbed command",
     "2.2.4":"Upgraded to bdbf 1.1.1",
