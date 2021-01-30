@@ -637,14 +637,16 @@ class TimerObject():
 
 # bdbf.commands.cmds["all"].append(image())
 
-# class makeEmbed(Command):
-#     async def commandos(self, args, msg):
-#         embedDict = json.loads(args)
-#         embedDict.pop("timestamp","")
-#         return None, discord.Embed.from_dict(embedDict)
+@client.command("makeEmbed")
+async def makeEmbedCommand(msg, *args):
+    """Makes the an embed from json. You can get your json [here](https://leovoel.github.io/embed-visualizer/)"""
+    if args == (None,):
+        return
+    embedDict = json.loads(args[0])
+    embedDict.pop("timestamp","")
+    await msg.channel.send(embed=discord.Embed.from_dict(embedDict))
 
 
-# bdbf.commands.cmds["all"].append(makeEmbed())
 
 
 @client.command("nextHour", worksOnlyInGuilds=[697015129199607839])

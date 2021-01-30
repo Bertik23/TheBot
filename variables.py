@@ -6,6 +6,7 @@ import datetime
 
 version = (2,2,4)
 changelog = {
+    "2.2.5":"Added the makeEmbed command",
     "2.2.4":"Upgraded to bdbf 1.1.1",
     "2.2.3":"Small fix in versioning",
     "2.2.2":"Small backend fixes",
