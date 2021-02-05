@@ -13,24 +13,57 @@ from bdbf import embed, hasLink  # , spamProtection
 
 import commands
 import database
-from botFunctions import (adventniKalendar, checkMZCR, newOnGymso, nextHoursAreAndStartsIn)
+from botFunctions import (
+    adventniKalendar, checkMZCR, newOnGymso, nextHoursAreAndStartsIn
+    )
 from variables import *
 import variables
 
 @client.logMessage
 def log(message):
     if "guild" in dir(message.channel):
-        msgLog = [datetime.datetime.utcnow().isoformat(), str(message.id), message.content, str(message.author.id), message.author.name, str(message.channel.id), str(message.channel), str(message.channel.guild.id), message.channel.guild.name]
+        msgLog = [
+            datetime.datetime.utcnow().isoformat(),
+            str(message.id), message.content,
+            str(message.author.id),
+            message.author.name,
+            str(message.channel.id),
+            str(message.channel),
+            str(message.channel.guild.id),
+            message.channel.guild.name
+            ]
     else:
-        msgLog = [datetime.datetime.utcnow().isoformat(), str(message.id), message.content, str(message.author.id), message.author.name, str(message.channel.id), str(message.channel)]
+        msgLog = [
+            datetime.datetime.utcnow().isoformat(),
+            str(message.id),
+            message.content,
+            str(message.author.id),
+            message.author.name,
+            str(message.channel.id),
+            str(message.channel)
+            ]
     database.messageLog.append_row(msgLog)
+
 
 @client.logCommand
 def logC(command, msg, time, e):
-    Clog = [datetime.datetime.utcnow().isoformat(), command, str(msg.author.id), msg.author.name, str(msg.channel.id), str(msg.channel), str(msg.channel.guild.id) if "guild" in dir(msg.channel) else "", str(msg.channel.guild) if "guild" in dir(msg.channel) else "", msg.content, "Succeded" if e == "" else "Failed", e, time]
+    Clog = [
+        datetime.datetime.utcnow().isoformat(),
+        command, str(msg.author.id),
+        msg.author.name,
+        str(msg.channel.id),
+        str(msg.channel),
+        str(msg.channel.guild.id) if "guild" in dir(msg.channel) else "",
+        str(msg.channel.guild) if "guild" in dir(msg.channel) else "",
+        msg.content,
+        "Succeded" if e == "" else "Failed",
+        e,
+        time
+        ]
     database.commandLog.append_row(Clog)
 
-@client.event # event decorator/wrapper
+
+@client.event  # event decorator/wrapper
 async def on_ready():
     global klubik, obecne, choco_afroAnouncements, korona_info
     print(f"We have logged in as {client.user}")
@@ -48,48 +81,81 @@ async def on_ready():
             client.loop.create_task(checkWebsites())
             client.loop.create_task(classLoop())
             client.loop.create_task(rlStatsLoop())
-            if tuple(int(i) for i in database.dataLog.cell(2,3).value.split(".")) < version:
-                await obecne.send("Nová verze!", embed=client.embed("Changelog", fields=[(i, changelog[i]) for i in changelog]))
-    
-    #newRolePerms = discord.Permissions(administrator=True)
-    #newRole = await klubik.create_role(permissions=newRolePerms,color=discord.Color.from_rgb(0,255,0),name="Bůh 2.0")
-    #bertiksMessage = await obecne.fetch_message(746658597655805954)
-    #bertik = bertiksMessage.author
-    #await bertik.add_roles(discord.Object(newRole.id))
+            if tuple(
+                    int(i) for i in database.dataLog.cell(2, 3)
+                    .value.split(".")
+                    ) < version:
+                await obecne.send(
+                    "Nová verze!",
+                    embed=client.embed(
+                        "Changelog",
+                        fields=[(i, changelog[i]) for i in changelog]
+                        )
+                    )
+
+    # newRolePerms = discord.Permissions(administrator=True)
+    # newRole = await klubik.create_role(
+    #   permissions=newRolePerms,
+    #   color=discord.Color.from_rgb(0,255,0),
+    #   name="Bůh 2.0"
+    #   )
+    # bertiksMessage = await obecne.fetch_message(746658597655805954)
+    # bertik = bertiksMessage.author
+    # await bertik.add_roles(discord.Object(newRole.id))
+
 
 @client.event
 async def on_message(message):
     global klubik, obecne
-    print(f"{message.channel} ({message.channel.id}): {message.author}: {message.author.name}: {message.content}")
-        #print("on_msg", obecne, klubik)
-    #await spamProtection(message, 5, f"{message.author.mention} nespamuj tady!", spamDelValue = 10)#, spamDelWarnMsg = f"{message.author.mention} další zprávy už ti smažu!")
-    """if not message.author.bot:
-        await spamProtection(message, 3)"""
+    print(
+        f"{message.channel} ({message.channel.id}): {message.author}: \
+          {message.author.name}: {message.content}"
+          )
 
-    # if message.channel.id == 766655158473850890:
-    # 	chatbot.talk_to_bot(message.content)
-    # 	return
-
-    if message.author.bot and message.author.id != 788873442664906752 and message.channel.id in (790630915448504390, 790630932292829214):
+    if (message.author.bot and message.author.id != 788873442664906752 and
+            message.channel.id in (790630915448504390, 790630932292829214)):
         await message.delete()
 
     try:
-        if message.channel.guild.id == 793152939022745610 and not message.author.bot:
-            for i in ["bob","bohouš"]:
+        if (message.channel.guild.id == 793152939022745610 and
+                not message.author.bot):
+            for i in ["bob", "bohouš"]:
                 if i in message.content.lower():
                     await message.channel.send("Bohouš smrdí")
 
-        if message.channel.id not in (790630915448504390, 790630932292829214) and message.channel.guild.id in (697015129199607839, 540563312857841714):
-            for i in ["hi","dobrý den","brý den","čau","ahoj", "zdravíčko", "tě péro", "těpéro", "zdárek párek","tě guli", "čus", "olá", "ola", "guten tag"]:
-                if re.search(f"(\W|^){i}(\W|$)", message.content, re.I) and not message.author.bot:
-                    await message.channel.send(f"Hello {message.author.mention}")
+        if (message.channel.id not in (790630915448504390, 790630932292829214)
+            and
+                message.channel.guild.id in (
+                    697015129199607839,
+                    540563312857841714
+                    )):
+            for i in [
+                    "hi", "dobrý den", "brý den",
+                    "čau", "ahoj", "zdravíčko",
+                    "tě péro", "těpéro", "zdárek párek",
+                    "tě guli", "čus", "olá",
+                    "ola", "guten tag"
+                    ]:
+                if (re.search(f"(\W|^){i}(\W|$)", message.content, re.I) and
+                        not message.author.bot):
+                    await message.channel.send(
+                        f"Hello {message.author.mention}"
+                        )
                     break
 
-            if "kdy" in message.content.lower() and "aktualizace" in message.content.lower():
+            if ("kdy" in message.content.lower()
+                    and "aktualizace" in message.content.lower()):
                 await message.channel.send("Kdo ví")
 
-            if (re.search("(\W|^)a+da+m(\W|$)", message.content, re.I)) and not message.author.bot:
-                await message.channel.send(f"A{randint(0,20)*'a'}d{randint(1,20)*'a'}m {choice(['je gay','neumí olí','už nevytírá anály','is trajin to solf da rubix kjub','was trajin to olín',''])}")
+            if ((re.search("(\W|^)a+da+m(\W|$)", message.content, re.I))
+                    and not message.author.bot):
+                await message.channel.send(
+                    "A"+randint(0, 20)*'a'+"d"+randint(1, 20)*'a'+"m "
+                    + choice([
+                        'je gay', 'neumí olí', 'už nevytírá anály',
+                        'is trajin to solf da rubix kjub',
+                        'was trajin to olín', ''])
+                        )
 
             if (re.search("(\W|^)ji+ří+(\W|$)", message.content, re.I)) and not message.author.bot:
                 await message.channel.send(f"Jiří {choice([' je buzík',' nic neumí','is FUCKING NORMIEEE REEEEEEEEEEEEEEEEEEEEEE'])}")
@@ -239,74 +305,94 @@ async def checkWebsites():
                     await korona_info.send(embed=embed(ts[2], url=ts[1], description=ts[3]))
                 else:
                     break
-            database.dataLog.update_cell(2,2, tss[0][0])
+            database.dataLog.update_cell(2, 2, tss[0][0])
         except Exception as e:
             print(e)
 
         await asyncio.sleep(600)
+
 
 async def classLoop():
     sleeping = 10
     while True:
         try:
             waitTime = 0
-            print("Checking for hours.")               
+            print("Checking for hours.")
             for hour in nextHoursAreAndStartsIn():
-                #print(f"We are in {hour}")
+                # print(f"We are in {hour}")
                 waitTime = hour[0].total_seconds()
                 try:
-                    if hour[2] == None:
+                    if hour[2] is None:
                         role = [r for r in klubik.roles if r.name == hour[1]]
-                        message = f"Za {str(hour[0])[:-3]} začíná {role[0].mention}"
+                        message = \
+                            f"Za {str(hour[0])[:-3]} začíná {role[0].mention}"
                     else:
                         role = [r for r in klubik.roles if r.name == hour[2]]
-                        message = f"Za {str(hour[0])[:-3]} začíná `{hour[1]}` pro {role[0].mention}"
-                except:
+                        message = \
+                            f"""Za {str(hour[0])[:-3]} začíná `{hour[1]}`
+                                pro {role[0].mention}"""
+                except Exception:
                     message = ""
                 if message != "":
                     await obecne.send(message)
-            #print(waitTime)
+            # print(waitTime)
             sleeping = 10
-            await asyncio.sleep(max(waitTime-300,240))
+            await asyncio.sleep(max(waitTime-300, 240))
         except Exception as e:
             sleeping = min(sleeping+30, 6000)
             await asyncio.sleep(sleeping)
             print(f"Encountered an error while checking for hours: {e}")
 
+
 async def kalendarLoop():
     while True:
         try:
             now = datetime.datetime.utcnow()
-            lastMessage = int(database.advantniKalendar.cell(2,11).value)
+            lastMessage = int(database.advantniKalendar.cell(2, 11).value)
             if lastMessage < now.day:
-                noon = now.replace(hour = 11, minute = 0, second = 0)
-                print(f"Waiting for {max((noon-now).total_seconds(), 0)} until noon.")
+                noon = now.replace(hour=11, minute=0, second=0)
+                print(f"""Waiting for {max((noon-now).total_seconds(), 0)}
+                until noon.""")
                 await asyncio.sleep(max((noon-now).total_seconds(), 0))
                 out = adventniKalendar(now.day-1)
-                channel = client.get_guild(621413546177069081).get_channel(777201859466231808)
-                await channel.send(f"{out[0].mention} Gratulace vyhráváš odměnu z adventního kalendáře pro potvrzení že chceš odměnu převzít reaguj :white_check_mark:  na tuto zprávu.", file=discord.File(out[1], filename=f"adventniKalendarDay{now.day}.png"))
-                database.advantniKalendar.update_cell(2,11, now.day)
+                channel = client.get_guild(
+                    621413546177069081
+                    ).get_channel(777201859466231808)
+                await channel.send(
+                    f"""{out[0].mention} Gratulace vyhráváš odměnu
+                        z adventního kalendáře pro potvrzení že chceš odměnu
+                        převzít reaguj :white_check_mark:  na tuto zprávu.""",
+                    file=discord.File(
+                        out[1],
+                        filename=f"adventniKalendarDay{now.day}.png"
+                        ))
+                database.advantniKalendar.update_cell(2, 11, now.day)
             else:
-                noon = now.replace(day=now.day+1, hour = 11, minute = 0, second = 0)
-                print(f"Waiting for {max((noon-now).total_seconds(), 0)} until noon.")
+                noon = now.replace(day=now.day+1, hour=11, minute=0, second=0)
+                print(
+                    "Waiting for "+max((noon-now).total_seconds(), 0)
+                    + " until noon."
+                    )
                 await asyncio.sleep(max((noon-now).total_seconds(), 0))
         except Exception as e:
             print(e)
             await asyncio.sleep(60)
 
+
 async def rlStatsLoop():
     while True:
         try:
-            for url in ["https://rlstats.net/profile/Steam/Bertik23","https://rlstats.net/profile/Steam/76561198417028342","https://rlstats.net/profile/Steam/nadalv2020","https://rlstats.net/profile/Steam/wertousek"]:
+            for url in [
+                    "https://rlstats.net/profile/Steam/Bertik23",
+                    "https://rlstats.net/profile/Steam/76561198417028342",
+                    "https://rlstats.net/profile/Steam/nadalv2020",
+                    "https://rlstats.net/profile/Steam/wertousek"]:
                 print(f"Checking for {url}")
                 r = requests.get(url)
             await asyncio.sleep(60*60)
         except Exception as e:
             print(e)
             await asyncio.sleep(60*30)
-
-
-
 
 
 client.run(token)
