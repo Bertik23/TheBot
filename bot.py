@@ -15,9 +15,10 @@ import commands
 import database
 from botFunctions import (
     adventniKalendar, checkMZCR, newOnGymso, nextHoursAreAndStartsIn
-    )
+)
 from variables import *
 import variables
+
 
 @client.logMessage
 def log(message):
@@ -31,7 +32,7 @@ def log(message):
             str(message.channel),
             str(message.channel.guild.id),
             message.channel.guild.name
-            ]
+        ]
     else:
         msgLog = [
             datetime.datetime.utcnow().isoformat(),
@@ -41,7 +42,7 @@ def log(message):
             message.author.name,
             str(message.channel.id),
             str(message.channel)
-            ]
+        ]
     database.messageLog.append_row(msgLog)
 
 
@@ -59,7 +60,7 @@ def logC(command, msg, time, e):
         "Succeded" if e == "" else "Failed",
         e,
         time
-        ]
+    ]
     database.commandLog.append_row(Clog)
 
 
@@ -84,14 +85,14 @@ async def on_ready():
             if tuple(
                     int(i) for i in database.dataLog.cell(2, 3)
                     .value.split(".")
-                    ) < version:
+            ) < version:
                 await obecne.send(
                     "Nová verze!",
                     embed=client.embed(
                         "Changelog",
                         fields=[(i, changelog[i]) for i in changelog]
-                        )
                     )
+                )
 
     # newRolePerms = discord.Permissions(administrator=True)
     # newRole = await klubik.create_role(
@@ -110,7 +111,7 @@ async def on_message(message):
     print(
         f"{message.channel} ({message.channel.id}): {message.author}: \
           {message.author.name}: {message.content}"
-          )
+    )
 
     if (message.author.bot and message.author.id != 788873442664906752 and
             message.channel.id in (790630915448504390, 790630932292829214)):
@@ -128,26 +129,26 @@ async def on_message(message):
                 message.channel.guild.id in (
                     697015129199607839,
                     540563312857841714
-                    )):
+        )):
             for i in [
                     "hi", "dobrý den", "brý den",
                     "čau", "ahoj", "zdravíčko",
                     "tě péro", "těpéro", "zdárek párek",
                     "tě guli", "čus", "olá",
                     "ola", "guten tag"
-                    ]:
-                if (re.search(f"(\W|^){i}(\W|$)", message.content, re.I) and
+            ]:
+                if (re.search(f"(\\W|^){i}(\\W|$)", message.content, re.I) and
                         not message.author.bot):
                     await message.channel.send(
                         f"Hello {message.author.mention}"
-                        )
+                    )
                     break
 
             if ("kdy" in message.content.lower()
                     and "aktualizace" in message.content.lower()):
                 await message.channel.send("Kdo ví")
 
-            if ((re.search("(\W|^)a+da+m(\W|$)", message.content, re.I))
+            if ((re.search("(\\W|^)a+da+m(\\W|$)", message.content, re.I))
                     and not message.author.bot):
                 await message.channel.send(
                     "A"+randint(0, 20)*'a'+"d"+randint(1, 20)*'a'+"m "
@@ -155,19 +156,40 @@ async def on_message(message):
                         'je gay', 'neumí olí', 'už nevytírá anály',
                         'is trajin to solf da rubix kjub',
                         'was trajin to olín', ''])
-                        )
+                )
 
-            if (re.search("(\W|^)ji+ří+(\W|$)", message.content, re.I)) and not message.author.bot:
-                await message.channel.send(f"Jiří {choice([' je buzík',' nic neumí','is FUCKING NORMIEEE REEEEEEEEEEEEEEEEEEEEEE'])}")
+            if ((re.search("(\\W|^)ji+ří+(\\W|$)", message.content, re.I)) and
+                    not message.author.bot):
+                await message.channel.send("Jiří "+choice([
+                            'je buzík',
+                            'nic neumí',
+                            'is FUCKING NORMIEEE REEEEEEEEEEEEEEEEEEEEEE']))
 
             if "fortnite" in message.content.lower():
                 await message.delete()
 
-            if (re.search("thebot", message.content, re.I) or client.user.mentioned_in(message)) and not message.author.bot:
-                await message.channel.send(choice(["Slyšel jsem snad moje jméno?",f"{message.author.mention} ty ses opovážil vyslovit moje jméno?","Ještě jednou tu zazní moje jméno a uvidíte.",f"Chceš do držky {message.author.mention}?",f"Tak to je naposledy co jste {message.author.mention} viděli.", f"Naklepu ti řízek ty pomeranči {message.author.mention}", f"{message.author.mention} zmaluju ti ksicht tak, že tě ani Adam nepozná", f"Urazim ti tvé intimní partie, btw Bohouš smrdí", f"Jestli nepřestaneš psát moje jméno, tak ti pošlu fotku Vladanovo PP"]))
+            if ((re.search("thebot", message.content, re.I) or
+                    client.user.mentioned_in(message)) and
+                    not message.author.bot):
+                await message.channel.send(choice([
+                    "Slyšel jsem snad moje jméno?",
+                    f"{message.author.mention} ty ses opovážil vyslovit moje \
+                    jméno?",
+                    "Ještě jednou tu zazní moje jméno a uvidíte.",
+                    f"Chceš do držky {message.author.mention}?",
+                    f"Tak to je naposledy co jste {message.author.mention} \
+                    viděli.",
+                    f"Naklepu ti řízek ty pomeranči {message.author.mention}",
+                    f"{message.author.mention} zmaluju ti ksicht tak, \
+                    že tě ani Adam nepozná",
+                    f"Urazim ti tvé intimní partie, btw Bohouš smrdí",
+                    f"Jestli nepřestaneš psát moje jméno, tak ti pošlu fotku \
+                    Vladanovo PP"]))
 
             if message.tts and not message.author.bot:
-                await message.channel.send(f"Hej ty {message.author.mention}, žádný ttska tady.", tts = True)
+                await message.channel.send(
+                    f"Hej ty {message.author.mention}, žádný ttska tady.",
+                    tts=True)
 
             if message.channel.id == 715621624950292593:
                 if not hasLink(message.content):
@@ -175,13 +197,21 @@ async def on_message(message):
 
             if "No lyrics found for `" in message.content:
                 try:
-                    results = await commands.kclient.music.lyrics(message.content.split("`")[1])
+                    results = await commands.kclient.music.lyrics(
+                        message.content.split("`")[1])
                 except ksoftapi.NoResults:
-                    await message.channel.send(f"No lyrics found for `{message.content.split('`')[1]}`.")
+                    await message.channel.send(
+                        "No lyrics found for `"
+                        + message.content.split('`')[1]
+                        + "`.")
                 else:
                     lyrics = results[0]
                     for i in range(math.ceil(len(lyrics.lyrics)/2048)):
-                        e = embed(f"Lyrics for {lyrics.artist} - {lyrics.name}", description=lyrics.lyrics[(i*2048):((i+1)*2048)], thumbnail={"url": lyrics.album_art})
+                        e = embed(
+                            f"Lyrics for {lyrics.artist} - {lyrics.name}",
+                            description=lyrics.lyrics[(
+                                i*2048):((i+1)*2048)],
+                            thumbnail={"url": lyrics.album_art})
                         await message.channel.send(embed=e)
                 await message.delete()
     except AttributeError:
@@ -190,12 +220,13 @@ async def on_message(message):
     if type(message.channel) == discord.DMChannel:
         if message.author.id == 452478521755828224:
             try:
-                msgTextSplit = message.content.split(" ",1)
+                msgTextSplit = message.content.split(" ", 1)
                 channel = await client.fetch_channel(int(msgTextSplit[0]))
                 await channel.send(msgTextSplit[1])
             except Exception as e:
                 await message.channel.send(e)
                 raise e
+
 
 @client.event
 async def on_raw_reaction_add(payload):
@@ -205,28 +236,57 @@ async def on_raw_reaction_add(payload):
     emoji = payload.emoji
     member = payload.member
 
-    #print(emoji)
-    
+    # print(emoji)
+
     if message.id == 746719599982280754:
-        #1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣
+        # 1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣
         if emoji.name == "1️⃣":
-            await member.add_roles(discord.Object(746396397280034946)) #Minecraft
-            print(f"{member.name} in {guild} got role Minecraft for pressing {emoji}")
+            # Minecraft
+            await member.add_roles(discord.Object(746396397280034946))
+            print(member.name
+                  + " in "
+                  + guild
+                  + " got role Minecraft for pressing "
+                  + emoji)
         if emoji.name == "2️⃣":
-            await member.add_roles(discord.Object(746396668198649856)) #CS:GO
-            print(f"{member.name} in {guild} got role CS:GO for pressing {emoji}")
+            await member.add_roles(discord.Object(746396668198649856))  # CS:GO
+            print(member.name
+                  + " in "
+                  + guild
+                  + " got role CS:GO for pressing "
+                  + emoji)
         if emoji.name == "3️⃣":
-            await member.add_roles(discord.Object(746712499705086013)) #Rocket League
-            print(f"{member.name} in {guild} got role Rocket League for pressing {emoji}")
+            # Rocket League
+            await member.add_roles(discord.Object(746712499705086013))
+            print(member.name
+                  + " in "
+                  + guild
+                  + " got role Rocket League for pressing "
+                  + emoji)
         if emoji.name == "4️⃣":
-            await member.add_roles(discord.Object(746396772179378197)) #Fortnite
-            print(f"{member.name} in {guild} got role Fortnite for pressing {emoji}")
+            # Fortnite
+            await member.add_roles(discord.Object(746396772179378197))
+            print(member.name
+                  + " in "
+                  + guild
+                  + " got role Fortnite for pressing "
+                  + emoji)
         if emoji.name == "5️⃣":
-            await member.add_roles(discord.Object(746704088070357012)) #Mobile Gaming
-            print(f"{member.name} in {guild} got role Mobile Gaming for pressing {emoji}")
+            # Mobile Gaming
+            await member.add_roles(discord.Object(746704088070357012))
+            print(member.name
+                  + " in "
+                  + guild
+                  + " got role Mobile Gaming for pressing "
+                  + emoji)
         if emoji.name == "6️⃣":
-            await member.add_roles(discord.Object(746709189040275456)) #PS4 Gamers
-            print(f"{member.name} in {guild} got role PS4 Gamers for pressing {emoji}")
+            # PS4 Gamers
+            await member.add_roles(discord.Object(746709189040275456))
+            print(member.name
+                  + " in "
+                  + guild
+                  + " got role PS4 Gamers for pressing "
+                  + emoji)
 
 
 # @client.event
@@ -240,7 +300,7 @@ async def on_raw_reaction_add(payload):
 # 			member = m
 
 # 	if message.id == 746674728076312627:
-        
+
 # 		if emoji.name == "👶":
 # 			await member.remove_roles(discord.Object(513730880464748557))
 # 			print(guild, channel, message, member, emoji)
@@ -253,11 +313,11 @@ async def on_raw_reaction_add(payload):
 # 		if emoji.name == "👶":
 # 			await member.remove_roles(discord.Object(513730889222455309))
 # 			print(guild, channel, message, member, emoji)
-    
+
 
 async def checkWebsites():
     while True:
-        #Gymso
+        # Gymso
         try:
             print("Checking for new posts on Gymso")
             with stopit.ThreadingTimeout(10) as to_ctx_mgr:
@@ -267,12 +327,17 @@ async def checkWebsites():
                 if clanky:
                     for clanek in clanky:
                         for i in range(math.ceil(len(clanek["text"])/2048)):
-                            e = embed(clanek["title"], url = clanek["url"], description=clanek["text"][(i*2048):((i+1)*2048)])
-                            await obecne.send(f"{klubik.default_role} nový příspěvek na Gymso", embed=e)
+                            e = embed(clanek["title"],
+                                      url=clanek["url"],
+                                      description=clanek["text"][(
+                                        i*2048):((i+1)*2048)])
+                            await obecne.send(
+                                klubik.default_role+" nový příspěvek na Gymso",
+                                embed=e)
         except Exception as e:
             print(e)
 
-        #choco_afro
+        # choco_afro
         # try:
         # 	with stopit.ThreadingTimeout(10) as to_ctx_mgr:
         # 		assert to_ctx_mgr.state == to_ctx_mgr.EXECUTING
@@ -284,25 +349,31 @@ async def checkWebsites():
         # except Exception as e:
         # 	print(e)
 
-        #MZCR TS
+        # MZCR TS
         try:
-            tss = checkMZCR("https://koronavirus.mzcr.cz/category/tiskove-zpravy/")
+            tss = checkMZCR(
+                "https://koronavirus.mzcr.cz/category/tiskove-zpravy/")
             for ts in tss:
-                if ts[0] != database.dataLog.cell(2,1).value:
-                    await korona_info.send(embed=embed(ts[2], url=ts[1], description=ts[3]))
+                if ts[0] != database.dataLog.cell(2, 1).value:
+                    await korona_info.send(embed=embed(ts[2],
+                                                       url=ts[1],
+                                                       description=ts[3]))
                 else:
                     break
-            database.dataLog.update_cell(2,1, tss[0][0])
+            database.dataLog.update_cell(2, 1, tss[0][0])
 
         except Exception as e:
             print(e)
 
-        #MZCR MO
+        # MZCR MO
         try:
-            tss = checkMZCR("https://koronavirus.mzcr.cz/category/mimoradna-opatreni/")
+            tss = checkMZCR(
+                "https://koronavirus.mzcr.cz/category/mimoradna-opatreni/")
             for ts in tss:
-                if ts[0] != database.dataLog.cell(2,2).value:
-                    await korona_info.send(embed=embed(ts[2], url=ts[1], description=ts[3]))
+                if ts[0] != database.dataLog.cell(2, 2).value:
+                    await korona_info.send(embed=embed(ts[2],
+                                                       url=ts[1],
+                                                       description=ts[3]))
                 else:
                     break
             database.dataLog.update_cell(2, 2, tss[0][0])
@@ -357,7 +428,7 @@ async def kalendarLoop():
                 out = adventniKalendar(now.day-1)
                 channel = client.get_guild(
                     621413546177069081
-                    ).get_channel(777201859466231808)
+                ).get_channel(777201859466231808)
                 await channel.send(
                     f"""{out[0].mention} Gratulace vyhráváš odměnu
                         z adventního kalendáře pro potvrzení že chceš odměnu
@@ -365,14 +436,14 @@ async def kalendarLoop():
                     file=discord.File(
                         out[1],
                         filename=f"adventniKalendarDay{now.day}.png"
-                        ))
+                    ))
                 database.advantniKalendar.update_cell(2, 11, now.day)
             else:
                 noon = now.replace(day=now.day+1, hour=11, minute=0, second=0)
                 print(
                     "Waiting for "+max((noon-now).total_seconds(), 0)
                     + " until noon."
-                    )
+                )
                 await asyncio.sleep(max((noon-now).total_seconds(), 0))
         except Exception as e:
             print(e)
