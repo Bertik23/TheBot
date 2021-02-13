@@ -109,8 +109,8 @@ async def on_ready():
 async def on_message(message):
     global klubik, obecne
     print(
-        f"{message.channel} ({message.channel.id}): {message.author}: \
-          {message.author.name}: {message.content}"
+        f"{message.channel} ({message.channel.id}): {message.author}: "
+        f"{message.author.name}: {message.content}"
     )
 
     if (message.author.bot and message.author.id != 788873442664906752 and

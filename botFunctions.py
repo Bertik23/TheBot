@@ -1,4 +1,4 @@
-import database
+# import database
 import datetime
 import io
 import json
@@ -16,7 +16,6 @@ import tomd
 import wolframalpha
 from bs4 import BeautifulSoup
 from prettytable import ALL, PrettyTable
-import typing
 from PIL import Image, ImageDraw, ImageFont
 from variables import *
 import random
@@ -145,22 +144,26 @@ def getZmena(parametr):
                         text = ""
                         for f in e:
                             try:
-                                text += f"{f[0]}. hod {f[1]} {f[2]} {f[3]} {f[4]} {f[5]}\n"
+                                text += (
+                                    f"{f[0]}. hod {f[1]} {f[2]}"
+                                    "{f[3]} {f[4]} {f[5]}\n")
                             except BaseException:
                                 text += f"{f[0]}\n"
                         return text
 
 
-def gymso() -> typing.Tuple[str, str, str]:
+def gymso():
     gymso = requests.get("https://www.gymso.cz", timeout=10)
     gymso = BeautifulSoup(gymso.text, features="html.parser")
     clanekDiv = gymso.find("div", attrs={"class": "blog-item"})
     clanekTitle = clanekDiv.find("h2", attrs={"class": "article-title"})
     clanekText = clanekDiv.find("section", attrs={"class": "article-intro"})
-    return clanekTitle.a["title"], f"https://gymso.cz{clanekTitle.a['href']}", clanekText.text
+    return (clanekTitle.a["title"],
+            f"https://gymso.cz{clanekTitle.a['href']}",
+            clanekText.text)
 
 
-def newOnGymso() -> typing.List[dict]:
+def newOnGymso():
     clanky = []
     gymso = requests.get("https://www.gymso.cz", timeout=10)
     gymso = BeautifulSoup(gymso.text, features="html.parser")
@@ -198,7 +201,10 @@ def wolframQuery(query):
         for subpod in pod.subpods:
             imgs = list(subpod.img)
             for img in imgs:
-                yield bdbf.embed(f"{subpod.title}", image={"url": img.src}, fields=())
+                yield bdbf.embed(
+                    f"{subpod.title}",
+                    image={"url": img.src},
+                    fields=())
         # yield bdbf.embed("")
 
 
@@ -252,7 +258,9 @@ def getTimetable(url: str, room=False):
         for hour in day.find_all("div", class_="bk-timetable-cell"):
             try:
                 row.append("<br>".join(
-                    f"<b>{h.text}</b>" for h in hour.find_all(class_="middle")))
+                    f"<b>{h.text}</b>" for h in hour.find_all(class_="middle")
+                        )
+                    )
                 if room:
                     row[-1] = row[-1].split("<br>")
                     for i, h in enumerate(hour.find_all(class_="first")):
@@ -269,7 +277,7 @@ def getTimetable(url: str, room=False):
 
     table = table.transpose()
     # print(table)
-    #table = rotateTable(table)
+    # table = rotateTable(table)
     # print(table)
 
     table = list(table)
@@ -307,12 +315,17 @@ def rotateTable(table):
 def getLastInstaPost(user):
     instaResponse = requests.get(
         f"https://www.instagram.com/{user}/?__a=1", timeout=10)
-    #print(instaResponse, instaResponse.text)
+    # print(instaResponse, instaResponse.text)
 
     instaJson = instaResponse.json()  # json.loads(instaResponse.text)
 
     # print("test")
-    return instaJson["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"][0]["node"]
+    return (instaJson["graphql"]
+                     ["user"]
+                     ["edge_owner_to_timeline_media"]
+                     ["edges"]
+                     [0]
+                     ["node"])
 
 
 def encrypt(text_to_encrypt, encryption_base):
@@ -365,12 +378,12 @@ def decrypt(text_to_decrypt, encryption_base):
     return texto
 
 
-def deleteDuplicates(l):
-    l2 = []
-    for i in l:
-        if i not in l2:
-            l2.append(i)
-    return l2
+def deleteDuplicates(inputList):
+    outputList = []
+    for i in inputList:
+        if i not in outputList:
+            outputList.append(i)
+    return outputList
 
 
 def checkMZCR(url):
@@ -388,7 +401,8 @@ def checkMZCR(url):
 
 def getCurrencyConversion(fromCurrency, toCurrency):
     rates = requests.get(
-        f"https://v6.exchangerate-api.com/v6/1782af866122d90f03c1567c/latest/{fromCurrency}").json()
+        f"https://v6.exchangerate-api.com/\
+        v6/1782af866122d90f03c1567c/latest/{fromCurrency}").json()
 
     if rates["result"] == "error":
         return rates["error-type"]
@@ -446,7 +460,8 @@ def nextHoursAreAndStartsIn():
 
         days = tableSoup.find_all("div", class_="bk-timetable-row")
         dList = []
-        # field_names = ["Den","0.","1.","2.","3.","4.","5.","6.","7.","8.","9."]
+        # field_names =
+        # ["Den","0.","1.","2.","3.","4.","5.","6.","7.","8.","9."]
         day = days[today]
         row = []
         groups = []
@@ -483,7 +498,8 @@ def nextHoursAreAndStartsIn():
 
                 days = tableSoup.find_all("div", class_="bk-timetable-row")
                 dList = []
-                # field_names = ["Den","0.","1.","2.","3.","4.","5.","6.","7.","8.","9."]
+                # field_names =
+                # ["Den","0.","1.","2.","3.","4.","5.","6.","7.","8.","9."]
                 day = days[today]
                 row = []
                 groups = []
@@ -492,8 +508,9 @@ def nextHoursAreAndStartsIn():
                 for hour in day.find_all("div", class_="bk-timetable-cell"):
                     row.append(
                         [h.text for h in hour.find_all(class_="middle")])
-                    groups.append([h.text.replace("\n", "") for h in hour.find_all(
-                        class_="left") if h.text.replace("\n", "") != ""])
+                    groups.append(
+                        [h.text.replace("\n", "") for h in hour.find_all(
+                            class_="left") if h.text.replace("\n", "") != ""])
                 return today, hourDate, now, row, groups
             today, hourDate, now, row, groups = addDay(today, hourDate)
             while len(row) <= 0 or row == [[]]:
@@ -515,7 +532,8 @@ def nextHoursAreAndStartsIn():
 
         days = tableSoup.find_all("div", class_="bk-timetable-row")
         dList = []
-        # field_names = ["Den","0.","1.","2.","3.","4.","5.","6.","7.","8.","9."]
+        # field_names =
+        # ["Den","0.","1.","2.","3.","4.","5.","6.","7.","8.","9."]
         # print("One")
         day = days[today]
         row = []
@@ -540,86 +558,95 @@ def nextHoursAreAndStartsIn():
     nextHourTime = (0, 0)
     for i, (t, h) in enumerate(zip(modifiedHoursList, modifiedRow)):
         if t > now:
-            #print(h, modifiedGroups[i])
+            # print(h, modifiedGroups[i])
             nextHour = zip(h, modifiedGroups[i])
             nextHourTime = t
             break
 
     for h, g in nextHour:
-        yield datetime.combine(hourDate, time(nextHourTime[0], nextHourTime[1])) - datetime.combine(todayDate, time(actualNow[0], actualNow[1])), h, g if g != "" else None
+        yield datetime.combine(
+            hourDate, time(nextHourTime[0], nextHourTime[1]))
+        - datetime.combine(todayDate, time(actualNow[0], actualNow[1])),
+        h, g if g != "" else None
 
 
-def makeAdventniCalendarImage(text, textXY, padding, dayXY):
-    roboto = ImageFont.truetype("fonts/MinecraftRegular.ttf", 30)
+# def makeAdventniCalendarImage(text, textXY, padding, dayXY):
+#     roboto = ImageFont.truetype("fonts/MinecraftRegular.ttf", 30)
 
-    todayCalendar = Image.open(
-        "adventniKalendarMCT/aKemptyLatest.png").convert("RGBA")
-    fullCalendar = Image.open("adventniKalendarMCT/aKfull.png").convert("RGBA")
+#     todayCalendar = Image.open(
+#         "adventniKalendarMCT/aKemptyLatest.png").convert("RGBA")
+#     fullCalendar = Image.open(
+#                   "adventniKalendarMCT/aKfull.png").convert("RGBA")
 
-    fullCalendar = fullCalendar.crop(dayXY)
+#     fullCalendar = fullCalendar.crop(dayXY)
 
-    todayCalendar.paste(fullCalendar, dayXY)
+#     todayCalendar.paste(fullCalendar, dayXY)
 
-    draw = ImageDraw.Draw(todayCalendar)
+#     draw = ImageDraw.Draw(todayCalendar)
 
-    width, height = draw.textsize(text, font=roboto)
+#     width, height = draw.textsize(text, font=roboto)
 
-    print(width)
-    print(height)
+#     print(width)
+#     print(height)
 
-    padding = (((textXY[2] - padding[0] / 2) - (textXY[0] + \
-               padding[0] / 2)) / 2 - width / 2, padding[1])
+#     padding = (((textXY[2] - padding[0] / 2) - (textXY[0] +
+#                padding[0] / 2)) / 2 - width / 2, padding[1])
 
-    #draw.line((77+padding, 265-height, 77+padding+width, 265), fill=(0,0,0))
+#     # draw.line((77+padding, 265-height, 77+padding+width, 265), fill=(0,0,0)
+# )
 
-    draw.text((textXY[0] + padding[0], textXY[1]),
-              text, font=roboto, fill=(0, 0, 0))
+#     draw.text((textXY[0] + padding[0], textXY[1]),
+#               text, font=roboto, fill=(0, 0, 0))
 
-    todayCalendar.save("adventniKalendarMCT/aKemptyLatest.png")
+#     todayCalendar.save("adventniKalendarMCT/aKemptyLatest.png")
 
-    with open("adventniKalendarMCT/aKemptyLatest.png", "rb") as f:
-        return io.BytesIO(f.read())
-
-
-def adventniKalendar(day):
-    with open("adventniKalendarMCT/okynka.json") as f:
-        days = eval(f.read())
-    role = client.get_guild(621413546177069081).get_role(777201923270246440)
-    never = database.advantniKalendar.col_values(1)[1:]
-    once = database.advantniKalendar.col_values(3)[1:]
-    twice = database.advantniKalendar.col_values(5)[1:]
-    thrice = database.advantniKalendar.col_values(7)[1:]
-    fourTimes = database.advantniKalendar.col_values(9)[1:]
-    gotten = 0
-    aligable = [m for m in role.members if str(
-        m.id) not in never and str(m.id) not in once]
-    if len(aligable) == 0:
-        gotten = 1
-        aligable = [m for m in role.members if str(
-            m.id) not in never and str(m.id) not in twice]
-    if len(aligable) == 0:
-        gotten = 2
-        aligable = [m for m in role.members if str(
-            m.id) not in never and str(m.id) not in thrice]
-    if len(aligable) == 0:
-        gotten = 3
-        aligable = [m for m in role.members if str(
-            m.id) not in never and str(m.id) not in fourTimes]
-    if len(aligable) == 0:
-        gotten = -1
-        aligable = [m for m in role.members if str(m.id) not in never]
-    member = random.choice(aligable)
-    if gotten != -1:
-        database.advantniKalendar.update_cell(len(
-            [once, twice, thrice, fourTimes][gotten]) + 2, [3, 5, 7, 9][gotten], str(member.id))
-        database.advantniKalendar.update_cell(len(
-            [once, twice, thrice, fourTimes][gotten]) + 2, [4, 6, 8, 10][gotten], str(member.name))
-
-    print(days[day])
-
-    return member, makeAdventniCalendarImage(
-        member.name, days[day][1], (8, 5), days[day][0])
+#     with open("adventniKalendarMCT/aKemptyLatest.png", "rb") as f:
+#         return io.BytesIO(f.read())
 
 
-#makeAdventniCalendarImage("test",(77,250,265,264), (8,5), (67,62,267,266))
-#makeAdventniCalendarImage("test2",(306,250,502,264), (8,5), (306,63,504,266))
+# def adventniKalendar(day):
+#     with open("adventniKalendarMCT/okynka.json") as f:
+#         days = eval(f.read())
+#     role = client.get_guild(621413546177069081).get_role(777201923270246440)
+#     never = database.advantniKalendar.col_values(1)[1:]
+#     once = database.advantniKalendar.col_values(3)[1:]
+#     twice = database.advantniKalendar.col_values(5)[1:]
+#     thrice = database.advantniKalendar.col_values(7)[1:]
+#     fourTimes = database.advantniKalendar.col_values(9)[1:]
+#     gotten = 0
+#     aligable = [m for m in role.members if str(
+#         m.id) not in never and str(m.id) not in once]
+#     if len(aligable) == 0:
+#         gotten = 1
+#         aligable = [m for m in role.members if str(
+#             m.id) not in never and str(m.id) not in twice]
+#     if len(aligable) == 0:
+#         gotten = 2
+#         aligable = [m for m in role.members if str(
+#             m.id) not in never and str(m.id) not in thrice]
+#     if len(aligable) == 0:
+#         gotten = 3
+#         aligable = [m for m in role.members if str(
+#             m.id) not in never and str(m.id) not in fourTimes]
+#     if len(aligable) == 0:
+#         gotten = -1
+#         aligable = [m for m in role.members if str(m.id) not in never]
+#     member = random.choice(aligable)
+#     if gotten != -1:
+#         database.advantniKalendar.update_cell(len(
+#           [once, twice, thrice, fourTimes]
+# [gotten]) + 2, [3, 5, 7, 9][gotten],
+#           str(member.id))
+#         database.advantniKalendar.update_cell(len(
+#           [once, twice, thrice, fourTimes]
+# [gotten]) + 2, [4, 6, 8, 10][gotten],
+#           str(member.name))
+
+#     print(days[day])
+
+#     return member, makeAdventniCalendarImage(
+#         member.name, days[day][1], (8, 5), days[day][0])
+
+
+# makeAdventniCalendarImage("test",(77,250,265,264), (8,5), (67,62,267,266))
+# makeAdventniCalendarImage("test2",(306,250,502,264), (8,5), (306,63,504,266))

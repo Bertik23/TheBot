@@ -23,41 +23,64 @@ import json
 from variables import *
 import time
 
+
 @client.command("info")
 async def info(msg, *args):
-    """"TheBot info"""
-    await msg.channel.send(f"I'm a bot made by Bertik23#9997\nVersion {'.'.join(version)}\nI'm running on bdbf {pkg_resources.get_distribution('bdbf').version} and discord.py {pkg_resources.get_distribution('discord.py').version}"+"\nI'm and open source bot, that means that you can contribute to me on https://github.com/Bertik23/DiscordBot")
+    """TheBot info"""
+    await msg.channel.send(f"I'm a bot made by Bertik23#9997\n\
+        Version {'.'.join(version)}\n\
+        I'm running on bdbf \
+            {pkg_resources.get_distribution('bdbf').version}\
+        and discord.py \
+            {pkg_resources.get_distribution('discord.py').version}\n\
+        I'm and open source bot, that means that you can contribute to me on \
+            https://github.com/Bertik23/DiscordBot")
+
 
 @client.command("changelog")
 async def command_changelog(msg, *args):
     """The changelog"""
-    await msg.channel.send(embed=client.embed("Changelog", fields=[(i, changelog[i]) for i in changelog]))
+    await msg.channel.send(
+        embed=client.embed("Changelog", fields=[
+            (i, changelog[i]) for i in changelog]))
+
 
 @client.command("zmena", worksOnlyInGuilds=[697015129199607839])
 async def zmena(msg, *args):
     """Returns schedule changes for the give teacher/class today
-    **Usage**: `%commandPrefix%zmena <teacher/class>` eg. `%commandPrefix%zmena Lukešová Danuše` or `%commandPrefix%zmena 6.A`"""
-    await msg.channel.send(f"Změny rozvrhu pro {args[0]}:\n{getZmena(args[0])}")
+    **Usage**: `%commandPrefix%zmena <teacher/class>`\
+        eg. `%commandPrefix%zmena Lukešová Danuše` \
+        or `%commandPrefix%zmena 6.A`
+    """
+    await msg.channel.send(
+        f"Změny rozvrhu pro {args[0]}:\n{getZmena(args[0])}")
+
 
 @client.command("rozvrh", worksOnlyInGuilds=[697015129199607839])
 async def rozvrh(msg, *args):
     """Returns the timatable for given teacher/class/room
-    **Usage**: `%commandPrefix%rozvrh <teacher/class/room>` eg. `%commandPrefix%rozvrh Lukešová Danuše` or `%commandPrefix%rozvrh 7.A` or `%commandPrefix%rozvrh A307`"""
+    **Usage**: `%commandPrefix%rozvrh <teacher/class/room>` eg. \
+    `%commandPrefix%rozvrh Lukešová Danuše` or `%commandPrefix%rozvrh 7.A` or \
+    `%commandPrefix%rozvrh A307`"""
     room = None
     if args == (None, ):
         args = "7.A"
     else:
         args = args[0]
     try:
-        arguments = args.rsplit(" ",1)
+        arguments = args.rsplit(" ", 1)
         if arguments[-1] == "-t":
             room = True
-    except:
+    except BaseException:
         arguments = [args]
-        room=False
-    
+        room = False
+
     async with msg.channel.typing():
-        await msg.channel.send(file = discord.File(getTimetable(getTimetableUrl(arguments[0]), room=room), filename="rozvrh.png"))
+        await msg.channel.send(
+            file=discord.File(
+                getTimetable(getTimetableUrl(arguments[0]), room=room),
+                filename="rozvrh.png"))
+
 
 @client.command("suggest")
 async def suggest(msg, *args):
@@ -67,38 +90,58 @@ async def suggest(msg, *args):
         return
     else:
         attributes = args[0]
-    out = makeSuggestion(attributes.split("*||*")[0], attributes.split("*||*")[1] +
-f"""
+    out = makeSuggestion(
+        attributes.split("*||*")[0],
+        attributes.split("*||*")[1] +
+        f"""
 ***
-Automaticaly issued by `{msg.author}` from `{msg.channel}` in `{msg.channel.guild}`
+Automaticaly issued by \
+`{msg.author}` from `{msg.channel}` in `{msg.channel.guild}`
 """)
     await msg.channel.send(out[0], embed=out[1])
+
 
 @client.command("r")
 async def r(msg, *args):
     """Returns a subreddit
-    **Usage**: `%commandPrefix%r/ <subreddit>` eg. `%commandPrefix%r/ kofola`"""
-    if args == (None, ):
+    **Usage**: `%commandPrefix%r/ <subreddit>` eg. `%commandPrefix%r/ kofola`
+    """
+    if args == (None,):
         return
     else:
         attributes = args[0]
     try:
         subreddit = reddit.subreddit(attributes)
-        e = client.embed(subreddit.title, url=f"https://reddit.com{subreddit.url}", description=subreddit.description[:2048], thumbnail={"url": subreddit.icon_img}, fields=[("Subscribers",subreddit.subscribers, True),("Online Subscribers",subreddit.accounts_active,True)])
-        #print(vars(subreddit))
+        e = client.embed(subreddit.title,
+                         url=f"https://reddit.com{subreddit.url}",
+                         description=subreddit.description[:2048],
+                         thumbnail={"url": subreddit.icon_img},
+                         fields=[("Subscribers",
+                                  subreddit.subscribers,
+                                  True),
+                                 ("Online Subscribers",
+                                  subreddit.accounts_active,
+                                  True)])
+        # print(vars(subreddit))
         await msg.channel.send(embed=e)
     except Exception as e:
         if e == prawcore.exceptions.NotFound:
-            await msg.channel.send("The subreddit `{attributes}` doesn't exist.")
+            await msg.channel.send(
+                "The subreddit `{attributes}` doesn't exist.")
         else:
-            await msg.channel.send(f"`{e}` occured while trying to find subreddit `{attributes}`.")
+            await msg.channel.send(
+                f"`{e}` occured while trying to find subreddit `{attributes}`."
+                )
+
 
 @client.command("gymso", worksOnlyInGuilds=[697015129199607839])
 async def gymsoCommand(msg, *args):
     """Returns last post on [gymso.cz](https://gymso.cz)"""
     clanek = gymso()
-    e = client.embed(clanek[0], url=clanek[1], description=clanek[2][:2048], fields=())
+    e = client.embed(clanek[0], url=clanek[1],
+                     description=clanek[2][:2048], fields=())
     await msg.channel.send(embed=e)
+
 
 @client.command("lyrics")
 async def lyrics(msg, *args):
@@ -111,44 +154,73 @@ async def lyrics(msg, *args):
     try:
         results = await kclient.music.lyrics(query=attributes)
     except ksoftapi.NoResults:
-        await msg.channel.send(f"KSoft.Si API has no lyrics for `{attributes}`.")
+        await msg.channel.send(
+            f"KSoft.Si API has no lyrics for `{attributes}`.")
     else:
         lyrics = results[0]
-        for i in range(math.ceil(len(lyrics.lyrics)/2048)):
-            e = client.embed(f"Lyrics for {lyrics.artist} - {lyrics.name} from KSoft.Si API", description=lyrics.lyrics[(i*2048):((i+1)*2048)], thumbnail={"url": lyrics.album_art}, fields=())
+        for i in range(math.ceil(len(lyrics.lyrics) / 2048)):
+            e = client.embed(
+                f"Lyrics for {lyrics.artist} - {lyrics.name} \
+                from KSoft.Si API",
+                description=lyrics.lyrics[(i * 2048):((i + 1) * 2048)],
+                thumbnail={"url": lyrics.album_art},
+                fields=())
             await msg.channel.send(embed=e)
+
 
 @client.command("meme")
 async def meme(msg, *args):
     """Returns random meme from [Reddit](https://reddit.com)"""
     meme = await kclient.images.random_meme()
-    e = client.embed(f"{meme.title}", url=meme.source, author={"name":meme.author,"url":f"https://reddit.com/user/{meme.author[3:]}"}, image={"url":meme.image_url}, fields=())
+    e = client.embed(
+        f"{meme.title}",
+        url=meme.source,
+        author={
+            "name": meme.author,
+            "url": f"https://reddit.com/user/{meme.author[3:]}"},
+        image={
+            "url": meme.image_url},
+        fields=())
     await msg.channel.send(embed=e)
+
 
 @client.command("eval", worksOnlyInGuilds=[697015129199607839])
 async def evalCommand(msg, *args):
     """Returns python expresion outcome.
-    **Usage**: `%commandPrefix%eval <python expresion>` eg. `%commandPrefix%eval math.cos(math.pi)`"""
+    **Usage**: `%commandPrefix%eval <python expresion>` eg. \
+    `%commandPrefix%eval math.cos(math.pi)`"""
     if args == (None, ):
         return
     else:
         attributes = args[0]
-    try: 
+    try:
         await msg.channel.send(eval(attributes))
     except Exception as e:
-        await msg.channel.send(f"Hej `{attributes}` fakt neudělám\nProtože: {e}")
+        await msg.channel.send(
+            f"Hej `{attributes}` fakt neudělám\nProtože: {e}")
+
 
 @client.command("aww")
 async def aww(msg, *args):
     """Returns random aww image from [Reddit](https://reddit.com)"""
     aww = await kclient.images.random_aww()
-    e = embed(f"{aww.title}", url=aww.source, author={"name":aww.author,"url":f"https://reddit.com/user/{aww.author[3:]}"}, image={"url":aww.image_url}, fields=())
+    e = embed(
+        f"{aww.title}",
+        url=aww.source,
+        author={
+            "name": aww.author,
+            "url": f"https://reddit.com/user/{aww.author[3:]}"},
+        image={
+            "url": aww.image_url},
+        fields=())
     await msg.channel.send(embed=e)
+
 
 @client.command("subreddit")
 async def subreddit(msg, *args):
     """Returns random image from given subreddit and givel span.
-    **Usage**: `%commandPrefix%subreddit <subreddit> <span>` eg. `%commandPrefix%subreddit kofola month`
+    **Usage**: `%commandPrefix%subreddit <subreddit> <span>` eg. \
+    `%commandPrefix%subreddit kofola month`
     Spans: `hour`,`day`,`week`,`month`,`year`,`all`"""
     if args == (None, ):
         return
@@ -157,44 +229,68 @@ async def subreddit(msg, *args):
     attributes = attributes.split(" ")
     try:
         if len(attributes) >= 2:
-            subreddit_image = await kclient.images.random_reddit(attributes[0], attributes[1])
+            subreddit_image = await kclient.images.random_reddit(
+                attributes[0], attributes[1])
         else:
             subreddit_image = await kclient.images.random_reddit(attributes[0])
-        e = embed(f"{subreddit_image.title}", url=subreddit_image.source, author={"name":subreddit_image.author,"url":f"https://reddit.com/user/{subreddit_image.author[3:]}"}, image={"url":subreddit_image.image_url}, fields=())
+        e = embed(
+            f"{subreddit_image.title}",
+            url=subreddit_image.source,
+            author={
+                "name": subreddit_image.author,
+                "url": f"https://reddit.com/user/{subreddit_image.author[3:]}"
+                },
+            image={
+                "url": subreddit_image.image_url},
+            fields=())
         await msg.channel.send(embed=e)
     except ksoftapi.NoResults:
         await msg.channel.send(f"No lyrics found for `{attributes}`.")
 
+
 @client.command("mapa")
 async def mapa(msg, *args):
     """Returns map of given place with given zoom (default 12).
-    **Usage**: `%commandPrefix%mapa <place> <zoom=12>` eg. `%commandPrefix%mapa Gymso 16`"""
+    **Usage**: `%commandPrefix%mapa <place> <zoom=12>` eg. \
+    `%commandPrefix%mapa Gymso 16`"""
     if args == (None, ):
         return
     else:
         attributes = args[0]
-    attributes = attributes.rsplit(" ",1)
+    attributes = attributes.rsplit(" ", 1)
     try:
         int(attributes[1])
-        attributes = " ".join(attributes).rsplit(" ",1)
-    except:
+        attributes = " ".join(attributes).rsplit(" ", 1)
+    except BaseException:
         attributes.append(12)
     try:
-        mapicka = await kclient.kumo.gis(attributes[0],map_zoom=int(attributes[1]),include_map=True, fast=True)
-        e = embed(attributes[0],description=f"{mapicka.address}\n {mapicka.lat} {mapicka.lon}",image={"url":mapicka.map}, fields=())
+        mapicka = await kclient.kumo.gis(
+            attributes[0],
+            map_zoom=int(attributes[1]),
+            include_map=True,
+            fast=True)
+        e = embed(
+            attributes[0],
+            description=f"{mapicka.address}\n {mapicka.lat} {mapicka.lon}",
+            image={
+                "url": mapicka.map},
+            fields=())
         await msg.channel.send(embed=e)
     except ksoftapi.NoResults:
         await msg.channel.send(f"`{attributes[0]}` neexistuje!")
+
 
 @client.command("joke")
 async def joke(msg, *args):
     """Returns a random awful joke."""
     await msg.channel.send(getJokeTxt())
 
+
 @client.command("fact")
 async def fact(msg, *args):
     """Returns a random fact."""
     await msg.channel.send(getFact())
+
 
 @client.command("wa")
 async def wa(msg, *args):
@@ -206,10 +302,12 @@ async def wa(msg, *args):
     for e in wolframQuery(attributes):
         await msg.channel.send(embed=e)
 
+
 @client.command("encrypt")
 async def encryptCommand(msg, *args):
     """Encrypt a text
-    **Usage**: `%commandPrefix%encrypt <text> <encryptionBase>` eg. `%commandPrefix%encrypt Hello, how are you? 64`"""
+    **Usage**: `%commandPrefix%encrypt <text> <encryptionBase>` eg. \
+    `%commandPrefix%encrypt Hello, how are you? 64`"""
     if args == (None, ):
         return
     else:
@@ -220,12 +318,17 @@ async def encryptCommand(msg, *args):
     except ValueError as e:
         await msg.channel.send(f"The last word must be a encryption base\n{e}")
     else:
-        await msg.channel.send(embed=client.embed("Your encrypted text", description=f"```{encrypt(text_to_encrypt, encryption_base)}```", fields=()))
+        await msg.channel.send(embed=client.embed(
+            "Your encrypted text",
+            description=f"```{encrypt(text_to_encrypt, encryption_base)}```",
+            fields=()))
+
 
 @client.command("decrypt")
 async def decryptCommand(msg, *args):
     """Decrypt a text encrypted using encrypt
-    **Usage**: `%commandPrefix%decrypt <encryptedTest> <encryptionBase>` eg. `%commandPrefix%decrypt ^eQO3gN39aYO[>1LabKh=\_ 64`"""
+    **Usage**: `%commandPrefix%decrypt <encryptedTest> <encryptionBase>` eg. \
+    `%commandPrefix%decrypt ^eQO3gN39aYO[>1LabKh=\\_ 64`"""
     if args == (None, ):
         return
     else:
@@ -236,7 +339,11 @@ async def decryptCommand(msg, *args):
     except ValueError as e:
         await msg.channel.send(f"The last word must be a encryption base\n{e}")
     else:
-        await msg.channel.send(embed=client.embed("Your decrypted text", description=f"```{botFunctions.decrypt(text_to_decrypt, encryption_base)}```", fields=()))
+        await msg.channel.send(embed=client.embed(
+            "Your decrypted text",
+            description=f"```{decrypt(text_to_decrypt, encryption_base)}```",
+            fields=()))
+
 
 @client.command("stats")
 async def stats(msg, *args):
@@ -249,13 +356,14 @@ async def stats(msg, *args):
         if args == "commands":
             commandsList = list(np.transpose(commandLog.get_all_values()[1:]))
             commandCountTotaly = len(commandsList[0])
-            commandCountGuild = len([g for g in commandsList[6] if g == str(msg.channel.guild.id)])
-            commandCountChannel = len([g for g in commandsList[4] if g == str(msg.channel.id)])
+            commandCountGuild = len(
+                [g for g in commandsList[6] if g == str(msg.channel.guild.id)])
+            commandCountChannel = len(
+                [g for g in commandsList[4] if g == str(msg.channel.id)])
             mostActiveCommandor = mostFrequent(commandsList[3])
             mostUsedCommand = mostFrequent(commandsList[1])
 
             commandTimes = commandsList[0]
-
 
             commandTimeUsage = {}
             for i, t in enumerate(commandTimes):
@@ -270,23 +378,30 @@ async def stats(msg, *args):
 
             commandCounts = count(commandsList[1])
 
-            commandTimes = [time.isoformat() for time in map(roundToTheLast30min,map(datetime.datetime.fromisoformat, commandTimes))]
+            commandTimes = [
+                time.isoformat() for time in map(
+                    roundToTheLast30min, map(
+                        datetime.datetime.fromisoformat, commandTimes))]
             commandTimesUno = deleteDuplicates(commandTimes)
-            commandTimeCounts = [commandTimes.count(t) for t in commandTimesUno]
+            commandTimeCounts = [commandTimes.count(
+                t) for t in commandTimesUno]
 
-            #print(commandTimes)
+            # print(commandTimes)
 
-            #fig = go.Figure()
+            # fig = go.Figure()
 
-            fig = px.bar(x = commandTimesUno, y = commandTimeCounts)
+            fig = px.bar(x=commandTimesUno, y=commandTimeCounts)
 
-            fig.update_yaxes(type = "log", range=[0, math.log(max(commandTimeCounts),10)+0.2])
+            fig.update_yaxes(type="log", range=[
+                             0, math.log(max(commandTimeCounts), 10) + 0.2])
 
             fig_bytes = fig.to_image(format="png", width=1800, height=800)
 
-            await msg.channel.send(file=discord.File(io.BytesIO(fig_bytes), filename="stats.png"))
+            await msg.channel.send(file=discord.File(
+                io.BytesIO(fig_bytes),
+                filename="stats.png"))
 
-            x=[f"{t}T00:00:00.000000" for t in commandTimeUsage.keys()]
+            x = [f"{t}T00:00:00.000000" for t in commandTimeUsage.keys()]
             fig = go.Figure()
 
             # print(rotateDict(commandTimeUsage))
@@ -301,88 +416,130 @@ async def stats(msg, *args):
                     except KeyError:
                         cmds[c].append(0)
 
-            #print(cmds)
+            # print(cmds)
 
             for c in cmds.keys():
-                fig.add_trace(go.Scatter(
-                    x=x, y=cmds[c],
-                    mode='lines',
-                    line=dict(width=2, color=f"rgb({random.randint(0,255)}, {random.randint(0,255)}, {random.randint(0,255)})", shape= 'spline', smoothing= 0.5),
-                    name=c))
+                fig.add_trace(
+                    go.Scatter(
+                        x=x,
+                        y=cmds[c],
+                        mode='lines',
+                        line=dict(
+                            width=2,
+                            color=(f"rgb({random.randint(0,255)}, "
+                                   f"{random.randint(0,255)}, "
+                                   f"{random.randint(0,255)})"),
+                            shape='spline',
+                            smoothing=0.5),
+                        name=c))
 
             fig.update_layout(
                 showlegend=True)
 
-            fig.update_yaxes(type = "log", range=[0, math.log(max(commandCounts.values()),10)+0.2])
+            fig.update_yaxes(type="log", range=[0, math.log(
+                max(commandCounts.values()), 10) + 0.2])
 
             fig_bytes = fig.to_image(format="png", width=1800, height=800)
 
-            await msg.channel.send(file=discord.File(io.BytesIO(fig_bytes), filename="stats.png"))
+            await msg.channel.send(file=discord.File(
+                io.BytesIO(fig_bytes),
+                filename="stats.png"))
 
-            fig = go.Figure(data=[go.Pie(labels=list(commandCounts.keys()), values=list(commandCounts.values()), textinfo="value+percent")])
+            fig = go.Figure(
+                data=[
+                    go.Pie(
+                        labels=list(
+                            commandCounts.keys()), values=list(
+                            commandCounts.values()), textinfo="value+percent")]
+                            )
 
             fig_bytes = fig.to_image(format="png", width=1200, height=1200)
 
-            await msg.channel.send(file=discord.File(io.BytesIO(fig_bytes), filename="stats.png"))
+            await msg.channel.send(file=discord.File(
+                io.BytesIO(fig_bytes),
+                filename="stats.png"))
 
-            await msg.channel.send(embed=client.embed("TheBot stats", fields=[("Total Commands", commandCountTotaly, True),
-                                                        ("Guild Commands", commandCountGuild,True),
-                                                        ("Channel Commands", commandCountChannel, True),
-                                                        ("Most Commands", mostActiveCommandor, True),
-                                                        ("Most Used Command", mostUsedCommand, True)]))
+            await msg.channel.send(embed=client.embed("TheBot stats", fields=[
+                ("Total Commands", commandCountTotaly, True),
+                ("Guild Commands", commandCountGuild, True),
+                ("Channel Commands", commandCountChannel, True),
+                ("Most Commands", mostActiveCommandor, True),
+                ("Most Used Command", mostUsedCommand, True)]))
+
         elif args == "messages":
             startTime = time.time()
             messagesList = list(np.transpose(messageLog.get_all_values()[1:]))
-            guildMessages = len([g for g in messagesList[7] if g == str(msg.channel.guild.id)])
-            channelMessages = len([g for g in messagesList[5] if g == str(msg.channel.id)])
+            guildMessages = len(
+                [g for g in messagesList[7] if g == str(msg.channel.guild.id)])
+            channelMessages = len(
+                [g for g in messagesList[5] if g == str(msg.channel.id)])
             mostActive = mostFrequent(messagesList[4])
 
             messageTimes = messagesList[0]
 
             messageGuilds = messagesList[7]
 
-            messageTimes = [time.isoformat() for i,time in enumerate(map(roundToTheLast30min,map(datetime.datetime.fromisoformat, messageTimes))) if messageGuilds[i] == str(msg.channel.guild.id)]
+            messageTimes = [
+                time.isoformat() for i, time in enumerate(
+                    map(
+                        roundToTheLast30min, map(
+                            datetime.datetime.fromisoformat, messageTimes)))
+                if messageGuilds[i] == str(
+                    msg.channel.guild.id)]
             messageTimesUno = deleteDuplicates(messageTimes)
-            messageTimeCounts = [messageTimes.count(t) for t in messageTimesUno]
+            messageTimeCounts = [messageTimes.count(
+                t) for t in messageTimesUno]
 
-            fig = px.bar(x = messageTimesUno, y = messageTimeCounts, range_x=[messageTimesUno[0], messageTimesUno[-1]])
+            fig = px.bar(x=messageTimesUno, y=messageTimeCounts, range_x=[
+                         messageTimesUno[0], messageTimesUno[-1]])
 
             fig_bytes = fig.to_image(format="png", width=3200, height=800)
 
-            await msg.channel.send(file=discord.File(io.BytesIO(fig_bytes), filename="stats.png"))
+            await msg.channel.send(file=discord.File(
+                io.BytesIO(fig_bytes),
+                filename="stats.png"))
 
             await msg.channel.send(embed=client.embed("TheBot stats", fields=[
-                                            ("Guild Messages", guildMessages, True),
-                                            ("Channel Messages", channelMessages, True),
-                                            ("Most Messages", mostActive, True)]))
+                ("Guild Messages", guildMessages, True),
+                ("Channel Messages",
+                 channelMessages, True),
+                ("Most Messages", mostActive, True)]))
             print(f"Took {startTime - time.time()} seconds")
         else:
-            await msg.channel.send(embed=client.embed("Available stats categories", fields=[
-                                                                    ("commands", "Command stats"),
-                                                                    ("messages", "Message stats")
-                                                                    ]))
+            await msg.channel.send(embed=client.embed(
+                "Available stats categories", fields=[
+                    ("commands", "Command stats"),
+                    ("messages", "Message stats")
+                ]))
+
 
 @client.command("rates")
 async def rates(msg, *args):
     """Converts currencies
-    **Usage**: `%commandPrefix%rates <from> <to> <count>` eg. `%commandPrefix%rates EUR CZK 120`"""
+    **Usage**: `%commandPrefix%rates <from> <to> <count>` eg. \
+    `%commandPrefix%rates EUR CZK 120`"""
     if args == (None, ):
         return
     else:
         args = args[0]
     currencies = args.split(" ")
     rate = getCurrencyConversion(currencies[0], currencies[1])
-    if type(rate) == str:
+    if isinstance(rate, str):
         await msg.channel.send(rate)
     else:
-        await msg.channel.send(f"{currencies[2]} {currencies[0]} is {float(currencies[2])*rate} {currencies[1]}")
+        await msg.channel.send(
+            f"{currencies[2]} {currencies[0]} is "
+            f"{float(currencies[2])*rate} {currencies[1]}")
 
 activeGame = {}
+
+
 @client.command("play")
 async def play(msg, *args):
     """Play games.\nAvailable games:\n2048
-    **Usage**: `%commandPrefix%play <game> <options>` eg. `%commandPrefix%play 2048 4` or without options to show options"""
-    if args == (None, ):
+    **Usage**: `%commandPrefix%play <game> <options>` eg. \
+    `%commandPrefix%play 2048 4` or without options to show options"""
+    if args == (None,):
         return
     else:
         args = args[0]
@@ -392,7 +549,7 @@ async def play(msg, *args):
             if int(args[1]) > 1 and int(args[1]) < 19:
                 activeGame[msg.author] = Game2048(msg.author, int(args[1]))
                 await activeGame[msg.author].startGame(msg)
-            else: 
+            else:
                 await msg.channel.send("Grid size must be between 1 and 19")
         except IndexError:
             await msg.channel.send("Options for 2048:\nGrid Size")
@@ -421,13 +578,24 @@ async def play(msg, *args):
 #             await msg.author.add_roles(discord.Object(562713869957726208))
 #             if msg.author.dm_channel == None:
 #                 await msg.author.create_dm()
-#             await msg.author.send("You now have the tag Needs Support, which means you can access the Support Text and Voice Channels. Ask for any support you may need. We ask that you please remain patient, the Support Team has been notified and we will be with you as soon as possible. Thank you.\n\nNyní máš tag Needs Support, který ti dává přístup k textovým a hlasovým kanálům podpory. Obrať se na podporu s jakýmkoli dotazem. Prosím buď trpělivý, tým podpory byl informován a bude se ti věnovat co nejdříve. Děkujem.")
+#             await msg.author.send("You now have the tag Needs Support,
+# which
+#  means you can access the Support Text and Voice Channels. Ask for any
+# support you may need. We ask that you please remain patient, the Support
+# Team has been notified and we will be with you as soon as possible. Thank
+# you.\n\nNyní máš tag Needs Support, který ti dává přístup k textovým a
+# hlasovým kanálům podpory. Obrať se na podporu s jakýmkoli dotazem.
+# Prosím buď trpělivý, tým podpory byl informován a bude se ti věnovat
+# co nejdříve. Děkujem.")
 #         else:
 #             if msg.author.dm_channel == None:
 #                 await msg.author.create_dm()
-#             await msg.author.send("You already have the Needs Support tag, please be patient.\n\nUž máš tag Needs Support. Prosíme, abys byl trpělivý")
+# await msg.author.send("You already have the Needs Support tag, please be
+# patient.\n\nUž máš tag Needs Support. Prosíme, abys byl trpělivý")
 
-# bdbf.commands.cmds[507484929001652224].append(support("Gives you the Needs Support role"))
+# bdbf.commands.cmds[507484929001652224].append(support("Gives you the Needs
+# Support role"))
+
 
 @client.command("uhel")
 async def uhel(msg, *args):
@@ -438,7 +606,9 @@ async def uhel(msg, *args):
         args = args[0]
     try:
         hc = uhlovodikovac.HydroCarbon(args)
-        await msg.channel.send(file= discord.File(hc.draw(), filename="uhlovodik.png"))
+        await msg.channel.send(file=discord.File(
+            hc.draw(),
+            filename="uhlovodik.png"))
     except Exception as e:
         await msg.channel.send(e)
 
@@ -446,10 +616,15 @@ async def uhel(msg, *args):
 
 userTimers = {}
 
+
 @client.command("timer")
 async def timer(msg, *args):
     """Timer command.
-    **Usage**: `%commandPrefix%timer <seconds>` or `%commandPrefix%timer -t <ISO utc time>` eg. `%commandPrefix%timer 60` or `%commandPrefix%timer -t 2020-12-31T23:59:59`\nTo get current time remaining use `%commandPrefix%timer -Q`"""
+    **Usage**: `%commandPrefix%timer <seconds>` or \
+    `%commandPrefix%timer -t <ISO utc time>` eg. \
+    `%commandPrefix%timer 60` or `%commandPrefix%timer -t \
+    2020-12-31T23:59:59`\nTo get current time remaining use \
+    `%commandPrefix%timer -Q`"""
     if args == (None, ):
         return
     else:
@@ -460,22 +635,26 @@ async def timer(msg, *args):
         try:
             await userTimers[msg.author].sendMsg(True)
             return
-        except:
+        except BaseException:
             return
 
     try:
         if userTimers[msg.author].t > 0 and "-F" not in args:
-            await channel.send(f"{msg.author.mention} you already have an active timer. If you wish to overwrite it add -F to your command")
+            await channel.send(
+                f"{msg.author.mention} you already have an active timer. "
+                "If you wish to overwrite it add -F to your command")
             return None
         elif userTimers[msg.author] and "-F" in args:
-            await channel.send(f"{msg.author.mention} you have overwritten your old timer. This action is not reversible.")
+            await channel.send(
+                f"{msg.author.mention} you have overwritten your old timer. "
+                "This action is not reversible.")
             args = args.replace("-F", "")
             userTimers[msg.author].sending = False
 
-    except:
+    except BaseException:
         pass
     if "-F" in args:
-        args = args.replace("-F","")
+        args = args.replace("-F", "")
 
     sendMsgs = False
     if "-M" in args:
@@ -488,15 +667,21 @@ async def timer(msg, *args):
             if len(args) == 2:
                 t = datetime.datetime.utcnow().isoformat().split("T")
                 t = t[0]
-                t = (datetime.datetime.fromisoformat(f"{t} {args[0]}:{args[1]}".rstrip().lstrip()) - datetime.datetime.utcnow()).total_seconds()
+                t = (
+                    datetime.datetime.fromisoformat(
+                        f"{t} {args[0]}:{args[1]}".rstrip().lstrip()) -
+                    datetime.datetime.utcnow()).total_seconds()
             else:
                 await msg.channel.send("To není čas")
                 return
-        else:    		   
+        else:
             t = int(args)
     else:
         args = args.split("-t")
-        t = (datetime.datetime.fromisoformat(args[1].rstrip().lstrip()) - datetime.datetime.utcnow()).total_seconds()
+        t = (
+            datetime.datetime.fromisoformat(
+                args[1].rstrip().lstrip()) -
+            datetime.datetime.utcnow()).total_seconds()
 
     userTimers[msg.author] = TimerObject()
     await userTimers[msg.author].timer(t, msg, sendMsgs)
@@ -508,10 +693,11 @@ class TimerObject():
         self.timerMsg = None
         self.channel = None
         self.author = None
-    async def timer(self, t, msg, sendMsgs = False):
+
+    async def timer(self, t, msg, sendMsgs=False):
         self.author = msg.author
         self.start = datetime.datetime.utcnow()
-        self.end = datetime.datetime.utcnow()+timedelta(seconds=t)
+        self.end = datetime.datetime.utcnow() + timedelta(seconds=t)
         self.channel = msg.channel
         self.t = t
         self.sending = True
@@ -520,43 +706,46 @@ class TimerObject():
         botGames.client.loop.create_task(self.sender())
 
     def getTime(self):
-        return (self.end-datetime.datetime.utcnow()).total_seconds()
+        return (self.end - datetime.datetime.utcnow()).total_seconds()
 
     async def sender(self):
         while self.sending:
             days, hours, minutes, seconds = await self.sendMsg()
-            if (days, hours, minutes, seconds) != (0,0,0,0):
+            if (days, hours, minutes, seconds) != (0, 0, 0, 0):
                 if days > 0:
-                    await asyncio.sleep(minutes*60+seconds)
+                    await asyncio.sleep(minutes * 60 + seconds)
                 if hours > 0:
                     await asyncio.sleep(seconds)
                 else:
                     await asyncio.sleep(1)
             else:
                 self.sending = False
-                await self.channel.send(f"{self.commandMsg.author.mention} Timer completed!", tts=True)
+                await self.channel.send(
+                    f"{self.commandMsg.author.mention} Timer completed!",
+                    tts=True)
                 self.t = -10
                 self.channel = None
 
-
-    async def sendMsg(self, newMessage = False):
+    async def sendMsg(self, newMessage=False):
         # print(self.getTime())
         if self.getTime() >= 0:
             minutes, seconds = divmod(self.getTime(), 60)
             hours, minutes = divmod(minutes, 60)
             days, hours = divmod(hours, 24)
         else:
-            days, hours, minutes, seconds = 0,0,0,0
+            days, hours, minutes, seconds = 0, 0, 0, 0
 
         if days > 0:
-            message = f"{self.author.mention} {addZero(int(days))} days {addZero(int(hours))} hours left."
+            message = (f"{self.author.mention} {addZero(int(days))} days "
+                       f"{addZero(int(hours))} hours left.")
         elif hours > 0:
-            message = f"{self.author.mention} {addZero(int(hours))} hours {addZero(int(minutes))} minutes left."
+            message = (f"{self.author.mention} {addZero(int(hours))} hours "
+                       f"{addZero(int(minutes))} minutes left.")
         else:
-            message = f"{self.author.mention} {addZero(int(minutes))}:{addZero(int(seconds))} left."
+            message = (f"{self.author.mention} {addZero(int(minutes))}:"
+                       f"{addZero(int(seconds))} left.")
 
-
-        if self.timerMsg == None or newMessage:
+        if self.timerMsg is None or newMessage:
             self.timerMsg = await self.channel.send(message)
         else:
             await self.timerMsg.edit(content=message)
@@ -570,7 +759,8 @@ class TimerObject():
 #     async def commandos(self, args, msg):
 #         roboto = ImageFont.truetype("fonts/Roboto-Regular.ttf",15)
 
-#         img = Image.new("RGBA", size = (1,1), color=(int("36",16),int("39",16),int("3F",16),255))
+#         img = Image.new("RGBA", size = (1,1),
+# color=(int("36",16),int("39",16),int("3F",16),255))
 
 #         def imgURL(url):
 #             return Image.open(io.BytesIO(requests.get(url).content))
@@ -595,14 +785,17 @@ class TimerObject():
 
 #             print(size)
 
-#             size[1] = img.size[1] + image.size[1]+padding*2+len(text.split("\n")*15)
+#             size[1] = img.size[1] + image.size[1]+padding*2+len(text.split
+# ("\n")*15)
 
 
-#             img2 = Image.new("RGBA", size = size, color=(int("36",16),int("39",16),int("3F",16),255))
+#             img2 = Image.new("RGBA", size = size, color=(int("36",16),int
+# ("39",16),int("3F",16),255))
 #             img2.paste(img,(0,0,img.size[0],img.size[1]))
 #             img = img2
 
-#             img.paste(image,(padding,y + padding,image.size[0]+padding,image.size[1]+padding+y))
+#             img.paste(image,(padding,y + padding,image.size[0]+padding,image.
+# size[1]+padding+y))
 
 #             draw = ImageDraw.Draw(img)
 
@@ -610,16 +803,22 @@ class TimerObject():
 
 #             return img
 
-#         def remove_transparency(im, bg_colour=(int("36",16),int("39",16),int("3F",16))):
-#             # Only process if image has transparency (http://stackoverflow.com/a/1963146)
-#             if im.mode in ('RGBA', 'LA') or (im.mode == 'P' and 'transparency' in im.info):
+#         def remove_transparency(im, bg_colour=(int("36",16),int("39",16),int(
+# "3F",16))):
+#             # Only process if image has transparency
+# (http://stackoverflow.com/a/1963146)
+# if im.mode in ('RGBA', 'LA') or (im.mode == 'P' and 'transparency' in
+# im.info):
 
-#                 # Need to convert to RGBA if LA format due to a bug in PIL (http://stackoverflow.com/a/1963146)
+#                 # Need to convert to RGBA if LA format due to a bug in PIL
+# (http://stackoverflow.com/a/1963146)
 #                 alpha = im.convert('RGBA').split()[-1]
 
 #                 # Create a new background image of our matt color.
-#                 # Must be RGBA because paste requires both images have the same format
-#                 # (http://stackoverflow.com/a/8720632  and  http://stackoverflow.com/a/9459208)
+#                 # Must be RGBA because paste requires both
+# images have the same format
+#                 # (http://stackoverflow.com/a/8720632  and
+# http://stackoverflow.com/a/9459208)
 #                 bg = Image.new("RGBA", im.size, bg_colour + (255,))
 #                 bg.paste(im, mask=alpha)
 #                 return bg
@@ -629,7 +828,8 @@ class TimerObject():
 
 #         while "%image:" in args:
 #             args = args.split("%image:",1)[1]
-#             img = addImgAndText(img, imgURL(args.split(" ")[0]), args.split("%image:")[0].split(" ",1)[1])
+#             img = addImgAndText(img, imgURL(args.split(" ")[0]), args.split(
+# "%image:")[0].split(" ",1)[1])
 #         img = remove_transparency(img)
 #         img.save("temp.png")
 #         with open("temp.png", "rb") as f:
@@ -639,52 +839,68 @@ class TimerObject():
 
 @client.command("makeEmbed")
 async def makeEmbedCommand(msg, *args):
-    """Makes the an embed from json. You can get your json [here](https://leovoel.github.io/embed-visualizer/)"""
+    """Makes the an embed from json. \
+    You can get your json [here](https://leovoel.github.io/embed-visualizer/)
+    """
     if args == (None,):
         return
     embedDict = json.loads(args[0])
-    embedDict.pop("timestamp","")
+    embedDict.pop("timestamp", "")
     await msg.channel.send(embed=discord.Embed.from_dict(embedDict))
-
-
 
 
 @client.command("nextHour", worksOnlyInGuilds=[697015129199607839])
 async def commandos(msg, *args):
     """Returns next hour and when it starts"""
     for hour in nextHoursAreAndStartsIn():
-        if hour[2] == None:
+        if hour[2] is None:
             message = f"Za {str(hour[0])[:-3]} začíná `{hour[1]}`"
         else:
-            message = f"Za {str(hour[0])[:-3]} začíná `{hour[1]}` pro `{hour[2]}`"
+            message = (f"Za {str(hour[0])[:-3]} začíná "
+                       f"`{hour[1]}` pro `{hour[2]}`")
         await msg.channel.send(message)
 
 # @client.command("ak")
 # async def ak(msg, *args):
 #     out = adventniKalendar(int(args[0]))
-#     channel = client.get_guild(621413546177069081).get_channel(777201859466231808)
-#     await channel.send(f"{out[0].mention} Gratulace vyhráváš odměnu z adventního kalendáře pro potvrzení že chceš odměnu převzít reaguj :white_check_mark:  na tuto zprávu.", file=discord.File(out[1], filename=f"adventniKalendarDay{int(args[0])}.png"))
+#     channel = client.get_guild(
+# 621413546177069081).get_channel(777201859466231808)
+# await channel.send(f"{out[0].mention} Gratulace vyhráváš odměnu z
+# adventního kalendáře pro potvrzení že chceš odměnu převzít reaguj
+# :white_check_mark:  na tuto zprávu.", file=discord.File(out[1],
+# filename=f"adventniKalendarDay{int(args[0])}.png"))
+
 
 @client.command("color")
 async def color(msg, *args):
     """Displays a color
-    **Usage**: `%commandPrefix%color <color>` eg. `%commandPrefix%color ffffff`"""
+    **Usage**: `%commandPrefix%color <color>` eg. \
+    `%commandPrefix%color ffffff`"""
     args = args[0]
-    args = int(args[0:2],16), int(args[2:4],16), int(args[4:6],16)
-    img = Image.new("RGBA",(50,50), args)
+    args = int(args[0:2], 16), int(args[2:4], 16), int(args[4:6], 16)
+    img = Image.new("RGBA", (50, 50), args)
     img.save("temp.png")
-    with open("temp.png","rb") as f:
-        await msg.channel.send(file=discord.File(io.BytesIO(f.read()), filename="color.png"))
+    with open("temp.png", "rb") as f:
+        await msg.channel.send(file=discord.File(
+            io.BytesIO(f.read()),
+            filename="color.png"))
+
 
 @client.command("search")
 async def search(msg, *args):
-	"""Searches the web"""
-	print(args)
-	if args == ():
-		return
-	r = requests.get(f"https://api.duckduckgo.com/?q={args[0]}&format=json&kl=cz-cs").json()
-	print(msg.content)
-	await msg.channel.send(embed=client.embed(r["Heading"], description=r["AbstractText"], fields=[]))
+    """Searches the web"""
+    print(args)
+    if args == ():
+        return
+    r = requests.get(
+        f"https://api.duckduckgo.com/?q={args[0]}&format=json&kl=cz-cs").json()
+    print(msg.content)
+    await msg.channel.send(embed=client.embed(
+        r["Heading"],
+        description=r["AbstractText"],
+        fields=[]))
 
 for command in client.commands:
-    client.commands[command].__doc__ = client.commands[command].__doc__.replace("%commandPrefix%", client.commandPrefix)
+    client.commands[command].__doc__ = (
+        client.commands[command].__doc__.replace(
+            "%commandPrefix%", client.commandPrefix))
