@@ -14,7 +14,7 @@ from bdbf import embed, hasLink  # , spamProtection
 import commands
 import database
 from botFunctions import (
-    adventniKalendar, checkMZCR, newOnGymso, nextHoursAreAndStartsIn
+    checkMZCR, newOnGymso, nextHoursAreAndStartsIn
 )
 from variables import *
 import variables
@@ -415,39 +415,41 @@ async def classLoop():
             print(f"Encountered an error while checking for hours: {e}")
 
 
-async def kalendarLoop():
-    while True:
-        try:
-            now = datetime.datetime.utcnow()
-            lastMessage = int(database.advantniKalendar.cell(2, 11).value)
-            if lastMessage < now.day:
-                noon = now.replace(hour=11, minute=0, second=0)
-                print(f"""Waiting for {max((noon-now).total_seconds(), 0)}
-                until noon.""")
-                await asyncio.sleep(max((noon-now).total_seconds(), 0))
-                out = adventniKalendar(now.day-1)
-                channel = client.get_guild(
-                    621413546177069081
-                ).get_channel(777201859466231808)
-                await channel.send(
-                    f"""{out[0].mention} Gratulace vyhráváš odměnu
-                        z adventního kalendáře pro potvrzení že chceš odměnu
-                        převzít reaguj :white_check_mark:  na tuto zprávu.""",
-                    file=discord.File(
-                        out[1],
-                        filename=f"adventniKalendarDay{now.day}.png"
-                    ))
-                database.advantniKalendar.update_cell(2, 11, now.day)
-            else:
-                noon = now.replace(day=now.day+1, hour=11, minute=0, second=0)
-                print(
-                    "Waiting for "+max((noon-now).total_seconds(), 0)
-                    + " until noon."
-                )
-                await asyncio.sleep(max((noon-now).total_seconds(), 0))
-        except Exception as e:
-            print(e)
-            await asyncio.sleep(60)
+# async def kalendarLoop():
+#     while True:
+#         try:
+#             now = datetime.datetime.utcnow()
+#             lastMessage = int(database.advantniKalendar.cell(2, 11).value)
+#             if lastMessage < now.day:
+#                 noon = now.replace(hour=11, minute=0, second=0)
+#                 print(f"""Waiting for {max((noon-now).total_seconds(), 0)}
+#                 until noon.""")
+#                 await asyncio.sleep(max((noon-now).total_seconds(), 0))
+#                 out = adventniKalendar(now.day-1)
+#                 channel = client.get_guild(
+#                     621413546177069081
+#                 ).get_channel(777201859466231808)
+#                 await channel.send(
+#                     f"""{out[0].mention} Gratulace vyhráváš odměnu
+#                         z adventního kalendáře pro potvrzení že chceš odměnu
+#                         převzít reaguj :white_check_mark:  na tuto zprávu.
+# """,
+#                     file=discord.File(
+#                         out[1],
+#                         filename=f"adventniKalendarDay{now.day}.png"
+#                     ))
+#                 database.advantniKalendar.update_cell(2, 11, now.day)
+#             else:
+#                 noon = now.replace(day=now.day+1, hour=11, minute=0,
+# second=0)
+#                 print(
+#                     "Waiting for "+max((noon-now).total_seconds(), 0)
+#                     + " until noon."
+#                 )
+#                 await asyncio.sleep(max((noon-now).total_seconds(), 0))
+#         except Exception as e:
+#             print(e)
+#             await asyncio.sleep(60)
 
 
 async def rlStatsLoop():
