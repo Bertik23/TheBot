@@ -900,6 +900,25 @@ async def search(msg, *args):
         description=r["AbstractText"],
         fields=[]))
 
+
+@client.command("rotate")
+async def rotate(msg, *args):
+    """Rotates supplied image
+
+    **Usage**: `%commandPrefix%rotate <img_url> <angle>`
+    eg. `%commandPrefix%rotate example.com/image.png 90`
+    """
+    args = args[0].split(" ")
+    url = args[0]
+    img = Image.open(io.BytesIO(requests.get(url).content))
+
+    img = img.rotate(float(args[1]), expand=True)
+
+    img.save("temp.png")
+
+    with open("temp.png", "rb") as f:
+        await msg.channel.send(file=discord.File(f))
+
 for command in client.commands:
     client.commands[command].__doc__ = (
         client.commands[command].__doc__.replace(

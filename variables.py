@@ -4,9 +4,10 @@ import ksoftapi
 import praw
 import datetime
 
-version = (2, 2, 6)
+version = (2, 2, 7)
 changelog = {
-    "2.2.6": "Started PEP 8 tificating of code",
+    "2.2.7": "Added rotate command",
+    "2.2.6": "PEP 8 tified code",
     "2.2.5": "Added the makeEmbed command",
     "2.2.4": "Upgraded to bdbf 1.1.1",
     "2.2.3": "Small fix in versioning",
