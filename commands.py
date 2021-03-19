@@ -919,6 +919,57 @@ async def rotate(msg, *args):
     with open("temp.png", "rb") as f:
         await msg.channel.send(file=discord.File(f))
 
+
+@client.command("day")
+async def day_command(msg, *args):
+    """Returns day info"""
+    args = args[0]
+    if args is None:
+        today = datetime.date.today()
+    else:
+        args = args.split(".")
+        today = datetime.date(
+            year=int(args[2]),
+            month=int(args[1]),
+            day=int(args[0])
+        )
+    countryNameDays = {}
+    for country in ["cz", "sk", "pl", "fr", "hu",
+                    "hr", "se", "us", "at", "it",
+                    "es", "de", "dk", "fi", "bg",
+                    "lt", "ee", "lv", "gr", "ru"]:
+        r = requests.get(
+            f"https://api.abalin.net/namedays?"
+            f"country={country}&month={today.month}&day={today.day}").json()
+        countryNameDays[country] = r["data"]["namedays"][country]
+
+    querystring = {"fragment": "true", "json": "true"}
+
+    headers = {
+        'x-rapidapi-key': "3f77d232fbmsh3b6a8f03b5eb9d6p17a95ajsn29dcf1d441e0",
+        'x-rapidapi-host': "numbersapi.p.rapidapi.com"
+        }
+    r = requests.get("https://numbersapi.p.rapidapi.com/"
+                     f"{today.month}/{today.day}/date",
+                     headers=headers,
+                     params=querystring).json()
+
+    def dayStr(date):
+        return " ".join(date.ctime().split(" ")[:3]+[str(date.year)])
+    dayTrivia = f"On {dayStr(today.replace(year=r['year']))} {r['text']}"
+
+    print(countryNameDays)
+    namedaysStr = ""
+    for i in countryNameDays:
+        namedaysStr += f"**{i}**: {countryNameDays[i]}\n"
+
+    await msg.channel.send(embed=client.embed(
+        dayStr(today),
+        description=dayTrivia,
+        fields=[("Week", today.isocalendar().week), ("NameDays", namedaysStr)])
+    )
+
+
 for command in client.commands:
     client.commands[command].__doc__ = (
         client.commands[command].__doc__.replace(
