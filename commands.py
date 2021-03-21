@@ -624,7 +624,10 @@ async def timer(msg, *args):
     `%commandPrefix%timer 60` or `%commandPrefix%timer \
     2020-12-31T23:59:59` or `%commandPrefix%timer 12:35` \
     \nTo get current time remaining use \
-    `%commandPrefix%timer -Q`"""
+    `%commandPrefix%timer -Q` \n\
+    You can add -M <message> for a message to be send when the timer ends. \
+    eg. `%commandPrefix%timer 10 -M Wake up!`
+    """
     if args == (None, ):
         return
     else:
