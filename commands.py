@@ -16,7 +16,7 @@ from botFunctions import *
 from botGames import Game2048
 import botGames
 import uhlovodikovac
-from database import commandLog, messageLog
+from database import commandLog, messageLog, timers
 from exceptions import *
 from PIL import Image, ImageDraw, ImageFont
 import json
@@ -614,10 +614,8 @@ async def uhel(msg, *args):
 
 # bdbf.commands.cmds["all"].append(uhel())
 
-userTimers = {}
 
-
-@client.command("timer")
+@client.command("timerT")
 async def timer(msg, *args):
     """Timer command.
     **Usage**: `%commandPrefix%timer <seconds>` or \
@@ -633,58 +631,58 @@ async def timer(msg, *args):
 
     if "-Q" in args:
         try:
-            await userTimers[msg.author].sendMsg(True)
+            await userTimers[msg.author.id].sendMsg(True)
             return
         except BaseException:
             return
 
     try:
-        if userTimers[msg.author].t > 0 and "-F" not in args:
+        if userTimers[msg.author.id].t > 0 and "-F" not in args:
             await channel.send(
                 f"{msg.author.mention} you already have an active timer. "
                 "If you wish to overwrite it add -F to your command")
-            return None
-        elif userTimers[msg.author] and "-F" in args:
+            return
+        elif userTimers[msg.author.id] and "-F" in args:
             await channel.send(
                 f"{msg.author.mention} you have overwritten your old timer. "
                 "This action is not reversible.")
             args = args.replace("-F", "")
-            userTimers[msg.author].sending = False
+            userTimers[msg.author.id].sending = False
 
     except BaseException:
         pass
     if "-F" in args:
         args = args.replace("-F", "")
 
-    sendMsgs = False
-    if "-M" in args:
-        sendMsgs = True
-        args = args.replace("-M", "")
+    if "-M" not in args:
+        args += "-M"
+    args, timerMessage = args.split("-M", 1)
 
-    if "-t" not in args:
-        if ":" in args:
-            args = args.split(":")
-            if len(args) == 2:
-                t = datetime.datetime.utcnow().isoformat().split("T")
-                t = t[0]
-                t = (
-                    datetime.datetime.fromisoformat(
-                        f"{t} {args[0]}:{args[1]}".rstrip().lstrip()) -
-                    datetime.datetime.utcnow()).total_seconds()
-            else:
-                await msg.channel.send("To není čas")
-                return
-        else:
-            t = int(args)
+    if isDatetimeIsoFormat(args):
+        t = datetime.datetime.fromisoformat(args)
+    elif isStrNumber(args):
+        t = (datetime.datetime.utcnow() +
+             datetime.timedelta(seconds=float(args)))
+    elif isTimeIsoFormat(args):
+        t = datetime.datetime.combine(
+            datetime.date.today(),
+            datetime.time.fromisoformat(args)
+        )
     else:
-        args = args.split("-t")
-        t = (
-            datetime.datetime.fromisoformat(
-                args[1].rstrip().lstrip()) -
-            datetime.datetime.utcnow()).total_seconds()
+        await channel.send("Coudn't parse endtime for timer.")
+        return
 
-    userTimers[msg.author] = TimerObject()
-    await userTimers[msg.author].timer(t, msg, sendMsgs)
+    userTimers[msg.author.id] = TimerObject()
+    timers.append_row(
+        [str(msg.author.id),
+         msg.author.name,
+         t.isoformat(),
+         timerMessage,
+         str(msg.id),
+         str(msg.channel.id)]
+    )
+
+    await userTimers[msg.author.id].timer(t, msg, timerMessage)
 
 
 class TimerObject():
@@ -694,16 +692,17 @@ class TimerObject():
         self.channel = None
         self.author = None
 
-    async def timer(self, t, msg, sendMsgs=False):
+    async def timer(self, t, msg, timerMessage):
         self.author = msg.author
         self.start = datetime.datetime.utcnow()
-        self.end = datetime.datetime.utcnow() + timedelta(seconds=t)
+        self.end = t  # datetime.datetime.utcnow() + timedelta(seconds=t)
         self.channel = msg.channel
         self.t = t
         self.sending = True
         self.commandMsg = msg
+        self.timerMessage = timerMessage
 
-        botGames.client.loop.create_task(self.sender())
+        client.loop.create_task(self.sender())
 
     def getTime(self):
         return (self.end - datetime.datetime.utcnow()).total_seconds()
@@ -720,9 +719,18 @@ class TimerObject():
                     await asyncio.sleep(1)
             else:
                 self.sending = False
+                sendMsg = (
+                    f"{self.commandMsg.author.mention} Timer completed!" +
+                    (f"\n{self.timerMessage}" if self.timerMessage != ""
+                        else "")
+                )
                 await self.channel.send(
-                    f"{self.commandMsg.author.mention} Timer completed!",
+                    sendMsg,
                     tts=True)
+
+                timers.delete_row(
+                    timers.col_values(1).index(str(self.author.id)) + 1
+                )
                 self.t = -10
                 self.channel = None
 

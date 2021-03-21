@@ -10,6 +10,7 @@ from datetime import date, datetime, timedelta, timezone, time
 import bdbf
 import discord
 import numpy as np
+from numpy.lib.twodim_base import eye
 import plotly.graph_objects as go
 import requests
 import tomd
@@ -569,6 +570,29 @@ def nextHoursAreAndStartsIn():
         - datetime.combine(todayDate, time(actualNow[0], actualNow[1])),
         h, g if g != "" else None
 
+
+def isDatetimeIsoFormat(string):
+    try:
+        datetime.datetime.fromisoformat(string)
+        return True
+    except ValueError:
+        return False
+
+
+def isTimeIsoFormat(string):
+    try:
+        time.fromisoformat(string)
+        return True
+    except ValueError:
+        return False
+
+
+def isStrNumber(string):
+    try:
+        float(string)
+        return True
+    except ValueError:
+        return False
 
 # def makeAdventniCalendarImage(text, textXY, padding, dayXY):
 #     roboto = ImageFont.truetype("fonts/MinecraftRegular.ttf", 30)

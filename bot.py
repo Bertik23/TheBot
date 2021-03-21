@@ -94,15 +94,14 @@ async def on_ready():
                     )
                 )
 
-    # newRolePerms = discord.Permissions(administrator=True)
-    # newRole = await klubik.create_role(
-    #   permissions=newRolePerms,
-    #   color=discord.Color.from_rgb(0,255,0),
-    #   name="Bůh 2.0"
-    #   )
-    # bertiksMessage = await obecne.fetch_message(746658597655805954)
-    # bertik = bertiksMessage.author
-    # await bertik.add_roles(discord.Object(newRole.id))
+            for t in database.timers.get_all_values()[1:]:
+                userTimers[int(t[0])] = commands.TimerObject()
+                await userTimers[int(t[0])].timer(
+                    datetime.datetime.fromisoformat(t[2]),
+                    await (await client.fetch_channel(
+                        int(t[5]))).fetch_message(int(t[4])),
+                    t[3]
+                )
 
 
 @client.event

@@ -4,8 +4,9 @@ import ksoftapi
 import praw
 import datetime
 
-version = (2, 2, 8)
+version = (2, 2, 9)
 changelog = {
+    "2.2.9": "Timer overhaul",
     "2.2.8": "Added day command",
     "2.2.7": "Added rotate command",
     "2.2.6": "PEP 8 tified code",
@@ -72,3 +73,5 @@ client = bdbf.Client(
 klubik, obecne, choco_afroAnouncements, korona_info = None, None, None, None
 botStartTime = datetime.datetime.utcnow()
 botReadyTimes = []
+
+userTimers = {}
