@@ -615,13 +615,15 @@ async def uhel(msg, *args):
 # bdbf.commands.cmds["all"].append(uhel())
 
 
-@client.command("timerT")
+@client.command("timer")
 async def timer(msg, *args):
     """Timer command.
     **Usage**: `%commandPrefix%timer <seconds>` or \
-    `%commandPrefix%timer -t <ISO utc time>` eg. \
-    `%commandPrefix%timer 60` or `%commandPrefix%timer -t \
-    2020-12-31T23:59:59`\nTo get current time remaining use \
+    `%commandPrefix%timer <ISO utc time>` or \
+    `%commandPrefix%timer <ordinal utc time>` eg. \
+    `%commandPrefix%timer 60` or `%commandPrefix%timer \
+    2020-12-31T23:59:59` or `%commandPrefix%timer 12:35` \
+    \nTo get current time remaining use \
     `%commandPrefix%timer -Q`"""
     if args == (None, ):
         return
