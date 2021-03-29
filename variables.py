@@ -4,7 +4,7 @@ import ksoftapi
 import praw
 import datetime
 
-version = (2, 2, 9)
+version = (2, 2, 10)
 changelog = {
     "2.2.10": "Multiple timers now possible",
     "2.2.9": "Timer overhaul",

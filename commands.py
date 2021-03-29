@@ -615,7 +615,7 @@ async def uhel(msg, *args):
 # bdbf.commands.cmds["all"].append(uhel())
 
 
-@client.command("timerT")
+@client.command("timer")
 async def timer(msg, *args):
     ("""Timer command.
     **Usage**: `%commandPrefix%timer <seconds>` or \
@@ -636,7 +636,9 @@ async def timer(msg, *args):
 
     if "-Q" in args:
         try:
-            await userTimers[msg.author.id].sendMsg(True)
+            for id in userTimers:
+                if userTimers[id].author == msg.author:
+                    userTimers[id].sendMsg(True)
             return
         except BaseException:
             return
