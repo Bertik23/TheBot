@@ -615,9 +615,9 @@ async def uhel(msg, *args):
 # bdbf.commands.cmds["all"].append(uhel())
 
 
-@client.command("timer")
+@client.command("timerT")
 async def timer(msg, *args):
-    """Timer command.
+    ("""Timer command.
     **Usage**: `%commandPrefix%timer <seconds>` or \
     `%commandPrefix%timer <ISO utc time>` or \
     `%commandPrefix%timer <ordinal utc time>` eg. \
@@ -627,7 +627,7 @@ async def timer(msg, *args):
     `%commandPrefix%timer -Q` \n\
     You can add -M <message> for a message to be send when the timer ends. \
     eg. `%commandPrefix%timer 10 -M Wake up!`
-    """
+    """)
     if args == (None, ):
         return
     else:
@@ -643,8 +643,8 @@ async def timer(msg, *args):
 
     if "-M" not in args:
         args += "-M"
+
     args, timerMessage = args.split("-M", 1)
-                           
     args = args.strip()
 
     if isDatetimeIsoFormat(args):
@@ -663,7 +663,8 @@ async def timer(msg, *args):
 
     userTimers[msg.author.id] = TimerObject()
     timers.append_row(
-        [str(msg.author.id),
+        [str(userTimers[msg.author.id].id),
+         str(msg.author.id),
          msg.author.name,
          t.isoformat(),
          timerMessage,
@@ -675,11 +676,19 @@ async def timer(msg, *args):
 
 
 class TimerObject():
-    def __init__(self):
+    def __init__(self, id=None):
         self.t = -10
         self.timerMsg = None
         self.channel = None
         self.author = None
+        if id is None:
+            self.id = int((
+                datetime.datetime.utcnow()
+                - datetime.datetime.fromisoformat("2019-01-31T16:07:36.183")
+                ).total_seconds() * 1_000_000
+            )
+        else:
+            self.id = id
 
     async def timer(self, t, msg, timerMessage):
         self.author = msg.author
@@ -718,7 +727,7 @@ class TimerObject():
                     tts=True)
 
                 timers.delete_row(
-                    timers.col_values(1).index(str(self.author.id)) + 1
+                    timers.col_values(1).index(str(self.id)) + 1
                 )
                 self.t = -10
                 self.channel = None

@@ -95,12 +95,14 @@ async def on_ready():
                 )
 
             for t in database.timers.get_all_values()[1:]:
-                userTimers[int(t[0])] = commands.TimerObject()
-                await userTimers[int(t[0])].timer(
-                    datetime.datetime.fromisoformat(t[2]),
+                if t[0] == "":
+                    continue
+                userTimers[int(t[1])] = commands.TimerObject(t[0])
+                await userTimers[int(t[1])].timer(
+                    datetime.datetime.fromisoformat(t[3]),
                     await (await client.fetch_channel(
-                        int(t[5]))).fetch_message(int(t[4])),
-                    t[3]
+                        int(t[6]))).fetch_message(int(t[5])),
+                    t[4]
                 )
 
 

@@ -6,6 +6,7 @@ import datetime
 
 version = (2, 2, 9)
 changelog = {
+    "2.2.10": "Multiple timers now possible",
     "2.2.9": "Timer overhaul",
     "2.2.8": "Added day command",
     "2.2.7": "Added rotate command",
