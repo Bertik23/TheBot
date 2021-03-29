@@ -641,24 +641,6 @@ async def timer(msg, *args):
         except BaseException:
             return
 
-    try:
-        if userTimers[msg.author.id].t > 0 and "-F" not in args:
-            await channel.send(
-                f"{msg.author.mention} you already have an active timer. "
-                "If you wish to overwrite it add -F to your command")
-            return
-        elif userTimers[msg.author.id] and "-F" in args:
-            await channel.send(
-                f"{msg.author.mention} you have overwritten your old timer. "
-                "This action is not reversible.")
-            args = args.replace("-F", "")
-            userTimers[msg.author.id].sending = False
-
-    except BaseException:
-        pass
-    if "-F" in args:
-        args = args.replace("-F", "")
-
     if "-M" not in args:
         args += "-M"
     args, timerMessage = args.split("-M", 1)
