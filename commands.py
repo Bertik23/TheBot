@@ -644,6 +644,8 @@ async def timer(msg, *args):
     if "-M" not in args:
         args += "-M"
     args, timerMessage = args.split("-M", 1)
+                           
+    args = args.strip()
 
     if isDatetimeIsoFormat(args):
         t = datetime.datetime.fromisoformat(args)
