@@ -674,3 +674,23 @@ def isStrNumber(string):
 
 # makeAdventniCalendarImage("test",(77,250,265,264), (8,5), (67,62,267,266))
 # makeAdventniCalendarImage("test2",(306,250,502,264), (8,5), (306,63,504,266))
+
+def getCKS():
+    r = requests.get("http://projekty.gymso.cz/cks/")
+    r.encoding = "utf-8"
+    soup = BeautifulSoup(r.text, from_encoding="utf-8", features="html.parser")
+    script = soup.find("script")
+    script = script.string
+    script = script.split("const tridy")[1]
+    script = script.replace(" ", "").replace("\n", "")[2:-2]
+    script = script.split("newTrida")
+    tridy = {}
+    for i in script:
+        if i == "":
+            continue
+        a = eval(i)
+        if len(a) == 1:
+            a = a[0]
+        tridy[a[0]] = a[2]
+    # print(max(tridy))
+    return tridy

@@ -978,6 +978,19 @@ async def day_command(msg, *args):
     )
 
 
+@client.command("cks")
+async def cks_command(msg, *args):
+    """CKS"""
+    tridy = getCKS()
+    await msg.channel.send(
+        e=client.embed(
+            "Cesta kolem světa",
+            description=f"První je {max(tridy)} s {tridy[max(tridy)]} km",
+            fields=[(i, tridy[i]) for i in tridy]
+        )
+    )
+
+
 for command in client.commands:
     client.commands[command].__doc__ = (
         client.commands[command].__doc__.replace(
