@@ -983,7 +983,7 @@ async def cks_command(msg, *args):
     """CKS"""
     tridy = getCKS()
     await msg.channel.send(
-        e=client.embed(
+        embed=client.embed(
             "Cesta kolem světa",
             description=f"První je {max(tridy)} s {tridy[max(tridy)]} km",
             fields=[(i, tridy[i]) for i in tridy]
