@@ -149,22 +149,23 @@ async def on_message(message):
                     and "aktualizace" in message.content.lower()):
                 await message.channel.send("Kdo ví")
 
-            if ((re.search("(\\W|^)a+da+m(\\W|$)", message.content, re.I))
-                    and not message.author.bot):
-                await message.channel.send(
-                    "A"+randint(0, 20)*'a'+"d"+randint(1, 20)*'a'+"m "
-                    + choice([
-                        'je gay', 'neumí olí', 'už nevytírá anály',
-                        'is trajin to solf da rubix kjub',
-                        'was trajin to olín', ''])
-                )
+            # if ((re.search("(\\W|^)a+da+m(\\W|$)", message.content, re.I))
+            #         and not message.author.bot):
+            #     await message.channel.send(
+            #         "A"+randint(0, 20)*'a'+"d"+randint(1, 20)*'a'+"m "
+            #         + choice([
+            #             'je gay', 'neumí olí', 'už nevytírá anály',
+            #             'is trajin to solf da rubix kjub',
+            #             'was trajin to olín', ''])
+            #     )
 
-            if ((re.search("(\\W|^)ji+ří+(\\W|$)", message.content, re.I)) and
-                    not message.author.bot):
-                await message.channel.send("Jiří "+choice([
-                            'je buzík',
-                            'nic neumí',
-                            'is FUCKING NORMIEEE REEEEEEEEEEEEEEEEEEEEEE']))
+            # if ((re.search("(\\W|^)ji+ří+(\\W|$)", message.content, re.I)
+            #         ) and
+            #         not message.author.bot):
+            #     await message.channel.send("Jiří "+choice([
+            #                 'je buzík',
+            #                 'nic neumí',
+            #                 'is FUCKING NORMIEEE REEEEEEEEEEEEEEEEEEEEEE']))
 
             if "fortnite" in message.content.lower():
                 await message.delete()

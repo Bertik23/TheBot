@@ -28,7 +28,7 @@ import time
 async def info(msg, *args):
     """TheBot info"""
     await msg.channel.send(f"I'm a bot made by Bertik23#9997\n\
-        Version {'.'.join(version)}\n\
+        Version {'.'.join(str(i) for i in version)}\n\
         I'm running on bdbf \
             {pkg_resources.get_distribution('bdbf').version}\
         and discord.py \
