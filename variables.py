@@ -6,7 +6,7 @@ import datetime
 
 version = (2, 2, 11)
 changelog = {
-    "2.2.12": "Removed spamming and fixed info command."
+    "2.2.12": "Removed spamming and fixed info command.",
     "2.2.11": "Command CKS",
     "2.2.10": "Multiple timers now possible",
     "2.2.9": "Timer overhaul",
