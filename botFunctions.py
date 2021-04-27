@@ -147,7 +147,7 @@ def getZmena(parametr):
                             try:
                                 text += (
                                     f"{f[0]}. hod {f[1]} {f[2]}"
-                                    "{f[3]} {f[4]} {f[5]}\n")
+                                    f"{f[3]} {f[4]} {f[5]}\n")
                             except BaseException:
                                 text += f"{f[0]}\n"
                         return text
