@@ -5,6 +5,7 @@ import json
 import math
 import re
 from random import choice, randint
+from string import Template
 
 import discord
 import ksoftapi
@@ -187,7 +188,13 @@ async def on_message(message):
                     not message.author.bot):
                 with open("hlasky.json", encoding="utf-8") as f:
                     hlasky = json.load(f)["onMention"]
-                    await message.reply(choice(hlasky))
+                    await message.reply(
+                        Template(
+                            choice(hlasky)
+                        ).substitute(
+                            author=message.author.mention
+                        )
+                    )
 
             if message.tts and not message.author.bot:
                 await message.channel.send(
