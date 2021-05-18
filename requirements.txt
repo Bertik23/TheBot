@@ -70,4 +70,4 @@ wolframalpha == 4.1.1
 
 uhlovodikovac
 kaleido
-bdbf
+bdbf == 1.1.2
