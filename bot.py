@@ -1,6 +1,7 @@
 import asyncio
 from asyncio.tasks import wait
 import datetime
+import json
 import math
 import re
 from random import choice, randint
@@ -9,7 +10,7 @@ import discord
 import ksoftapi
 import requests
 import stopit
-from bdbf import embed, hasLink  # , spamProtection
+from bdbf import embed, hasLink, __version__  # , spamProtection
 
 import commands
 import database
@@ -18,6 +19,12 @@ from botFunctions import (
 )
 from variables import *
 import variables
+
+
+print(
+    f"BDBF vesion: {bdbf.__version__}\n"
+    f"Discord.py version: {discord.__version__}"
+)
 
 
 @client.logMessage
@@ -90,7 +97,12 @@ async def on_ready():
                     "Nová verze!",
                     embed=client.embed(
                         "Changelog",
-                        fields=[(i, changelog[i]) for i in changelog]
+                        fields=[
+                            (
+                                i,
+                                changelog[i]
+                            ) for i in list(changelog.keys())[:5]
+                        ]
                     )
                 )
 
@@ -173,20 +185,9 @@ async def on_message(message):
             if ((re.search("thebot", message.content, re.I) or
                     client.user.mentioned_in(message)) and
                     not message.author.bot):
-                await message.channel.send(choice([
-                    "Slyšel jsem snad moje jméno?",
-                    f"{message.author.mention} ty ses opovážil vyslovit moje \
-                    jméno?",
-                    "Ještě jednou tu zazní moje jméno a uvidíte.",
-                    f"Chceš do držky {message.author.mention}?",
-                    f"Tak to je naposledy co jste {message.author.mention} \
-                    viděli.",
-                    f"Naklepu ti řízek ty pomeranči {message.author.mention}",
-                    f"{message.author.mention} zmaluju ti ksicht tak, \
-                    že tě ani Adam nepozná",
-                    f"Urazim ti tvé intimní partie, btw Bohouš smrdí",
-                    f"Jestli nepřestaneš psát moje jméno, tak ti pošlu fotku \
-                    Vladanovo PP"]))
+                with open("hlasky.json", encoding="utf-8") as f:
+                    hlasky = json.load(f)["onMention"]
+                    await message.reply(choice(hlasky))
 
             if message.tts and not message.author.bot:
                 await message.channel.send(

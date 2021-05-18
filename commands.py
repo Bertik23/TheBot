@@ -27,20 +27,22 @@ import time
 @client.command("info")
 async def info(msg, *args):
     """TheBot info"""
-    await msg.channel.send(f"I'm a bot made by Bertik23#9997\n\
-        Version {'.'.join(str(i) for i in version)}\n\
-        I'm running on bdbf \
-            {pkg_resources.get_distribution('bdbf').version}\
-        and discord.py \
-            {pkg_resources.get_distribution('discord.py').version}\n\
-        I'm and open source bot, that means that you can contribute to me on \
-            https://github.com/Bertik23/DiscordBot")
+    await msg.reply(
+        f"I'm a bot made by <@452478521755828224>\n"
+        f"Version {'.'.join(str(i) for i in version)}\n"
+        "I'm running on bdbf "
+        f"{pkg_resources.get_distribution('bdbf').version}"
+        " and discord.py "
+        f"{pkg_resources.get_distribution('discord.py').version}.\n"
+        "I'm and open source bot, that means that you can contribute to me on"
+        "https://github.com/Bertik23/DiscordBot"
+    )
 
 
 @client.command("changelog")
 async def command_changelog(msg, *args):
     """The changelog"""
-    await msg.channel.send(
+    await msg.reply(
         embed=client.embed("Changelog", fields=[
             (i, changelog[i]) for i in changelog]))
 
@@ -52,7 +54,7 @@ async def zmena(msg, *args):
         eg. `%commandPrefix%zmena Lukešová Danuše` \
         or `%commandPrefix%zmena 6.A`
     """
-    await msg.channel.send(
+    await msg.reply(
         f"Změny rozvrhu pro {args[0]}:\n{getZmena(args[0])}")
 
 
@@ -76,7 +78,7 @@ async def rozvrh(msg, *args):
         room = False
 
     async with msg.channel.typing():
-        await msg.channel.send(
+        await msg.reply(
             file=discord.File(
                 getTimetable(getTimetableUrl(arguments[0]), room=room),
                 filename="rozvrh.png"))
@@ -98,7 +100,7 @@ async def suggest(msg, *args):
 Automaticaly issued by \
 `{msg.author}` from `{msg.channel}` in `{msg.channel.guild}`
 """)
-    await msg.channel.send(out[0], embed=out[1])
+    await msg.reply(out[0], embed=out[1])
 
 
 @client.command("r")
@@ -123,13 +125,13 @@ async def r(msg, *args):
                                   subreddit.accounts_active,
                                   True)])
         # print(vars(subreddit))
-        await msg.channel.send(embed=e)
+        await msg.reply(embed=e)
     except Exception as e:
         if e == prawcore.exceptions.NotFound:
-            await msg.channel.send(
+            await msg.reply(
                 "The subreddit `{attributes}` doesn't exist.")
         else:
-            await msg.channel.send(
+            await msg.reply(
                 f"`{e}` occured while trying to find subreddit `{attributes}`."
                 )
 
@@ -140,7 +142,7 @@ async def gymsoCommand(msg, *args):
     clanek = gymso()
     e = client.embed(clanek[0], url=clanek[1],
                      description=clanek[2][:2048], fields=())
-    await msg.channel.send(embed=e)
+    await msg.reply(embed=e)
 
 
 @client.command("lyrics")
@@ -154,7 +156,7 @@ async def lyrics(msg, *args):
     try:
         results = await kclient.music.lyrics(query=attributes)
     except ksoftapi.NoResults:
-        await msg.channel.send(
+        await msg.reply(
             f"KSoft.Si API has no lyrics for `{attributes}`.")
     else:
         lyrics = results[0]
@@ -165,7 +167,7 @@ async def lyrics(msg, *args):
                 description=lyrics.lyrics[(i * 2048):((i + 1) * 2048)],
                 thumbnail={"url": lyrics.album_art},
                 fields=())
-            await msg.channel.send(embed=e)
+            await msg.reply(embed=e)
 
 
 @client.command("meme")
@@ -181,7 +183,7 @@ async def meme(msg, *args):
         image={
             "url": meme.image_url},
         fields=())
-    await msg.channel.send(embed=e)
+    await msg.reply(embed=e)
 
 
 @client.command("eval", worksOnlyInGuilds=[697015129199607839])
@@ -194,9 +196,9 @@ async def evalCommand(msg, *args):
     else:
         attributes = args[0]
     try:
-        await msg.channel.send(eval(attributes))
+        await msg.reply(eval(attributes))
     except Exception as e:
-        await msg.channel.send(
+        await msg.reply(
             f"Hej `{attributes}` fakt neudělám\nProtože: {e}")
 
 
@@ -213,7 +215,7 @@ async def aww(msg, *args):
         image={
             "url": aww.image_url},
         fields=())
-    await msg.channel.send(embed=e)
+    await msg.reply(embed=e)
 
 
 @client.command("subreddit")
@@ -243,9 +245,9 @@ async def subreddit(msg, *args):
             image={
                 "url": subreddit_image.image_url},
             fields=())
-        await msg.channel.send(embed=e)
+        await msg.reply(embed=e)
     except ksoftapi.NoResults:
-        await msg.channel.send(f"No lyrics found for `{attributes}`.")
+        await msg.reply(f"No lyrics found for `{attributes}`.")
 
 
 @client.command("mapa")
@@ -275,21 +277,21 @@ async def mapa(msg, *args):
             image={
                 "url": mapicka.map},
             fields=())
-        await msg.channel.send(embed=e)
+        await msg.reply(embed=e)
     except ksoftapi.NoResults:
-        await msg.channel.send(f"`{attributes[0]}` neexistuje!")
+        await msg.reply(f"`{attributes[0]}` neexistuje!")
 
 
 @client.command("joke")
 async def joke(msg, *args):
     """Returns a random awful joke."""
-    await msg.channel.send(getJokeTxt())
+    await msg.reply(getJokeTxt())
 
 
 @client.command("fact")
 async def fact(msg, *args):
     """Returns a random fact."""
-    await msg.channel.send(getFact())
+    await msg.reply(getFact())
 
 
 @client.command("wa")
@@ -300,7 +302,7 @@ async def wa(msg, *args):
     else:
         attributes = args[0]
     for e in wolframQuery(attributes):
-        await msg.channel.send(embed=e)
+        await msg.reply(embed=e)
 
 
 @client.command("encrypt")
@@ -316,9 +318,9 @@ async def encryptCommand(msg, *args):
     try:
         encryption_base = int(attributes.rsplit(" ", 1)[1])
     except ValueError as e:
-        await msg.channel.send(f"The last word must be a encryption base\n{e}")
+        await msg.reply(f"The last word must be a encryption base\n{e}")
     else:
-        await msg.channel.send(embed=client.embed(
+        await msg.reply(embed=client.embed(
             "Your encrypted text",
             description=f"```{encrypt(text_to_encrypt, encryption_base)}```",
             fields=()))
@@ -337,9 +339,9 @@ async def decryptCommand(msg, *args):
     try:
         encryption_base = int(attributes.rsplit(" ", 1)[1])
     except ValueError as e:
-        await msg.channel.send(f"The last word must be a encryption base\n{e}")
+        await msg.reply(f"The last word must be a encryption base\n{e}")
     else:
-        await msg.channel.send(embed=client.embed(
+        await msg.reply(embed=client.embed(
             "Your decrypted text",
             description=f"```{decrypt(text_to_decrypt, encryption_base)}```",
             fields=()))
@@ -397,7 +399,7 @@ async def stats(msg, *args):
 
             fig_bytes = fig.to_image(format="png", width=1800, height=800)
 
-            await msg.channel.send(file=discord.File(
+            await msg.reply(file=discord.File(
                 io.BytesIO(fig_bytes),
                 filename="stats.png"))
 
@@ -441,7 +443,7 @@ async def stats(msg, *args):
 
             fig_bytes = fig.to_image(format="png", width=1800, height=800)
 
-            await msg.channel.send(file=discord.File(
+            await msg.reply(file=discord.File(
                 io.BytesIO(fig_bytes),
                 filename="stats.png"))
 
@@ -455,11 +457,11 @@ async def stats(msg, *args):
 
             fig_bytes = fig.to_image(format="png", width=1200, height=1200)
 
-            await msg.channel.send(file=discord.File(
+            await msg.reply(file=discord.File(
                 io.BytesIO(fig_bytes),
                 filename="stats.png"))
 
-            await msg.channel.send(embed=client.embed("TheBot stats", fields=[
+            await msg.reply(embed=client.embed("TheBot stats", fields=[
                 ("Total Commands", commandCountTotaly, True),
                 ("Guild Commands", commandCountGuild, True),
                 ("Channel Commands", commandCountChannel, True),
@@ -495,18 +497,18 @@ async def stats(msg, *args):
 
             fig_bytes = fig.to_image(format="png", width=3200, height=800)
 
-            await msg.channel.send(file=discord.File(
+            await msg.reply(file=discord.File(
                 io.BytesIO(fig_bytes),
                 filename="stats.png"))
 
-            await msg.channel.send(embed=client.embed("TheBot stats", fields=[
+            await msg.reply(embed=client.embed("TheBot stats", fields=[
                 ("Guild Messages", guildMessages, True),
                 ("Channel Messages",
                  channelMessages, True),
                 ("Most Messages", mostActive, True)]))
             print(f"Took {startTime - time.time()} seconds")
         else:
-            await msg.channel.send(embed=client.embed(
+            await msg.reply(embed=client.embed(
                 "Available stats categories", fields=[
                     ("commands", "Command stats"),
                     ("messages", "Message stats")
@@ -525,9 +527,9 @@ async def rates(msg, *args):
     currencies = args.split(" ")
     rate = getCurrencyConversion(currencies[0], currencies[1])
     if isinstance(rate, str):
-        await msg.channel.send(rate)
+        await msg.reply(rate)
     else:
-        await msg.channel.send(
+        await msg.reply(
             f"{currencies[2]} {currencies[0]} is "
             f"{float(currencies[2])*rate} {currencies[1]}")
 
@@ -550,11 +552,11 @@ async def play(msg, *args):
                 activeGame[msg.author] = Game2048(msg.author, int(args[1]))
                 await activeGame[msg.author].startGame(msg)
             else:
-                await msg.channel.send("Grid size must be between 1 and 19")
+                await msg.reply("Grid size must be between 1 and 19")
         except IndexError:
-            await msg.channel.send("Options for 2048:\nGrid Size")
+            await msg.reply("Options for 2048:\nGrid Size")
         except Exception as e:
-            await msg.channel.send(e)
+            await msg.reply(e)
             raise e
 
 # class game(Command):
@@ -606,11 +608,11 @@ async def uhel(msg, *args):
         args = args[0]
     try:
         hc = uhlovodikovac.HydroCarbon(args)
-        await msg.channel.send(file=discord.File(
+        await msg.reply(file=discord.File(
             hc.draw(),
             filename="uhlovodik.png"))
     except Exception as e:
-        await msg.channel.send(e)
+        await msg.reply(e)
 
 # bdbf.commands.cmds["all"].append(uhel())
 
@@ -841,7 +843,7 @@ class TimerObject():
 #         img = remove_transparency(img)
 #         img.save("temp.png")
 #         with open("temp.png", "rb") as f:
-#             await msg.channel.send(file = discord.File(f))
+#             await msg.reply(file = discord.File(f))
 
 # bdbf.commands.cmds["all"].append(image())
 
@@ -854,7 +856,7 @@ async def makeEmbedCommand(msg, *args):
         return
     embedDict = json.loads(args[0])
     embedDict.pop("timestamp", "")
-    await msg.channel.send(embed=discord.Embed.from_dict(embedDict))
+    await msg.reply(embed=discord.Embed.from_dict(embedDict))
 
 
 @client.command("nextHour", worksOnlyInGuilds=[697015129199607839])
@@ -866,7 +868,7 @@ async def commandos(msg, *args):
         else:
             message = (f"Za {str(hour[0])[:-3]} začíná "
                        f"`{hour[1]}` pro `{hour[2]}`")
-        await msg.channel.send(message)
+        await msg.reply(message)
 
 # @client.command("ak")
 # async def ak(msg, *args):
@@ -889,7 +891,7 @@ async def color(msg, *args):
     img = Image.new("RGBA", (50, 50), args)
     img.save("temp.png")
     with open("temp.png", "rb") as f:
-        await msg.channel.send(file=discord.File(
+        await msg.reply(file=discord.File(
             io.BytesIO(f.read()),
             filename="color.png"))
 
@@ -903,7 +905,7 @@ async def search(msg, *args):
     r = requests.get(
         f"https://api.duckduckgo.com/?q={args[0]}&format=json&kl=cz-cs").json()
     print(msg.content)
-    await msg.channel.send(embed=client.embed(
+    await msg.reply(embed=client.embed(
         r["Heading"],
         description=r["AbstractText"],
         fields=[]))
@@ -925,7 +927,7 @@ async def rotate(msg, *args):
     img.save("temp.png")
 
     with open("temp.png", "rb") as f:
-        await msg.channel.send(file=discord.File(f))
+        await msg.reply(file=discord.File(f))
 
 
 @client.command("day")
@@ -971,7 +973,7 @@ async def day_command(msg, *args):
     for i in countryNameDays:
         namedaysStr += f"**{i}**: {countryNameDays[i]}\n"
 
-    await msg.channel.send(embed=client.embed(
+    await msg.reply(embed=client.embed(
         dayStr(today),
         description=dayTrivia,
         fields=[("Week", today.isocalendar().week), ("NameDays", namedaysStr)])
@@ -986,7 +988,7 @@ async def cks_command(msg, *args):
         max(tridy, key=tridy.__getitem__),
         tridy[max(tridy, key=tridy.__getitem__)]
     )
-    await msg.channel.send(
+    await msg.reply(
         embed=client.embed(
             "Cesta kolem světa",
             description=f"První je {topTrida[0]} s {topTrida[1]} km",

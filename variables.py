@@ -4,8 +4,9 @@ import ksoftapi
 import praw
 import datetime
 
-version = (2, 2, 11)
+version = (2, 2, 13)
 changelog = {
+    "2.2.13": "Updated to discord.py 1.7.2 and added some hlášky.",
     "2.2.12": "Removed spamming and fixed info command.",
     "2.2.11": "Command CKS",
     "2.2.10": "Multiple timers now possible",
@@ -17,8 +18,8 @@ changelog = {
     "2.2.4": "Upgraded to bdbf 1.1.1",
     "2.2.3": "Small fix in versioning",
     "2.2.2": "Small backend fixes",
-    "2.2.1": "Started versioning and making a changelog.\n \
-        Better stats command."
+    "2.2.1": ("Started versioning and making a changelog.\n"
+              "Better stats command.")
 }
 
 heroku = os.environ.get("isHeroku", False)
