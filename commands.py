@@ -863,6 +863,7 @@ async def makeEmbedCommand(msg, *args):
 async def commandos(msg, *args):
     """Returns next hour and when it starts"""
     for hour in nextHoursAreAndStartsIn():
+        print(hour)
         if hour[2] is None:
             message = f"Za {str(hour[0])[:-3]} začíná `{hour[1]}`"
         else:

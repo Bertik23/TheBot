@@ -440,11 +440,11 @@ def addZero(num):
 def nextHoursAreAndStartsIn():
     url = getTimetableUrl("7.A")
 
-    now = datetime.utcnow()
+    now = datetime.datetime.utcnow()
     todayDate = date.today()
     hourDate = date.today()
     today = now.weekday() if now.hour <= 23 else now.weekday() + 1
-    now = (now.hour + 1, now.minute)
+    now = (now.hour + 2, now.minute)
     actualNow = now
 
     try:
@@ -565,10 +565,15 @@ def nextHoursAreAndStartsIn():
             break
 
     for h, g in nextHour:
-        yield datetime.combine(
-            hourDate, time(nextHourTime[0], nextHourTime[1]))
-        - datetime.combine(todayDate, time(actualNow[0], actualNow[1])),
-        h, g if g != "" else None
+        yield (
+            datetime.datetime.combine(
+                hourDate, time(nextHourTime[0], nextHourTime[1])
+            ) - datetime.datetime.combine(todayDate, time(
+                    actualNow[0], actualNow[1]
+                    )
+                ),
+            h, g if g != "" else None
+        )
 
 
 def isDatetimeIsoFormat(string):
