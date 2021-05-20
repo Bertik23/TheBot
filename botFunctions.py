@@ -187,12 +187,12 @@ def newOnGymso():
     return clanky
 
 
-def getJokeTxt() -> str:
+def getJokeTxt():
     return requests.get(
         "https://sv443.net/jokeapi/v2/joke/Any?format=txt").text
 
 
-def getFact() -> str:
+def getFact():
     return requests.get(
         "https://uselessfacts.jsph.pl/random.txt?language=en").text
 
@@ -209,7 +209,7 @@ def wolframQuery(query):
         # yield bdbf.embed("")
 
 
-def getTimetableUrl(query: str) -> str:
+def getTimetableUrl(query: str):
     tableSoup = BeautifulSoup(
         requests.get(
             "https://bakalari.gymso.eu/timetable/public",
@@ -235,15 +235,19 @@ def getTimetableUrl(query: str) -> str:
     return None, query
 
 
-def getTimetable(url: str, room=False):
+def getTimetable(url: str, room=False, week="now"):
     try:
         if url[0] is None:
             return f"{url[1]} doesn't have a timetable."
     except BaseException:
         pass
+    url = "https://bakalari.gymso.eu/Timetable/Public/Actual/" + url
+    if week == "next":
+        url = url.replace("Actual", "Next")
+    elif week == "perm":
+        url = url.replace("Actual", "Permanent")
     tableSoup = BeautifulSoup(
         requests.get(
-            "https://bakalari.gymso.eu/Timetable/Public/Actual/" +
             url,
             timeout=10).text,
         features="html.parser")
@@ -466,12 +470,19 @@ def nextHoursAreAndStartsIn():
         day = days[today]
         row = []
         groups = []
+        rooms = []
         dList.append(day.find(class_="bk-day-day").text +
                      "<br>" + day.find(class_="bk-day-date").text)
         for hour in day.find_all("div", class_="bk-timetable-cell"):
             row.append([h.text for h in hour.find_all(class_="middle")])
             groups.append([h.text.replace("\n", "") for h in hour.find_all(
                 class_="left") if h.text.replace("\n", "") != ""])
+            rooms.append(
+                [
+                    h.text.replace("\n", "") for h in hour.find_all(
+                        class_="first"
+                    ) if h.text.replace("\n", "") != ""]
+            )
         # print(groups)
 
         # print(row)
@@ -504,6 +515,7 @@ def nextHoursAreAndStartsIn():
                 day = days[today]
                 row = []
                 groups = []
+                rooms = []
                 dList.append(day.find(class_="bk-day-day").text +
                              "<br>" + day.find(class_="bk-day-date").text)
                 for hour in day.find_all("div", class_="bk-timetable-cell"):
@@ -512,10 +524,18 @@ def nextHoursAreAndStartsIn():
                     groups.append(
                         [h.text.replace("\n", "") for h in hour.find_all(
                             class_="left") if h.text.replace("\n", "") != ""])
-                return today, hourDate, now, row, groups
-            today, hourDate, now, row, groups = addDay(today, hourDate)
+                    rooms.append(
+                        [
+                            h.text.replace("\n", "") for h in hour.find_all(
+                                class_="first"
+                            ) if h.text.replace("\n", "") != ""]
+                    )
+                return today, hourDate, now, row, groups, rooms
+            today, hourDate, now, row, groups, rooms = addDay(today, hourDate)
             while len(row) <= 0 or row == [[]]:
-                today, hourDate, now, row, groups = addDay(today, hourDate)
+                today, hourDate, now, row, groups, rooms = addDay(
+                    today, hourDate
+                )
     except BaseException:
         hourDate = hourDate.replace(day=hourDate.day + 7 - today)
         now = (0, 0)
@@ -539,16 +559,25 @@ def nextHoursAreAndStartsIn():
         day = days[today]
         row = []
         groups = []
+        rooms = []
         dList.append(day.find(class_="bk-day-day").text +
                      "<br>" + day.find(class_="bk-day-date").text)
         for hour in day.find_all("div", class_="bk-timetable-cell"):
             row.append([h.text for h in hour.find_all(class_="middle")])
             groups.append([h.text.replace("\n", "") for h in hour.find_all(
                 class_="left") if h.text.replace("\n", "") != ""])
+            rooms.append(
+                [
+                    h.text.replace("\n", "") for h in hour.find_all(
+                        class_="first"
+                    ) if h.text.replace("\n", "") != ""]
+            )
 
+    print(rooms)
     modifiedHoursList = [h for i, h in enumerate(hoursList) if row[i] != []]
     modifiedGroups = [h for i, h in enumerate(groups) if row[i] != []]
     modifiedRow = [h for h in row if h != []]
+    modifiedRooms = [h for i, h in enumerate(rooms) if row[i] != []]
 
     for i, item in enumerate(modifiedGroups):
         if item == []:
@@ -557,14 +586,18 @@ def nextHoursAreAndStartsIn():
     # print(modifiedGroups)
     nextHour = [("", "")]
     nextHourTime = (0, 0)
-    for i, (t, h) in enumerate(zip(modifiedHoursList, modifiedRow)):
+    for i, (t, h, r) in enumerate(zip(
+        modifiedHoursList, modifiedRow, modifiedRooms
+    )):
+        print(i, t, h, r, now)
         if t > now:
-            # print(h, modifiedGroups[i])
-            nextHour = zip(h, modifiedGroups[i])
+            if len(r) == 0:
+                r = ["" for i in h]
+            print(h, modifiedGroups[i], r)
+            nextHour = zip(h, modifiedGroups[i], r)
             nextHourTime = t
             break
-
-    for h, g in nextHour:
+    for h, g, r in nextHour:
         yield (
             datetime.datetime.combine(
                 hourDate, time(nextHourTime[0], nextHourTime[1])
@@ -572,7 +605,7 @@ def nextHoursAreAndStartsIn():
                     actualNow[0], actualNow[1]
                     )
                 ),
-            h, g if g != "" else None
+            h, g if g != "" else None, r
         )
 
 

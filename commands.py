@@ -63,24 +63,30 @@ async def rozvrh(msg, *args):
     """Returns the timatable for given teacher/class/room
     **Usage**: `%commandPrefix%rozvrh <teacher/class/room>` eg. \
     `%commandPrefix%rozvrh Lukešová Danuše` or `%commandPrefix%rozvrh 7.A` or \
-    `%commandPrefix%rozvrh A307`"""
-    room = None
-    if args == (None, ):
+    `%commandPrefix%rozvrh A307` \
+    to see the rooms add `-t`, to see the timetable for the next week add `-n` \
+    to see the permanent timetable add `-p`"""
+    room = False
+    week = "now"
+    args = args[0]
+    if args is None:
+        args = ""
+    if "-t" in args:
+        room = True
+        args = args.replace("-t", "").strip()
+    if "-n" in args:
+        week = "next"
+        args = args.replace("-n", "").strip()
+    if "-p" in args:
+        week = "perm"
+        args = args.replace("-p", "").strip()
+    if args == "":
         args = "7.A"
-    else:
-        args = args[0]
-    try:
-        arguments = args.rsplit(" ", 1)
-        if arguments[-1] == "-t":
-            room = True
-    except BaseException:
-        arguments = [args]
-        room = False
 
     async with msg.channel.typing():
         await msg.reply(
             file=discord.File(
-                getTimetable(getTimetableUrl(arguments[0]), room=room),
+                getTimetable(getTimetableUrl(args), room=room, week=week),
                 filename="rozvrh.png"))
 
 
@@ -863,12 +869,11 @@ async def makeEmbedCommand(msg, *args):
 async def commandos(msg, *args):
     """Returns next hour and when it starts"""
     for hour in nextHoursAreAndStartsIn():
-        print(hour)
-        if hour[2] is None:
-            message = f"Za {str(hour[0])[:-3]} začíná `{hour[1]}`"
-        else:
-            message = (f"Za {str(hour[0])[:-3]} začíná "
-                       f"`{hour[1]}` pro `{hour[2]}`")
+        message = (
+            f"Za {str(hour[0])[:-3]} začíná `{hour[1]}`"
+            f" pro `{hour[1]}`" if hour[2] is not None else ""
+            f" v `{hour[3]}`" if hour[3] != "" else ""
+        )
         await msg.reply(message)
 
 # @client.command("ak")
