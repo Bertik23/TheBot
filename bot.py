@@ -409,7 +409,7 @@ async def classLoop():
                         role = [r for r in klubik.roles if r.name == hour[2]]
                     message = (
                         f"Za {str(hour[0])[:-3]} začíná "
-                        f"`{hour[1]}`" if hour[2] is not None
+                        f"`{hour[1]}`" if hour[2] is None
                         else f"`{role[0].mention}`"
                         f" pro {role[0].mention}" if hour[2] is not None
                         else ""

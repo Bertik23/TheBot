@@ -47,7 +47,13 @@ async def command_changelog(msg, *args):
             (i, changelog[i]) for i in changelog]))
 
 
-@client.command("zmena", worksOnlyInGuilds=[697015129199607839])
+@client.command(
+    "zmena",
+    worksOnlyInGuilds=[
+        697015129199607839,
+        793152939022745610
+    ]
+)
 async def zmena(msg, *args):
     """Returns schedule changes for the give teacher/class today
     **Usage**: `%commandPrefix%zmena <teacher/class>`\
@@ -58,14 +64,17 @@ async def zmena(msg, *args):
         f"Změny rozvrhu pro {args[0]}:\n{getZmena(args[0])}")
 
 
-@client.command("rozvrh", worksOnlyInGuilds=[697015129199607839])
+@client.command("rozvrh", worksOnlyInGuilds=[
+    697015129199607839, 793152939022745610
+    ]
+)
 async def rozvrh(msg, *args):
     """Returns the timatable for given teacher/class/room
     **Usage**: `%commandPrefix%rozvrh <teacher/class/room>` eg. \
     `%commandPrefix%rozvrh Lukešová Danuše` or `%commandPrefix%rozvrh 7.A` or \
     `%commandPrefix%rozvrh A307` \
-    to see the rooms add `-t`, to see the timetable for the next week add `-n` \
-    to see the permanent timetable add `-p`"""
+    to see the rooms add `-t`, to see the timetable for the next week add `-n`\
+     to see the permanent timetable add `-p`"""
     room = False
     week = "now"
     args = args[0]
@@ -142,7 +151,13 @@ async def r(msg, *args):
                 )
 
 
-@client.command("gymso", worksOnlyInGuilds=[697015129199607839])
+@client.command(
+    "gymso",
+    worksOnlyInGuilds=[
+        697015129199607839,
+        793152939022745610
+    ]
+)
 async def gymsoCommand(msg, *args):
     """Returns last post on [gymso.cz](https://gymso.cz)"""
     clanek = gymso()
@@ -192,7 +207,13 @@ async def meme(msg, *args):
     await msg.reply(embed=e)
 
 
-@client.command("eval", worksOnlyInGuilds=[697015129199607839])
+@client.command(
+    "eval",
+    worksOnlyInGuilds=[
+        697015129199607839,
+        540563312857841714
+    ]
+)
 async def evalCommand(msg, *args):
     """Returns python expresion outcome.
     **Usage**: `%commandPrefix%eval <python expresion>` eg. \
@@ -865,7 +886,13 @@ async def makeEmbedCommand(msg, *args):
     await msg.reply(embed=discord.Embed.from_dict(embedDict))
 
 
-@client.command("nextHour", worksOnlyInGuilds=[697015129199607839])
+@client.command(
+    "nextHour",
+    worksOnlyInGuilds=[
+        697015129199607839,
+        793152939022745610
+    ]
+)
 async def commandos(msg, *args):
     """Returns next hour and when it starts"""
     for hour in nextHoursAreAndStartsIn():
