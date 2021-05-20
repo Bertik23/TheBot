@@ -896,22 +896,12 @@ async def makeEmbedCommand(msg, *args):
 async def commandos(msg, *args):
     """Returns next hour and when it starts"""
     for hour in nextHoursAreAndStartsIn():
-        message = (
-            f"Za {str(hour[0])[:-3]} začíná `{hour[1]}`"
-            f" pro `{hour[1]}`" if hour[2] is not None else ""
-            f" v `{hour[3]}`" if hour[3] != "" else ""
+        message = "".join(
+            f"Za {str(hour[0])[:-3]} začíná `{hour[1]}`",
+            f" pro `{hour[1]}`" if hour[2] is not None else "",
+            f" v `{hour[3]}`" if hour[3] != "" else "",
         )
         await msg.reply(message)
-
-# @client.command("ak")
-# async def ak(msg, *args):
-#     out = adventniKalendar(int(args[0]))
-#     channel = client.get_guild(
-# 621413546177069081).get_channel(777201859466231808)
-# await channel.send(f"{out[0].mention} Gratulace vyhráváš odměnu z
-# adventního kalendáře pro potvrzení že chceš odměnu převzít reaguj
-# :white_check_mark:  na tuto zprávu.", file=discord.File(out[1],
-# filename=f"adventniKalendarDay{int(args[0])}.png"))
 
 
 @client.command("color")
