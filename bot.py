@@ -6,6 +6,7 @@ import math
 import re
 from random import choice, randint
 from string import Template
+import traceback
 
 import discord
 import ksoftapi
@@ -75,21 +76,24 @@ def logC(command, msg, time, e):
 @client.event  # event decorator/wrapper
 async def on_ready():
     global klubik, obecne, choco_afroAnouncements, korona_info
+    global hodinyUpozorneni
     print(f"We have logged in as {client.user}")
     klubik = await client.fetch_guild(697015129199607839)
     obecne = await client.fetch_channel(697015129199607843)
     botspam = await client.fetch_channel(804091646609850390)
+    hodinyUpozorneni = await client.fetch_channel(849243732145995796)
     choco_afroAnouncements = await client.fetch_channel(756497789424369737)
     korona_info = await client.fetch_channel(758381540534255626)
     print(klubik, obecne, choco_afroAnouncements, korona_info)
     variables.botReadyTimes.append(datetime.datetime.utcnow())
+
+    client.loop.create_task(classLoop())
 
     if heroku:
         await botspam.send("<@452478521755828224> Jsem online!")
         if len(botReadyTimes) <= 1:
             client.loop.create_task(checkWebsites())
             client.loop.create_task(classLoop())
-            client.loop.create_task(rlStatsLoop())
             if tuple(
                     int(i) for i in database.dataLog.cell(2, 3)
                     .value.split(".")
@@ -400,26 +404,29 @@ async def classLoop():
             waitTime = 0
             print("Checking for hours.")
             for hour in nextHoursAreAndStartsIn():
-                # print(f"We are in {hour}")
+                print(f"We are in {hour}")
                 waitTime = hour[0].total_seconds()
                 try:
                     if hour[2] is None:
                         role = [r for r in klubik.roles if r.name == hour[1]]
                     else:
                         role = [r for r in klubik.roles if r.name == hour[2]]
+                    if len(role) == 0:
+                        role.append(Dummy(mention=""))
                     message = "".join((
                         f"Za {str(hour[0])[:-3]} začíná ",
-                        f"`{hour[1]}`" if hour[2] is None
-                        else f"{role[0].mention}",
+                        f"`{role[0].mention}`" if hour[2] is None
+                        else f"{hour[1]}",
                         f" pro {role[0].mention}" if hour[2] is not None
                         else "",
                         f" v `{hour[3]}`" if hour[3] != "" else ""
                         )
                     )
-                except Exception:
+                except Exception as e:
+                    traceback.print_exc()
                     message = ""
                 if message != "":
-                    await obecne.send(message)
+                    await hodinyUpozorneni.send(message)
             # print(waitTime)
             sleeping = 10
             await asyncio.sleep(max(waitTime-300, 240))
@@ -464,22 +471,6 @@ async def classLoop():
 #         except Exception as e:
 #             print(e)
 #             await asyncio.sleep(60)
-
-
-async def rlStatsLoop():
-    while True:
-        try:
-            for url in [
-                    "https://rlstats.net/profile/Steam/Bertik23",
-                    "https://rlstats.net/profile/Steam/76561198417028342",
-                    "https://rlstats.net/profile/Steam/nadalv2020",
-                    "https://rlstats.net/profile/Steam/wertousek"]:
-                print(f"Checking for {url}")
-                r = requests.get(url)
-            await asyncio.sleep(60*60)
-        except Exception as e:
-            print(e)
-            await asyncio.sleep(60*30)
 
 
 client.run(token)

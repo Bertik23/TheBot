@@ -573,7 +573,6 @@ def nextHoursAreAndStartsIn():
                     ) if h.text.replace("\n", "") != ""]
             )
 
-    print(rooms)
     modifiedHoursList = [h for i, h in enumerate(hoursList) if row[i] != []]
     modifiedGroups = [h for i, h in enumerate(groups) if row[i] != []]
     modifiedRow = [h for h in row if h != []]
@@ -589,11 +588,9 @@ def nextHoursAreAndStartsIn():
     for i, (t, h, r) in enumerate(zip(
         modifiedHoursList, modifiedRow, modifiedRooms
     )):
-        print(i, t, h, r, now)
         if t > now:
             if len(r) == 0:
                 r = ["" for i in h]
-            print(h, modifiedGroups[i], r)
             nextHour = zip(h, modifiedGroups[i], r)
             nextHourTime = t
             break

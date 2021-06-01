@@ -75,8 +75,16 @@ client = bdbf.Client(
     createTaskCommands=False
     )
 
-klubik, obecne, choco_afroAnouncements, korona_info = None, None, None, None
+klubik, obecne, choco_afroAnouncements, korona_info, hodinyUpozorneni = (
+    None, None, None, None, None
+)
 botStartTime = datetime.datetime.utcnow()
 botReadyTimes = []
 
 userTimers = {}
+
+
+class Dummy:
+    def __init__(self, **kwargs):
+        for i in kwargs:
+            setattr(self, i, kwargs[i])
