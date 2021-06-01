@@ -87,7 +87,7 @@ async def on_ready():
     print(klubik, obecne, choco_afroAnouncements, korona_info)
     variables.botReadyTimes.append(datetime.datetime.utcnow())
 
-    client.loop.create_task(classLoop())
+    # client.loop.create_task(classLoop())
 
     if heroku:
         await botspam.send("<@452478521755828224> Jsem online!")
@@ -411,12 +411,10 @@ async def classLoop():
                         role = [r for r in klubik.roles if r.name == hour[1]]
                     else:
                         role = [r for r in klubik.roles if r.name == hour[2]]
-                    if len(role) == 0:
-                        role.append(Dummy(mention=""))
                     message = "".join((
                         f"Za {str(hour[0])[:-3]} začíná ",
-                        f"`{role[0].mention}`" if hour[2] is None
-                        else f"{hour[1]}",
+                        f"{role[0].mention}" if hour[2] is None
+                        else f"`{hour[1]}`",
                         f" pro {role[0].mention}" if hour[2] is not None
                         else "",
                         f" v `{hour[3]}`" if hour[3] != "" else ""
