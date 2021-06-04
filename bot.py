@@ -87,7 +87,7 @@ async def on_ready():
     print(klubik, obecne, choco_afroAnouncements, korona_info)
     variables.botReadyTimes.append(datetime.datetime.utcnow())
 
-    # client.loop.create_task(classLoop())
+    client.loop.create_task(classLoop())
 
     if heroku:
         await botspam.send("<@452478521755828224> Jsem online!")
@@ -407,10 +407,20 @@ async def classLoop():
                 print(f"We are in {hour}")
                 waitTime = hour[0].total_seconds()
                 try:
-                    if hour[2] is None:
-                        role = [r for r in klubik.roles if r.name == hour[1]]
+                    if False:
+                        if hour[2] is None:
+                            role = [
+                                r for r in klubik.roles if r.name == hour[1]
+                            ]
+                        else:
+                            role = [
+                                r for r in klubik.roles if r.name == hour[2]
+                            ]
                     else:
-                        role = [r for r in klubik.roles if r.name == hour[2]]
+                        if hour[2] is None:
+                            role = [Dummy(mention=f"`{hour[1]}`")]
+                        else:
+                            role = role = [Dummy(mention=f"`{hour[2]}`")]
                     message = "".join((
                         f"Za {str(hour[0])[:-3]} začíná ",
                         f"{role[0].mention}" if hour[2] is None
