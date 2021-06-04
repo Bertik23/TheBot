@@ -87,7 +87,7 @@ async def on_ready():
     print(klubik, obecne, choco_afroAnouncements, korona_info)
     variables.botReadyTimes.append(datetime.datetime.utcnow())
 
-    client.loop.create_task(classLoop())
+    # client.loop.create_task(classLoop())
 
     if heroku:
         await botspam.send("<@452478521755828224> Jsem online!")
