@@ -4,8 +4,9 @@ import ksoftapi
 import praw
 import datetime
 
-version = (2, 2, 14)
+version = (2, 2, 15)
 changelog = {
+    "2.2.15": "Added ~birthdays and notifying of next birthdays.",
     "2.2.14": "Next hour now displays rooms and upgraded `rozvrh` command",
     "2.2.13": "Updated to discord.py 1.7.2 and added some hlášky.",
     "2.2.12": "Removed spamming and fixed info command.",

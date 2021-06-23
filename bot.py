@@ -87,13 +87,12 @@ async def on_ready():
     print(klubik, obecne, choco_afroAnouncements, korona_info)
     variables.botReadyTimes.append(datetime.datetime.utcnow())
 
-    # client.loop.create_task(classLoop())
-
     if heroku:
         await botspam.send("<@452478521755828224> Jsem online!")
         if len(botReadyTimes) <= 1:
             client.loop.create_task(checkWebsites())
             client.loop.create_task(classLoop())
+            client.loop.create_task(bDayLoop())
             if tuple(
                     int(i) for i in database.dataLog.cell(2, 3)
                     .value.split(".")
@@ -442,6 +441,52 @@ async def classLoop():
             sleeping = min(sleeping+30, 6000)
             await asyncio.sleep(sleeping)
             print(f"Encountered an error while checking for hours: {e}")
+
+
+async def bDayLoop():
+    while True:
+        print("BDay check loop start")
+        if datetime.date.today() > database.lastCheckedBDay():
+            print("Waiting until 9:00 today")
+            await asyncio.sleep(max(0, (
+                datetime.datetime.utcnow().replace(hour=7, minute=0)
+                - datetime.datetime.now()
+            ).total_seconds()))
+            for bDay in database.getTodayBDays():
+                for g, ch in zip(bDay["GuildIDs"], bDay["ChannelIDs"]):
+                    channel = await client.fetch_channel(ch)
+                    await channel.send(
+                        f"Jej! Dnes slaví své "
+                        f"""{int(
+                            (
+                                datetime.date.today() - bDay['Birthdate']
+                            ).total_seconds() // (24*60*60*365))
+                        }."""
+                        f" narozeniny {bDay['UserMention']}."
+                    )
+            for bDay in database.getTodayBDays(
+                today=datetime.date.today()+datetime.timedelta(days=1)
+            ):
+                for g, ch in zip(bDay["GuildIDs"], bDay["ChannelIDs"]):
+                    channel = await client.fetch_channel(ch)
+                    await channel.send(
+                        f"Zítra oslaví své "
+                        f"""{int(
+                            (
+                                datetime.date.today() - bDay['Birthdate']
+                            ).total_seconds() // (24*60*60*365))
+                        }."""
+                        f" narozeniny {bDay['UserMention']}."
+                    )
+            database.updateLastCheckedBDay()
+        else:
+            print("Waiting until tomorow.")
+            await asyncio.sleep(max(0, (
+                datetime.datetime.utcnow().replace(
+                    hour=23, minute=59, second=59, microsecond=999999
+                )
+                - datetime.datetime.now()
+            ).total_seconds()))
 
 
 # async def kalendarLoop():

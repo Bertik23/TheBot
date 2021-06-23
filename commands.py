@@ -16,7 +16,7 @@ from botFunctions import *
 from botGames import Game2048
 import botGames
 import uhlovodikovac
-from database import commandLog, messageLog, timers
+from database import commandLog, messageLog, timers, getGuildBDays
 from exceptions import *
 from PIL import Image, ImageDraw, ImageFont
 import json
@@ -1019,6 +1019,20 @@ async def cks_command(msg, *args):
             fields=[(i, tridy[i], True) for i in tridy]
         )
     )
+
+
+@client.command("birthdays")
+async def birthdays_command(msg, *args):
+    """Displays the set birthdays for this guild"""
+    await msg.reply(embed=client.embed(
+        "Birthdays of this guild",
+        fields=[
+            (f"{i['Birthdate']:%d %b %Y}", i["UserMention"])
+            for i in sorted(
+                getGuildBDays(msg.guild.id),
+                key=lambda x: x["Birthdate"].replace(year=2000))
+        ]
+    ))
 
 
 for command in client.commands:
