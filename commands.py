@@ -968,14 +968,19 @@ async def day_command(msg, *args):
             day=int(args[0])
         )
     countryNameDays = {}
-    for country in ["cz", "sk", "pl", "fr", "hu",
-                    "hr", "se", "us", "at", "it",
-                    "es", "de", "dk", "fi", "bg",
-                    "lt", "ee", "lv", "gr", "ru"]:
-        r = requests.get(
-            f"https://api.abalin.net/namedays?"
-            f"country={country}&month={today.month}&day={today.day}").json()
-        countryNameDays[country] = r["data"]["namedays"][country]
+    # for country in ["cz", "sk", "pl", "fr", "hu",
+    #                 "hr", "se", "us", "at", "it",
+    #                 "es", "de", "dk", "fi", "bg",
+    #                 "lt", "ee", "lv", "gr", "ru"]:
+    #     print(country)
+    #     r = requests.post(
+    #         f"https://nameday.abalin.net/today?"
+    #         f"country={country}&month={today.month}&day={today.day}")
+    #     print(f"{r = }, {r.text = }")
+    #     r = r.json()
+    #     countryNameDays[country] = r["data"]["namedays"][country]
+    r = requests.post("https://nameday.abalin.net/today").json()
+    countryNameDays = r["data"]["namedays"]
 
     querystring = {"fragment": "true", "json": "true"}
 
@@ -989,7 +994,7 @@ async def day_command(msg, *args):
                      params=querystring).json()
 
     def dayStr(date):
-        return " ".join(date.ctime().split(" ")[:3]+[str(date.year)])
+        return f"{date: %A %d %B %Y}"
     dayTrivia = f"On {dayStr(today.replace(year=r['year']))} {r['text']}"
 
     print(countryNameDays)
