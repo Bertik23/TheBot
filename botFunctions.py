@@ -1,4 +1,5 @@
 # import database
+import asyncio
 import datetime
 import io
 import json
@@ -729,3 +730,9 @@ def getCKS():
         tridy[a[0]] = a[2]
     # print(max(tridy))
     return tridy
+
+
+async def waitUntil(time):
+    toWait = (time - datetime.datetime.now()).total_seconds()
+    print(f"Waiting until {time} for {toWait} seconds")
+    await asyncio.sleep(toWait)

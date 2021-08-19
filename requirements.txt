@@ -71,3 +71,9 @@ wolframalpha == 4.1.1
 uhlovodikovac
 kaleido
 bdbf == 1.1.2
+
+b23iepy
+
+python-dotenv
+
+tweepy

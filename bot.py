@@ -13,14 +13,19 @@ import ksoftapi
 import requests
 import stopit
 from bdbf import embed, hasLink, __version__  # , spamProtection
+import iepy
 
 import commands
 import database
 from botFunctions import (
-    checkMZCR, newOnGymso, nextHoursAreAndStartsIn
+    checkMZCR, newOnGymso, nextHoursAreAndStartsIn, waitUntil
 )
 from variables import *
 import variables
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 print(
@@ -86,6 +91,9 @@ async def on_ready():
     korona_info = await client.fetch_channel(758381540534255626)
     print(klubik, obecne, choco_afroAnouncements, korona_info)
     variables.botReadyTimes.append(datetime.datetime.utcnow())
+
+    client.loop.create_task(ieAddLoop())
+    client.loop.create_task(ieTweetLoop())
 
     if heroku:
         await botspam.send("<@452478521755828224> Jsem online!")
@@ -489,41 +497,64 @@ async def bDayLoop():
             ).total_seconds()))
 
 
-# async def kalendarLoop():
-#     while True:
-#         try:
-#             now = datetime.datetime.utcnow()
-#             lastMessage = int(database.advantniKalendar.cell(2, 11).value)
-#             if lastMessage < now.day:
-#                 noon = now.replace(hour=11, minute=0, second=0)
-#                 print(f"""Waiting for {max((noon-now).total_seconds(), 0)}
-#                 until noon.""")
-#                 await asyncio.sleep(max((noon-now).total_seconds(), 0))
-#                 out = adventniKalendar(now.day-1)
-#                 channel = client.get_guild(
-#                     621413546177069081
-#                 ).get_channel(777201859466231808)
-#                 await channel.send(
-#                     f"""{out[0].mention} Gratulace vyhráváš odměnu
-#                         z adventního kalendáře pro potvrzení že chceš odměnu
-#                         převzít reaguj :white_check_mark:  na tuto zprávu.
-# """,
-#                     file=discord.File(
-#                         out[1],
-#                         filename=f"adventniKalendarDay{now.day}.png"
-#                     ))
-#                 database.advantniKalendar.update_cell(2, 11, now.day)
-#             else:
-#                 noon = now.replace(day=now.day+1, hour=11, minute=0,
-# second=0)
-#                 print(
-#                     "Waiting for "+max((noon-now).total_seconds(), 0)
-#                     + " until noon."
-#                 )
-#                 await asyncio.sleep(max((noon-now).total_seconds(), 0))
-#         except Exception as e:
-#             print(e)
-#             await asyncio.sleep(60)
+async def ieAddLoop():
+    try:
+        lastTweetTime = database.getIEDataTimes()[1]
+    except IndexError:
+        lastTweetTime = datetime.datetime.fromordinal(0)
+    while True:
+        events = iepy.getTodayEvents()
+        for i, event in enumerate(events):
+            eventsToday = len(events)+1
+            for eventLang in event:
+                if eventLang.language == "cz":
+                    tweetTime = (datetime.datetime.fromisoformat(
+                            datetime.date.today().isoformat()
+                        )
+                        + datetime.timedelta(days=1)*(i+1)/eventsToday)
+                    if tweetTime <= lastTweetTime:
+                        continue
+                    database.addIEData(
+                        tweetTime,
+                        eventLang.description if (
+                            eventLang.description != ""
+                        ) else eventLang.summary,
+                        i
+                    )
+        await asyncio.sleep(
+            (datetime.datetime.fromisoformat(
+                (
+                    datetime.date.today() + datetime.timedelta(days=1)
+                ).isoformat()
+            ) - datetime.datetime.now()).total_seconds()
+        )
+
+
+async def ieTweetLoop():
+    while True:
+        try:
+            nextTime = database.getIEDataTimes()[1]
+            await waitUntil(nextTime)
+            event = iepy.getTodayEvents()[
+                database.getIEDataT(nextTime)["eventIndex"]
+            ]
+            for eventLang in event:
+                if eventLang.language == "cz":
+                    iepy.tweetEvent(
+                        eventLang,
+                        os.environ["consumerKey"],
+                        os.environ["consumerSecret"],
+                        os.environ["accessToken"],
+                        os.environ["accessTokenSecret"]
+                    )
+            database.deleteIEData(nextTime)
+        except IndexError:
+            await asyncio.sleep(10)
+        except iepy.tweepy.TweepError as e:
+            if e.api_code == 187:
+                database.deleteIEData(nextTime)
+            else:
+                raise
 
 
 client.run(token)

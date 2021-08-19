@@ -51,6 +51,8 @@ timers = sheetClient.open("TheBotDB").worksheet("Timers")
 
 birthdays = sheetClient.open("TheBotDB").worksheet("BDays")
 
+iedb = sheetClient.open("TheBotDB").worksheet("IEBot")
+
 
 def getBDays():
     values = birthdays.get_all_values()
@@ -93,3 +95,42 @@ def updateLastCheckedBDay(today=None):
     if today is None:
         today = datetime.date.today()
     dataLog.update_cell(2, 4, today.isoformat())
+
+
+def getIEData():
+    values = iedb.get_all_values()
+    captions = values[0]
+    values = values[1:]
+    ieDicts = [dict(zip(captions, v)) for v in values]
+    for i in ieDicts:
+        for k in i:
+            if k == "time":
+                i[k] = datetime.datetime.fromisoformat(i[k])
+            if k == "eventIndex":
+                i[k] = int(i[k])
+    return ieDicts
+
+
+def addIEData(time, text, index):
+    if time in getIEDataTimes():
+        return False
+    iedb.append_row([time.isoformat(), text, index])
+    return True
+
+
+def getIEDataT(time):
+    for i in getIEData():
+        if i["time"] == time:
+            return i
+
+
+def deleteIEData(time):
+    indexes = [i for i, t in enumerate(getIEDataTimes()) if t == time]
+    for i in indexes:
+        iedb.delete_row(i+1)
+
+
+def getIEDataTimes():
+    return ["time"]+[
+        datetime.datetime.fromisoformat(i) for i in iedb.col_values(1)[1:]
+    ]
