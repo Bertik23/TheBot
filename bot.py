@@ -501,7 +501,7 @@ async def ieAddLoop():
     try:
         lastTweetTime = database.getIEDataTimes()[1]
     except IndexError:
-        lastTweetTime = datetime.datetime.fromordinal(0)
+        lastTweetTime = datetime.datetime.fromordinal(1)
     while True:
         events = iepy.getTodayEvents()
         for i, event in enumerate(events):
