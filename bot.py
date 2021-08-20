@@ -511,8 +511,8 @@ async def ieAddLoop():
                     tweetTime = (datetime.datetime.fromisoformat(
                             datetime.date.today().isoformat()
                         )
-                        + datetime.timedelta(hours=12)
-                        + datetime.timedelta(hours=12)*(i+1)/eventsToday)
+                        + datetime.timedelta(hours=10)
+                        + datetime.timedelta(hours=8)*(i+1)/eventsToday)
                     if tweetTime <= lastTweetTime:
                         continue
                     database.addIEData(
