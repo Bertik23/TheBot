@@ -30,7 +30,8 @@ load_dotenv()
 
 print(
     f"BDBF vesion: {bdbf.__version__}\n"
-    f"Discord.py version: {discord.__version__}"
+    f"Discord.py version: {discord.__version__}\n"
+    f"IEpy version: {iepy.__version__}"
 )
 
 
@@ -92,12 +93,11 @@ async def on_ready():
     print(klubik, obecne, choco_afroAnouncements, korona_info)
     variables.botReadyTimes.append(datetime.datetime.utcnow())
 
-    client.loop.create_task(ieAddLoop())
-    client.loop.create_task(ieTweetLoop())
-
     if heroku:
         await botspam.send("<@452478521755828224> Jsem online!")
         if len(botReadyTimes) <= 1:
+            client.loop.create_task(ieAddLoop())
+            client.loop.create_task(ieTweetLoop())
             client.loop.create_task(checkWebsites())
             client.loop.create_task(classLoop())
             client.loop.create_task(bDayLoop())
@@ -511,7 +511,8 @@ async def ieAddLoop():
                     tweetTime = (datetime.datetime.fromisoformat(
                             datetime.date.today().isoformat()
                         )
-                        + datetime.timedelta(days=1)*(i+1)/eventsToday)
+                        + datetime.timedelta(hours=12)
+                        + datetime.timedelta(hours=12)*(i+1)/eventsToday)
                     if tweetTime <= lastTweetTime:
                         continue
                     database.addIEData(

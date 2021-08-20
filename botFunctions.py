@@ -171,9 +171,9 @@ def newOnGymso():
     gymso = BeautifulSoup(gymso.text, features="html.parser")
     clankyDiv = gymso.findAll("div", attrs={"class": "blog-item"})
     for clanekDiv in clankyDiv:
-        clanekTime = datetime.fromisoformat(
+        clanekTime = datetime.datetime.fromisoformat(
             clanekDiv.find("time")["datetime"])  # .split("+")[0])
-        if datetime.now(timezone(timedelta(hours=2))) - \
+        if datetime.datetime.now(timezone(timedelta(hours=2))) - \
                 clanekTime < timedelta(minutes=15):
             clanekTitle = clanekDiv.find(
                 "h2", attrs={"class": "article-title"})
