@@ -65,7 +65,7 @@ async def zmena(msg, *args):
 
 
 @client.command("rozvrh", worksOnlyInGuilds=[
-    697015129199607839, 793152939022745610
+    697015129199607839, 793152939022745610, 540563312857841714
     ]
 )
 async def rozvrh(msg, *args):
@@ -90,7 +90,7 @@ async def rozvrh(msg, *args):
         week = "perm"
         args = args.replace("-p", "").strip()
     if args == "":
-        args = "7.A"
+        args = "8.A"
 
     async with msg.channel.typing():
         await msg.reply(
