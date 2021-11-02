@@ -31,7 +31,8 @@ pandas == 1.2.1
 
 # D:\Python\TheBot\botFunctions.py: 19
 # D:\Python\TheBot\commands.py: 21
-pillow# == 8.3.2
+pillow
+# == 8.3.2
 
 # D:\Python\TheBot\botFunctions.py: 19
 # D:\Python\TheBot\commands.py: 21
