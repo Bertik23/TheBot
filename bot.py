@@ -18,7 +18,7 @@ import iepy
 import commands
 import database
 from botFunctions import (
-    checkMZCR, newOnGymso, nextHoursAreAndStartsIn, waitUntil
+    checkMZCR, newOnGymso, nextHoursAreAndStartsIn, waitUntil, now
 )
 from variables import *
 import variables
@@ -556,6 +556,16 @@ async def ieTweetLoop():
                 database.deleteIEData(nextTime)
             else:
                 raise
+
+
+async def covidNumbers():
+    while True:
+        try:
+            covidData = requests.get("https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/zakladni-prehled.json").json()
+            if now() > datetime.datetime.fromisoformat(covidData["modified"]) > database.getLastCovidDataModifiedTime():
+                print("Ano")
+        except Exception as e:
+            print(e)
 
 
 client.run(token)

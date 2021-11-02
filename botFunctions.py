@@ -736,3 +736,7 @@ async def waitUntil(time):
     toWait = (time - datetime.datetime.now()).total_seconds()
     print(f"Waiting until {time} for {toWait} seconds")
     await asyncio.sleep(toWait)
+
+
+def now():
+    return datetime.datetime.now(datetime.timezone.utc)

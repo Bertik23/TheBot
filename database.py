@@ -134,3 +134,7 @@ def getIEDataTimes():
     return ["time"]+[
         datetime.datetime.fromisoformat(i) for i in iedb.col_values(1)[1:]
     ]
+
+
+def getLastCovidDataModifiedTime():
+    return dataLog.cell(2, 5).value
