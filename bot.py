@@ -1,29 +1,27 @@
 import asyncio
-from asyncio.tasks import wait
 import datetime
 import json
 import math
 import re
+import traceback
+from asyncio.tasks import wait
 from random import choice, randint
 from string import Template
-import traceback
 
 import discord
+import iepy
 import ksoftapi
 import requests
 import stopit
-from bdbf import embed, hasLink, __version__  # , spamProtection
-import iepy
+from bdbf import __version__, embed, hasLink  # , spamProtection
+from dotenv import load_dotenv
 
 import commands
 import database
-from botFunctions import (
-    checkMZCR, newOnGymso, nextHoursAreAndStartsIn, waitUntil, now
-)
-from variables import *
 import variables
-
-from dotenv import load_dotenv
+from botFunctions import (checkMZCR, covidDataEmbed, newOnGymso,
+                          nextHoursAreAndStartsIn, now, waitUntil)
+from variables import *
 
 load_dotenv()
 
@@ -31,7 +29,8 @@ load_dotenv()
 print(
     f"BDBF vesion: {bdbf.__version__}\n"
     f"Discord.py version: {discord.__version__}\n"
-    f"IEpy version: {iepy.__version__}"
+    f"IEpy version: {iepy.__version__}\n"
+    f"KSoftApi version: {ksoftapi.__version__}"
 )
 
 
@@ -92,6 +91,8 @@ async def on_ready():
     korona_info = await client.fetch_channel(758381540534255626)
     print(klubik, obecne, choco_afroAnouncements, korona_info)
     variables.botReadyTimes.append(datetime.datetime.utcnow())
+
+    client.loop.create_task(covidNumbers())
 
     if heroku:
         await botspam.send("<@452478521755828224> Jsem online!")
@@ -212,9 +213,10 @@ async def on_message(message):
                     f"Hej ty {message.author.mention}, žádný ttska tady.",
                     tts=True)
 
-            if message.channel.id == 715621624950292593:
-                if not hasLink(message.content):
-                    await message.delete()
+            if message.channel.id == 715621624950292593 and not hasLink(
+                message.content
+            ):
+                await message.delete()
 
             if "No lyrics found for `" in message.content:
                 try:
@@ -238,15 +240,17 @@ async def on_message(message):
     except AttributeError:
         pass
 
-    if type(message.channel) == discord.DMChannel:
-        if message.author.id == 452478521755828224:
-            try:
-                msgTextSplit = message.content.split(" ", 1)
-                channel = await client.fetch_channel(int(msgTextSplit[0]))
-                await channel.send(msgTextSplit[1])
-            except Exception as e:
-                await message.channel.send(e)
-                raise e
+    if (
+        type(message.channel) == discord.DMChannel
+        and message.author.id == 452478521755828224
+    ):
+        try:
+            msgTextSplit = message.content.split(" ", 1)
+            channel = await client.fetch_channel(int(msgTextSplit[0]))
+            await channel.send(msgTextSplit[1])
+        except Exception as e:
+            await message.channel.send(e)
+            raise e
 
 
 @client.event
@@ -254,12 +258,12 @@ async def on_raw_reaction_add(payload):
     guild = await client.fetch_guild(payload.guild_id)
     channel = await client.fetch_channel(payload.channel_id)
     message = await channel.fetch_message(payload.message_id)
-    emoji = payload.emoji
-    member = payload.member
-
     # print(emoji)
 
     if message.id == 746719599982280754:
+        emoji = payload.emoji
+        member = payload.member
+
         # 1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣
         if emoji.name == "1️⃣":
             # Minecraft
@@ -561,11 +565,42 @@ async def ieTweetLoop():
 async def covidNumbers():
     while True:
         try:
-            covidData = requests.get("https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19/zakladni-prehled.json").json()
-            if now() > datetime.datetime.fromisoformat(covidData["modified"]) > database.getLastCovidDataModifiedTime():
-                print("Ano")
+            covidData = requests.get(
+                "https://onemocneni-aktualne.mzcr.cz/api/v2/"
+                "covid-19/zakladni-prehled.json"
+            ).json()
+            if (
+                now()
+                > datetime.datetime.fromisoformat(covidData["modified"])
+                > datetime.datetime.fromisoformat(
+                    database.getLastCovidDataModifiedTime()
+                )
+            ):
+                await obecne.send(
+                    embed=covidDataEmbed(
+                        client,
+                        covidData["data"][0]["potvrzene_pripady_vcerejsi_den"],
+                        covidData["data"][0]["potvrzene_pripady_dnesni_den"],
+                        covidData["data"][0]["aktivni_pripady"],
+                        (
+                            covidData["data"][0][
+                                "potvrzene_pripady_vcerejsi_den"
+                            ]
+                            /
+                            (covidData["data"][0][
+                                "provedene_testy_vcerejsi_den"
+                            ]
+                                + covidData["data"][0][
+                                    "provedene_antigenni_testy_vcerejsi_den"
+                                ]
+                            )
+                        )
+                    )
+                )
+                database.setLastCovidDataModifiedTime(covidData["modified"])
         except Exception as e:
             print(e)
+        await asyncio.sleep(60*5)
 
 
 client.run(token)

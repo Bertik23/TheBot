@@ -67,14 +67,14 @@ client = bdbf.Client(
     commandPrefix="~",
     embedFooter={
         "text": "Powered by Bertik23",
-        "icon_url": ("https://cdn.discordapp.com/avatars/"
-                     "452478521755828224/4cfdbde44582fe6ad05383171ac1b051.png")
-        },
+        "icon_url": "https://cdn.discordapp.com/avatars/452478521755828224/92f95d857438843f22ca480d65d7baeb.webp"
+    },
     embedColor=(37, 217, 55),
     botName="TheBot",
     logging=logging,
     createTaskCommands=False
     )
+
 
 klubik, obecne, choco_afroAnouncements, korona_info, hodinyUpozorneni = (
     None, None, None, None, None

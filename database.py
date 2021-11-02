@@ -138,3 +138,7 @@ def getIEDataTimes():
 
 def getLastCovidDataModifiedTime():
     return dataLog.cell(2, 5).value
+
+
+def setLastCovidDataModifiedTime(time):
+    return dataLog.update_cell(2, 5, time)

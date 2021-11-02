@@ -740,3 +740,15 @@ async def waitUntil(time):
 
 def now():
     return datetime.datetime.now(datetime.timezone.utc)
+
+
+def covidDataEmbed(client: bdbf.Client, lastDay, today, active, positivity):
+    return client.embed(
+        "Covid Data",
+        fields=[
+            ("Včera", "{:,}".format(lastDay).replace(",", " ")),
+            # ("Dneska", "{:,}".format(today).replace(",", " ")),
+            ("Aktivní", "{:,}".format(active).replace(",", " ")),
+            ("Pozitivita", "{:.2%}".format(positivity))
+        ]
+    )
