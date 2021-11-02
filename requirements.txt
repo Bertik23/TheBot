@@ -13,11 +13,11 @@ gspread == 3.6.0
 # D:\Python\TheBot\bot.py: 9
 # D:\Python\TheBot\commands.py: 5
 # D:\Python\TheBot\variables.py: 3
-ksoftapi == 0.3.3a0
+ksoftapi == 0.4.1
 
 # D:\Python\TheBot\botFunctions.py: 11
 # D:\Python\TheBot\commands.py: 11
-numpy == 1.19.5
+# numpy == 1.19.5
 
 # D:\Python\TheBot\database.py: 3
 oauth2client == 4.1.3
