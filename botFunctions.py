@@ -749,7 +749,7 @@ def covidDataEmbed(client: bdbf.Client, lastDay, today, active, positivity, posi
             ("Včera", "{:,}".format(lastDay).replace(",", " ")),
             ("Předevčírem", "{:,}".format(today).replace(",", " ")),
             ("Aktivní", "{:,}".format(active).replace(",", " ")),
-            ("Pozitivita", "{:.2%}".format(positivity))
+            ("Pozitivita", "{:.2%}".format(positivity)),
             ("Pozitivita předevčírem", "{:.2%}".format(positivityBefore))
         ]
     )
