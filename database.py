@@ -142,3 +142,10 @@ def getLastCovidDataModifiedTime():
 
 def setLastCovidDataModifiedTime(time):
     return dataLog.update_cell(2, 5, time)
+
+def getLastTestDataModifiedTime():
+    return dataLog.cell(2, 6).value
+
+
+def setLastTestDataModifiedTime(time):
+    return dataLog.update_cell(2, 6, time)

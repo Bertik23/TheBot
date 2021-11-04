@@ -569,18 +569,28 @@ async def covidNumbers():
                 "https://onemocneni-aktualne.mzcr.cz/api/v2/"
                 "covid-19/zakladni-prehled.json"
             ).json()
+            testyData = requests.get(
+                "https://onemocneni-aktualne.mzcr.cz/api/v2/"
+                "covid-19/testy-pcr-antigenni.min.json"
+            ).json()
             if (
                 now()
                 > datetime.datetime.fromisoformat(covidData["modified"])
                 > datetime.datetime.fromisoformat(
                     database.getLastCovidDataModifiedTime()
                 )
+                and
+                now()
+                > datetime.datetime.fromisoformat(testyData["modified"])
+                > datetime.datetime.fromisoformat(
+                    database.getLastTestDataModifiedTime()
+                )
             ):
                 await obecne.send(
                     embed=covidDataEmbed(
                         client,
                         covidData["data"][0]["potvrzene_pripady_vcerejsi_den"],
-                        covidData["data"][0]["potvrzene_pripady_dnesni_den"],
+                        testyData["data"][-2]["incidence_pozitivni"],
                         covidData["data"][0]["aktivni_pripady"],
                         (
                             covidData["data"][0][
@@ -594,10 +604,25 @@ async def covidNumbers():
                                     "provedene_antigenni_testy_vcerejsi_den"
                                 ]
                             )
+                        ),
+                        (
+                            testyData["data"][-2][
+                                "incidence_pozitivni"
+                            ]
+                            /
+                            (testyData["data"][-2][
+                                "pocet_PCR_testy"
+                            ]
+                                + testyData["data"][-2][
+                                    "pocet_AG_testy"
+                                ]
+                            )
                         )
+
                     )
                 )
                 database.setLastCovidDataModifiedTime(covidData["modified"])
+                database.setLastTestDataModifiedTime(testyData["modified"])
         except Exception as e:
             print(e)
         await asyncio.sleep(60*5)
