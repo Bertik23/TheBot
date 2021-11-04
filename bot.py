@@ -590,7 +590,7 @@ async def covidNumbers():
                     embed=covidDataEmbed(
                         client,
                         covidData["data"][0]["potvrzene_pripady_vcerejsi_den"],
-                        testyData["data"][-2]["incidence_pozitivni"],
+                        testyData["data"][-1]["incidence_pozitivni"],
                         covidData["data"][0]["aktivni_pripady"],
                         (
                             covidData["data"][0][
@@ -606,14 +606,14 @@ async def covidNumbers():
                             )
                         ),
                         (
-                            testyData["data"][-2][
+                            testyData["data"][-1][
                                 "incidence_pozitivni"
                             ]
                             /
-                            (testyData["data"][-2][
+                            (testyData["data"][-1][
                                 "pocet_PCR_testy"
                             ]
-                                + testyData["data"][-2][
+                                + testyData["data"][-1][
                                     "pocet_AG_testy"
                                 ]
                             )
