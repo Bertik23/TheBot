@@ -20,7 +20,6 @@ import wolframalpha
 from bs4 import BeautifulSoup
 from prettytable import ALL, PrettyTable
 from PIL import Image, ImageDraw, ImageFont
-from database import getCovidTipsDate
 from variables import *
 import random
 
@@ -843,8 +842,11 @@ async def covidDataSend(
 
 
 async def covidDataTipsEval(channel, number):
+    from database import getCovidTipsDate
     sortedTips = sorted(
-        getCovidTipsDate(datetime.date.today() - datetime.timedelta(days=1)),
+        getCovidTipsDate(
+            datetime.date.today() - datetime.timedelta(days=1)
+        ),
         key=lambda x: abs(x["number"] - number)
     )
 
