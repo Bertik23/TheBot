@@ -19,8 +19,8 @@ from dotenv import load_dotenv
 import commands
 import database
 import variables
-from botFunctions import (checkMZCR, covidDataEmbed, newOnGymso,
-                          nextHoursAreAndStartsIn, now, waitUntil)
+from botFunctions import (checkMZCR, covidDataSend, covidDataTipsEval,
+                          newOnGymso, nextHoursAreAndStartsIn, now, waitUntil)
 from variables import *
 
 load_dotenv()
@@ -586,43 +586,12 @@ async def covidNumbers():
                     database.getLastTestDataModifiedTime()
                 )
             ):
-                await obecne.send(
-                    embed=covidDataEmbed(
-                        client,
-                        covidData["data"][0]["potvrzene_pripady_vcerejsi_den"],
-                        testyData["data"][-2]["incidence_pozitivni"],
-                        covidData["data"][0]["aktivni_pripady"],
-                        (
-                            covidData["data"][0][
-                                "potvrzene_pripady_vcerejsi_den"
-                            ]
-                            /
-                            (covidData["data"][0][
-                                "provedene_testy_vcerejsi_den"
-                            ]
-                                + covidData["data"][0][
-                                    "provedene_antigenni_testy_vcerejsi_den"
-                                ]
-                            )
-                        ),
-                        (
-                            testyData["data"][-2][
-                                "incidence_pozitivni"
-                            ]
-                            /
-                            (testyData["data"][-2][
-                                "pocet_PCR_testy"
-                            ]
-                                + testyData["data"][-2][
-                                    "pocet_AG_testy"
-                                ]
-                            )
-                        )
-
-                    )
-                )
+                await covidDataSend(obecne, covidData, testyData)
                 database.setLastCovidDataModifiedTime(covidData["modified"])
                 database.setLastTestDataModifiedTime(testyData["modified"])
+                await covidDataTipsEval(obecne, covidData["data"][0][
+                    "potvrzene_pripady_vcerejsi_den"
+                ])
         except Exception as e:
             print(e)
         await asyncio.sleep(60*5)

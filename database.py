@@ -6,6 +6,13 @@ import datetime
 
 # print(vars(botFunctions))
 
+
+class Dummy:
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+
 scope = ["https://spreadsheets.google.com/feeds",
          'https://www.googleapis.com/auth/spreadsheets',
          "https://www.googleapis.com/auth/drive.file",
@@ -52,6 +59,8 @@ timers = sheetClient.open("TheBotDB").worksheet("Timers")
 birthdays = sheetClient.open("TheBotDB").worksheet("BDays")
 
 iedb = sheetClient.open("TheBotDB").worksheet("IEBot")
+
+covidTipsSheet = sheetClient.open("TheBotDB").worksheet("CovidTips")
 
 
 def getBDays():
@@ -143,9 +152,45 @@ def getLastCovidDataModifiedTime():
 def setLastCovidDataModifiedTime(time):
     return dataLog.update_cell(2, 5, time)
 
+
 def getLastTestDataModifiedTime():
     return dataLog.cell(2, 6).value
 
 
 def setLastTestDataModifiedTime(time):
     return dataLog.update_cell(2, 6, time)
+
+
+def getCovidTips():
+    values = covidTipsSheet.get_all_values()
+    captions = values[0]
+    values = values[1:]
+    covidTipsData = [dict(zip(captions, v)) for v in values]
+    for i in covidTipsData:
+        for k in i:
+            if k == "date":
+                i[k] = datetime.datetime.fromisoformat(i[k])
+            if k == "userID":
+                i[k] = int(i[k])
+            if k == "number":
+                i[k] = int(i[k])
+    return covidTipsData
+
+
+def getCovidTipsDate(date):
+    covidTips = getCovidTips()
+    covidTips = [i for i in covidTips if i["date"].date() == date]
+    users = []
+    for tip in covidTips:
+        if tip["userID"] not in users:
+            users.append(tip["userID"])
+            yield tip
+
+
+def setCovidTip(date: datetime.date, tip, user):
+    print([
+        date.isoformat(), str(user), str(user.id), str(tip)
+    ])
+    covidTipsSheet.append_row([
+        date.isoformat(), str(user), str(user.id), str(tip)
+    ])

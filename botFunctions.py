@@ -9,6 +9,7 @@ import zlib
 from datetime import date, datetime, timedelta, timezone, time
 
 import bdbf
+from bdbf.functions import embed
 import discord
 import numpy as np
 from numpy.lib.twodim_base import eye
@@ -19,6 +20,7 @@ import wolframalpha
 from bs4 import BeautifulSoup
 from prettytable import ALL, PrettyTable
 from PIL import Image, ImageDraw, ImageFont
+from database import getCovidTipsDate
 from variables import *
 import random
 
@@ -67,8 +69,7 @@ def rotateDict(Dict):
 
 
 def roundToTheLast30min(time):
-    rounded = time - (time - datetime.datetime.min) % timedelta(minutes=30)
-    return rounded
+    return time - (time - datetime.datetime.min) % timedelta(minutes=30)
 
 
 def makeGithubIssue(title: str, body: str = None, labels: list = None):
@@ -92,26 +93,26 @@ def makeGithubIssue(title: str, body: str = None, labels: list = None):
 
     # Add the issue to our repository
     response = requests.request("POST", url, data=payload, headers=headers)
-    if response.status_code == 201:
-        out = [
-            eval(
-                response.text.replace(
-                    "false",
-                    "False").replace(
-                    "true",
-                    "True").replace(
-                    "null",
-                    "None"))[i] for i in (
-                        "url",
-                        "title",
-                "body_html")]
-        return f"Successfully created Issue `{title}`", bdbf.embed(
-            out[1],
-            out[0].replace("api.", "").replace("/repos/", "/"),
-            tomd.convert(out[2]))
-    else:
+    if response.status_code != 201:
         return (f"Could not create Issue {title} Response: {response.content}",
                 None)
+
+    out = [
+        eval(
+            response.text.replace(
+                "false",
+                "False").replace(
+                "true",
+                "True").replace(
+                "null",
+                "None"))[i] for i in (
+                    "url",
+                    "title",
+            "body_html")]
+    return f"Successfully created Issue `{title}`", bdbf.embed(
+        out[1],
+        out[0].replace("api.", "").replace("/repos/", "/"),
+        tomd.convert(out[2]))
 
 
 def makeSuggestion(title: str, body: str = None):
@@ -294,10 +295,10 @@ def getTimetable(url: str, room=False, week="now"):
                                    cells=dict(values=table))
                           ])
 
-    lines = []
-    for column in table:
-        lines.append(sum(map(len, [s.split("<br>") for s in column])))
-
+    lines = [
+        sum(map(len, [s.split("<br>") for s in column]))
+        for column in table
+    ]
     # print(lines)
 
     fig_bytes = fig.to_image(format="png", width=600,
@@ -307,9 +308,9 @@ def getTimetable(url: str, room=False, week="now"):
 
 def rotateTable(table):
     newTable = []
-    for i in range(max(map(len, table))):
+    for _ in range(max(map(len, table))):
         newTable.append([])
-        for i in range(len(table)):
+        for _ in range(len(table)):
             newTable[-1].append("")
     for i, row in enumerate(table):
         for ii, s in enumerate(row):
@@ -359,15 +360,17 @@ def encrypt(text_to_encrypt, encryption_base):
         result = 0
     while result != 0:
         remainder = result % len(digits)
-        result = result // len(digits)
+        result //= len(digits)
         cipher = f"{digits[remainder]}{cipher}"
     return cipher
 
 
 def decrypt(text_to_decrypt, encryption_base):
-    digits = []
-    for i in range(48, 48 + encryption_base):
-        digits.append(bytes(chr(i), "utf-8").decode("utf-8"))
+    digits = [
+        bytes(chr(i), "utf-8").decode("utf-8")
+        for i in range(48, 48 + encryption_base)
+    ]
+
     cipher = text_to_decrypt
     num = 0
     power = len(cipher) - 1
@@ -375,13 +378,12 @@ def decrypt(text_to_decrypt, encryption_base):
     for c in cipher:  # [2:-1]:
         num += (digits.index(c) * (len(digits) ** power))
         power -= 1
-    for i in range(3 - (len(str(num)) % 3) if len(str(num)) % 3 != 0 else 0):
+    for _ in range(3 - (len(str(num)) % 3) if len(str(num)) % 3 != 0 else 0):
         num = f"0{num}"
     num = str(num)
     n = 3
     nums = [int(num[i:i + n]) for i in range(0, len(num), n)]
-    texto = zlib.decompress(bytes(nums)).decode("utf-8")
-    return texto
+    return zlib.decompress(bytes(nums)).decode("utf-8")
 
 
 def deleteDuplicates(inputList):
@@ -742,7 +744,16 @@ def now():
     return datetime.datetime.now(datetime.timezone.utc)
 
 
-def covidDataEmbed(client: bdbf.Client, lastDay, today, active, positivity, positivityBefore):
+def covidDataEmbed(
+    client: bdbf.Client,
+    lastDay,
+    today,
+    active,
+    positivity,
+    positivityBefore,
+    testsToday,
+    testsLastDay
+):
     return client.embed(
         "Covid Data",
         fields=[
@@ -750,6 +761,112 @@ def covidDataEmbed(client: bdbf.Client, lastDay, today, active, positivity, posi
             ("Předevčírem", "{:,}".format(today).replace(",", " ")),
             ("Aktivní", "{:,}".format(active).replace(",", " ")),
             ("Pozitivita", "{:.2%}".format(positivity)),
-            ("Pozitivita předevčírem", "{:.2%}".format(positivityBefore))
+            ("Pozitivita předevčírem", "{:.2%}".format(positivityBefore)),
+            ("Včera testů", f"{testsToday:,}".replace(",", " ")),
+            ("Předevčírem testů", f"{testsLastDay:,}".replace(",", " ")),
         ]
+    )
+
+
+async def covidDataSend(
+    channel: discord.TextChannel,
+    covidData=None,
+    testyData=None
+):
+    if covidData is None:
+        covidData = requests.get(
+            "https://onemocneni-aktualne.mzcr.cz/api/v2/"
+            "covid-19/zakladni-prehled.json"
+        ).json()
+    if testyData is None:
+        testyData = requests.get(
+            "https://onemocneni-aktualne.mzcr.cz/api/v2/"
+            "covid-19/testy-pcr-antigenni.min.json"
+        ).json()
+
+    await channel.send(
+        embed=covidDataEmbed(
+            client,
+            covidData["data"][0]["potvrzene_pripady_vcerejsi_den"],
+            testyData["data"][-2]["incidence_pozitivni"],
+            covidData["data"][0]["aktivni_pripady"],
+            (
+                covidData["data"][0][
+                    "potvrzene_pripady_vcerejsi_den"
+                ]
+                /
+                (
+                    covidData["data"][0][
+                        "provedene_testy_vcerejsi_den"
+                    ]
+                    + covidData["data"][0][
+                        "provedene_antigenni_testy_vcerejsi_den"
+                    ]
+                )
+            ),
+            (
+                testyData["data"][-2][
+                    "incidence_pozitivni"
+                ]
+                /
+                (
+                    testyData["data"][-2][
+                        "pocet_PCR_testy"
+                    ]
+                    + testyData["data"][-2][
+                        "pocet_AG_testy"
+                    ]
+                )
+            ),
+            (
+                (
+                    covidData["data"][0][
+                        "provedene_testy_vcerejsi_den"
+                    ]
+                    + covidData["data"][0][
+                        "provedene_antigenni_testy_vcerejsi_den"
+                    ]
+                )
+            ),
+            (
+                (
+                    testyData["data"][-2][
+                        "pocet_PCR_testy"
+                    ]
+                    + testyData["data"][-2][
+                        "pocet_AG_testy"
+                    ]
+                )
+            )
+        )
+    )
+
+
+async def covidDataTipsEval(channel, number):
+    sortedTips = sorted(
+        getCovidTipsDate(datetime.date.today() - datetime.timedelta(days=1)),
+        key=lambda x: abs(x["number"] - number)
+    )
+
+    def pm(number):
+        if number >= 0:
+            return "+"
+        else:
+            return ""
+    await channel.send(
+        embed=client.embed(
+            "Tabulka tipů",
+            description=f"{number}",
+            fields=[
+                (
+                    f"{p}. " + i["username"],
+                    (
+                        str(i["number"]) +
+                        f" ({pm(i['number']-number)}"
+                        f"{i['number']-number})"
+                    )
+                )
+                for p, i in enumerate(sortedTips)
+            ]
+        )
     )

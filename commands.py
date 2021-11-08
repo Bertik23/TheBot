@@ -1,27 +1,27 @@
 import datetime
+import json
 import math
 import random
+import time
 
 import ksoftapi
+import numpy as np
 import pkg_resources
 import plotly.express as px
 import plotly.graph_objects as go
 import prawcore
+import uhlovodikovac
 from bdbf import *
-import numpy as np
-
+from PIL import Image, ImageDraw, ImageFont
 
 import botFunctions
+import botGames
 from botFunctions import *
 from botGames import Game2048
-import botGames
-import uhlovodikovac
-from database import commandLog, messageLog, timers, getGuildBDays
+from database import (commandLog, getCovidTipsDate, getGuildBDays, messageLog,
+                      setCovidTip, timers)
 from exceptions import *
-from PIL import Image, ImageDraw, ImageFont
-import json
 from variables import *
-import time
 
 
 @client.command("info")
@@ -1038,6 +1038,33 @@ async def birthdays_command(msg, *args):
                 key=lambda x: x["Birthdate"].replace(year=2000))
         ]
     ))
+
+
+@client.command("covidData")
+async def covidData_command(msg, *args):
+    """Shows covid data for last day"""
+    await covidDataSend(msg.channel)
+
+
+@client.command("setCovidTip")
+async def setCovidTip_command(msg, *args):
+    """Sets your tip for the day"""
+    try:
+        tip = int(args[0])
+    except ValueError:
+        await msg.reply(f"Demente, `{args[0]}` neni číslo!")
+        return
+    setCovidTip(datetime.datetime.now(), tip, msg.author)
+    await msg.reply(
+        f"Tvůj tip `{args[0]}` byl zaznamenán.",
+        embed=client.embed(
+            "Aktuální tipy",
+            fields=[
+                (i["username"], i["number"])
+                for i in getCovidTipsDate(datetime.date.today())
+            ]
+        )
+    )
 
 
 for command in client.commands:
