@@ -1061,7 +1061,7 @@ async def setCovidTip_command(msg, *args):
         await msg.reply(f"Demente, `{args[0]}` neni číslo!")
         return
 
-    setCovidTip(datetime.datetime.now(), tip, msg.author, f"@{twitterUsername}")
+    setCovidTip(datetime.datetime.now(), tip, msg.author, twitterUsername)
 
     await msg.reply(
         f"Tvůj tip `{tip}` byl zaznamenán.",
