@@ -1048,15 +1048,23 @@ async def covidData_command(msg, *args):
 
 @client.command("setCovidTip")
 async def setCovidTip_command(msg, *args):
-    """Sets your tip for the day"""
+    """Sets your tip for the day
+
+    **Usage**: `%commandPrefix%setCovidTip <tip> [twitterHandle]`
+    eg. `%commandPrefix%setCovidTip 123456 Bertik23`
+    """
     try:
-        tip = int(args[0])
+        args = f"{args[0]} "
+        args, twitterUsername = args.split(" ", 1)
+        tip = int(args)
     except ValueError:
         await msg.reply(f"Demente, `{args[0]}` neni číslo!")
         return
-    setCovidTip(datetime.datetime.now(), tip, msg.author)
+
+    setCovidTip(datetime.datetime.now(), tip, msg.author, f"@{twitterUsername}")
+
     await msg.reply(
-        f"Tvůj tip `{args[0]}` byl zaznamenán.",
+        f"Tvůj tip `{tip}` byl zaznamenán.",
         embed=client.embed(
             "Aktuální tipy",
             fields=[

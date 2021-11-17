@@ -16,6 +16,7 @@ from numpy.lib.twodim_base import eye
 import plotly.graph_objects as go
 import requests
 import tomd
+import tweepy
 import wolframalpha
 from bs4 import BeautifulSoup
 from prettytable import ALL, PrettyTable
@@ -843,18 +844,17 @@ async def covidDataSend(
 
 async def covidDataTipsEval(channel, number):
     from database import getCovidTipsDate
+    tips = list(getCovidTipsDate(
+        datetime.date.today() - datetime.timedelta(days=1)
+    ))
+
+    tips.extend(getTwitterTips())
+
     sortedTips = sorted(
-        getCovidTipsDate(
-            datetime.date.today() - datetime.timedelta(days=1)
-        ),
+        tips,
         key=lambda x: abs(x["number"] - number)
     )
 
-    def pm(number):
-        if number >= 0:
-            return "+"
-        else:
-            return ""
     await channel.send(
         embed=client.embed(
             "Tabulka tipů",
@@ -872,3 +872,92 @@ async def covidDataTipsEval(channel, number):
             ]
         )
     )
+    tweetCovidNumberAndWiner(
+        number,
+        sortedTips[0]["username"],
+        sortedTips[0]["number"],
+        sortedTips[1:6]
+    )
+
+
+def getTwitterClient():
+    return tweepy.Client(
+        os.environ["bearerToken"],
+        os.environ["consumerKey"],
+        os.environ["consumerSecret"],
+        os.environ["covidTipsToken"],
+        os.environ["covidTipsSecret"]
+    )
+
+
+def tweetCovidNumberAndWiner(yesterday, tipsWinner, tip, moreTips):
+    clientTW = getTwitterClient()
+
+    tweetId = clientTW.create_tweet(
+        text=(
+            f"Včera přibylo {yesterday:,} nakažených covidem-19.\n\n".replace(
+                ",", " "
+            )
+            +
+            f"Nejblíže byl {tipsWinner} - {nf(tip)} "
+            f"({pm(tip-yesterday)} {nf(tip-yesterday)}). "
+            "Gratuluji.\n"
+            f"Tipy na dnešní den tweetujte jako odpověď na tento tweet"
+            " (např. 12 456),"
+            " pokud bude tweet obsahovat písmena, nebude se počítat."
+        )
+    ).data["id"]
+
+    print(moreTips)
+    textMoreTips = "".join(
+        f"{i+2}. {tip['username']} - {nf(tip['number'])} "
+        f"({pm(tip['number']-yesterday)} {nf(tip['number']-yesterday)})\n"
+        for i, tip in enumerate(moreTips)
+    )
+
+    clientTW.create_tweet(
+        in_reply_to_tweet_id=tweetId,
+        text=(
+            "Další v pořadí:\n"
+            f"{textMoreTips}"
+        )
+    )
+
+
+def getTwitterTips():
+    clientTW = getTwitterClient()
+
+    response: tweepy.Response = clientTW.get_users_mentions(
+        1460632004509241349,
+        end_time=datetime.datetime.combine(
+            datetime.date.today(),
+            datetime.time(0, 0, 1)
+        ).isoformat()+"Z",
+        start_time=datetime.datetime.combine(
+            datetime.date.today() - datetime.timedelta(1),
+            datetime.time(0, 0, 1)
+        ).isoformat()+"Z",
+        user_fields=["username"],
+        expansions=["author_id"]
+    )
+    for tweet, user in zip(response.data, response.includes["users"]):
+        try:
+            num = int(
+                str(tweet).lower().replace(
+                    "@covidtipsbot", ""
+                ).replace(" ", "")
+            )
+            yield {"number": num, "username": f"@{user}"}
+        except ValueError:
+            continue
+
+
+def pm(number):
+    if number >= 0:
+        return "+"
+    else:
+        return ""
+
+
+def nf(number):
+    return f"{number:,}".replace(",", " ")

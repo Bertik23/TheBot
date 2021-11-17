@@ -20,11 +20,36 @@ import commands
 import database
 import variables
 from botFunctions import (checkMZCR, covidDataSend, covidDataTipsEval,
-                          newOnGymso, nextHoursAreAndStartsIn, now, waitUntil)
+                          getTwitterTips, newOnGymso, nextHoursAreAndStartsIn,
+                          now, tweetCovidNumberAndWiner, waitUntil)
 from variables import *
+
+from pprint import pprint
 
 load_dotenv()
 
+# try:
+#     print(tweetCovidNumberAndWiner(
+#         123456,
+#         "@Bertik23",
+#         1234576,
+#         [
+#             {"username": "@CovidTipsBot", "number": 1},
+#             {"username": "@CeskyIE", "number": 3}
+#         ]
+#     ))
+#     for tweet, user in getTwitterTips():
+#         print(tweet, user)
+#         # print(dir(tweet))
+#         # pprint(dict(zip(dir(tweet),
+#         # map(lambda x: getattr(tweet, x, "Nic"), dir(tweet)))))
+# except Exception as e:
+#     print(e)
+#     # print(dir(e))
+#     # print(e.api_codes, e.api_errors, e.api_messages, e.args, e.response)
+#     # print(dir(e.response))
+#     # print(e.response.text, e.response.content)
+#     raise
 
 print(
     f"BDBF vesion: {bdbf.__version__}\n"

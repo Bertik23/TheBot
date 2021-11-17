@@ -77,4 +77,4 @@ b23iepy == 0.0.3
 
 python-dotenv
 
-tweepy
+tweepy >= 4.0.0

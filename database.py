@@ -187,10 +187,10 @@ def getCovidTipsDate(date):
             yield tip
 
 
-def setCovidTip(date: datetime.date, tip, user):
-    print([
-        date.isoformat(), str(user), str(user.id), str(tip)
-    ])
+def setCovidTip(date: datetime.date, tip, user, twitterUsername=""):
     covidTipsSheet.append_row([
-        date.isoformat(), str(user), str(user.id), str(tip)
+        date.isoformat(),
+        str(user) if not twitterUsername else twitterUsername,
+        str(user.id),
+        str(tip)
     ])
