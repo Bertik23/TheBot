@@ -36,7 +36,7 @@ pillow
 
 # D:\Python\TheBot\botFunctions.py: 19
 # D:\Python\TheBot\commands.py: 21
-pillow-simd == 7.0.0.post3
+# pillow-simd >= 7.0.0.post3
 
 # D:\Python\TheBot\botFunctions.py: 12
 # D:\Python\TheBot\commands.py: 7,8
@@ -44,21 +44,21 @@ pillow-simd == 7.0.0.post3
 plotly == 4.14.3
 
 # D:\Python\TheBot\variables.py: 4
-praw == 7.1.0
+praw
 
 # D:\Python\TheBot\commands.py: 9
-prawcore == 1.5.0
+prawcore
 
 # D:\Python\TheBot\botFunctions.py: 17
 # D:\Python\TheBot\botGames.py: 4
-prettytable == 2.0.0
+prettytable
 
 # D:\Python\TheBot\bot.py: 10
 # D:\Python\TheBot\botFunctions.py: 13
-requests == 2.25.1
+requests
 
 # D:\Python\TheBot\commands.py: 6
-setuptools == 49.2.1
+setuptools
 
 # D:\Python\TheBot\bot.py: 11
 stopit == 1.1.2
@@ -71,7 +71,7 @@ wolframalpha == 4.1.1
 
 uhlovodikovac
 kaleido
-bdbf, ==1.*, < 2.*
+bdbf == 1.*, < 2.*
 
 b23iepy == 0.0.3
 
