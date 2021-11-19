@@ -71,7 +71,7 @@ wolframalpha == 4.1.1
 
 uhlovodikovac
 kaleido
-bdbf == 1.1.2
+bdbf, ==1.*, < 2.*
 
 b23iepy == 0.0.3
 

@@ -8,6 +8,8 @@ import pprint
 import zlib
 from datetime import date, datetime, timedelta, timezone, time
 
+import re
+
 import bdbf
 from bdbf.functions import embed
 import discord
@@ -429,10 +431,9 @@ async def spamProtection(message: discord.Message, testForMessages: int):
             if count >= testForMessages:
                 break
 
-    areMessagesSame = True
-    for i, m in enumerate(lastMessages):
-        if m != lastMessages[i - 1]:
-            areMessagesSame = False
+    areMessagesSame = all(
+        m == lastMessages[i - 1] for i, m in enumerate(lastMessages)
+    )
 
     if areMessagesSame:
         await message.delete()
@@ -843,15 +844,8 @@ async def covidDataSend(
 
 
 async def covidDataTipsEval(channel, number):
-    from database import getCovidTipsDate
-    tips = list(getCovidTipsDate(
-        datetime.date.today() - datetime.timedelta(days=1)
-    ))
-
-    tips.extend(getTwitterTips())
-
     sortedTips = sorted(
-        tips,
+        getFullCovidTips(),
         key=lambda x: abs(x["number"] - number)
     )
 
@@ -908,48 +902,77 @@ def tweetCovidNumberAndWiner(yesterday, tipsWinner, tip, moreTips):
         )
     ).data["id"]
 
-    print(moreTips)
-    textMoreTips = "".join(
-        f"{i+2}. {tip['username']} - {nf(tip['number'])} "
-        f"({pm(tip['number']-yesterday)} {nf(tip['number']-yesterday)})\n"
-        for i, tip in enumerate(moreTips)
-    )
-
-    clientTW.create_tweet(
-        in_reply_to_tweet_id=tweetId,
-        text=(
-            "Další v pořadí:\n"
-            f"{textMoreTips}"
+    # print(moreTips)
+    if moreTips:
+        textMoreTips = "".join(
+            f"{i+2}. {tip['username']} - {nf(tip['number'])} "
+            f"({pm(tip['number']-yesterday)} {nf(tip['number']-yesterday)})\n"
+            for i, tip in enumerate(moreTips)
         )
-    )
+
+        clientTW.create_tweet(
+            in_reply_to_tweet_id=tweetId,
+            text=(
+                "Další v pořadí:\n"
+                f"{textMoreTips}"
+            )
+        )
 
 
-def getTwitterTips():
+def getTwitterTips(day=None):
     clientTW = getTwitterClient()
+
+    if day is None:
+        start = datetime.datetime.combine(
+            datetime.date.today() - datetime.timedelta(1),
+            datetime.time(0, 0, 1)
+        ).isoformat()+"Z"
+        end = datetime.datetime.combine(
+            datetime.date.today(),
+            datetime.time(0, 0, 1)
+        ).isoformat()+"Z"
+    else:
+        start = datetime.datetime.combine(
+            day,
+            datetime.time(0, 0, 1)
+        ).isoformat()+"Z"
+        end = datetime.datetime.combine(
+            day + datetime.timedelta(1),
+            datetime.time(0, 0, 1)
+        ).isoformat()+"Z"
 
     response: tweepy.Response = clientTW.get_users_mentions(
         1460632004509241349,
-        end_time=datetime.datetime.combine(
-            datetime.date.today(),
-            datetime.time(0, 0, 1)
-        ).isoformat()+"Z",
-        start_time=datetime.datetime.combine(
-            datetime.date.today() - datetime.timedelta(1),
-            datetime.time(0, 0, 1)
-        ).isoformat()+"Z",
+        end_time=end,
+        start_time=start,
         user_fields=["username"],
         expansions=["author_id"]
     )
-    for tweet, user in zip(response.data, response.includes["users"]):
-        try:
-            num = int(
-                str(tweet).lower().replace(
-                    "@covidtipsbot", ""
-                ).replace(" ", "")
-            )
-            yield {"number": num, "username": f"@{user}"}
-        except ValueError:
-            continue
+    print(response.data, response.includes)
+    if response.data is not None:
+        for tweet, user in zip(response.data, response.includes["users"]):
+            try:
+                num = re.findall(r'\b(\d+| \d)+\b', str(tweet))
+                print(num)
+                num = int(num[0])
+                # num = int(
+                #     str(tweet).lower().replace(
+                #         "@covidtipsbot", ""
+                #     ).replace(" ", "")
+                # )
+                yield {"number": num, "username": f"@{user}"}
+            except ValueError:
+                continue
+
+
+def getFullCovidTips(day=None):
+    from database import getCovidTipsDate
+    if day is None:
+        day = datetime.date.today() - datetime.timedelta(days=1)
+    tips = list(getCovidTipsDate(day))
+
+    tips.extend(getTwitterTips(day))
+    return tips
 
 
 def pm(number):

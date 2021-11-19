@@ -1063,13 +1063,35 @@ async def setCovidTip_command(msg, *args):
 
     setCovidTip(datetime.datetime.now(), tip, msg.author, twitterUsername)
 
+    tips = getFullCovidTips()
+    tips.sort(key=lambda x: x["number"])
+
     await msg.reply(
         f"Tvůj tip `{tip}` byl zaznamenán.",
         embed=client.embed(
             "Aktuální tipy",
             fields=[
                 (i["username"], i["number"])
-                for i in getCovidTipsDate(datetime.date.today())
+                for i in tips
+            ]
+        )
+    )
+
+
+@client.command("covidTips")
+async def covidTips_command(msg, *args):
+    """Show current covid tips"""
+    tips = getFullCovidTips(
+        datetime.date.today()
+    )
+    tips.sort(key=lambda x: x["number"])
+
+    await msg.reply(
+        embed=client.embed(
+            "Aktuální tipy",
+            fields=[
+                (i["username"], i["number"])
+                for i in tips
             ]
         )
     )
