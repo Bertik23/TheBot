@@ -952,7 +952,7 @@ def getTwitterTips(day=None):
     if response.data is not None:
         for tweet, user in zip(response.data, response.includes["users"]):
             try:
-                num = re.findall(r'\b(\d+| \d)+\b', str(tweet))
+                num = re.findall(r'\b(\d+| \d+)+\b', str(tweet))
                 print(num)
                 num = int(num[0])
                 # num = int(
