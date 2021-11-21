@@ -923,12 +923,12 @@ async def color(msg, *args):
 @client.command("search")
 async def search(msg, *args):
     """Searches the web"""
-    print(args)
+    # print(args)
     if args == ():
         return
     r = requests.get(
         f"https://api.duckduckgo.com/?q={args[0]}&format=json&kl=cz-cs").json()
-    print(msg.content)
+    # print(msg.content)
     await msg.reply(embed=client.embed(
         r["Heading"],
         description=r["AbstractText"],
@@ -997,7 +997,7 @@ async def day_command(msg, *args):
         return f"{date: %A %d %B %Y}"
     dayTrivia = f"On {dayStr(today.replace(year=r['year']))} {r['text']}"
 
-    print(countryNameDays)
+    # print(countryNameDays)
     namedaysStr = ""
     for i in countryNameDays:
         namedaysStr += f"**{i}**: {countryNameDays[i]}\n"
