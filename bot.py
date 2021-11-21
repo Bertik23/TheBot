@@ -163,6 +163,8 @@ async def on_message(message):
         f"{message.channel} ({message.channel.id}): {message.author}: "
         f"{message.author.name}: {message.content}"
     )
+    if message.channel.id == 905841944507322428:
+        return {"log": False}
 
     if (message.author.bot and message.author.id != 788873442664906752 and
             message.channel.id in (790630915448504390, 790630932292829214)):
