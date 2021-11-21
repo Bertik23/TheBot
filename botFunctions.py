@@ -948,13 +948,24 @@ def getTwitterTips(day=None):
         user_fields=["username"],
         expansions=["author_id"]
     )
-    print(response.data, response.includes)
+    # print(response.data, response.includes)
     if response.data is not None:
         for tweet, user in zip(response.data, response.includes["users"]):
             try:
-                num = "".join(re.findall(r'\b(\d| \d+)\b', str(tweet)))
-                print(num)
-                num = int(num.replace(" ", ""))
+                tweetText = str(tweet)
+                mentions = re.findall(r"@\w+", tweetText)
+                # print(mentions)
+                for mention in mentions:
+                    tweetText = tweetText.replace(mention, "")
+                # print(tweetText)
+                tweetText = tweetText.replace(" ", "")
+                # print(tweetText)
+                if not tweetText.isnumeric():
+                    continue
+                # num = "".join(re.findall(r'\b(\d| \d+)\b', str(tweet)))
+                # print(num)
+                # num = int(num.replace(" ", ""))
+                num = int(tweetText)
                 # num = int(
                 #     str(tweet).lower().replace(
                 #         "@covidtipsbot", ""
