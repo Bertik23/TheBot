@@ -1063,7 +1063,7 @@ async def setCovidTip_command(msg, *args):
 
     setCovidTip(datetime.datetime.now(), tip, msg.author, twitterUsername)
 
-    tips = getFullCovidTips()
+    tips = getFullCovidTips(datetime.date.today())
     tips.sort(key=lambda x: x["number"])
 
     await msg.reply(
