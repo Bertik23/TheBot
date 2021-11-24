@@ -903,20 +903,25 @@ def tweetCovidNumberAndWiner(yesterday, tipsWinner, tip, moreTips):
     ).data["id"]
 
     # print(moreTips)
+    tweetListSize = 5
+    moreTipsList = splitListSize(moreTips, tweetListSize)
     if moreTips:
-        textMoreTips = "".join(
-            f"{i+2}. {tip['username']} - {nf(tip['number'])} "
-            f"({pm(tip['number']-yesterday)} {nf(tip['number']-yesterday)})\n"
-            for i, tip in enumerate(moreTips)
-        )
-
-        clientTW.create_tweet(
-            in_reply_to_tweet_id=tweetId,
-            text=(
-                "Další v pořadí:\n"
-                f"{textMoreTips}"
+        for t, tips in enumerate(moreTipsList):
+            textMoreTips = "".join(
+                f"{t*tweetListSize+i+2}. "
+                f"{tip['username']} - {nf(tip['number'])} "
+                f"({pm(tip['number']-yesterday)} "
+                f"{nf(tip['number']-yesterday)})\n"
+                for i, tip in enumerate(tips)
             )
-        )
+
+            tweetId = clientTW.create_tweet(
+                in_reply_to_tweet_id=tweetId,
+                text=(
+                    "Další v pořadí:\n"
+                    f"{textMoreTips}"
+                )
+            ).data["id"]
 
 
 def getTwitterTips(day=None):
@@ -995,3 +1000,7 @@ def pm(number):
 
 def nf(number):
     return f"{number:,}".replace(",", " ")
+
+
+def splitListSize(array, chunkSize):
+    return [array[i:i + chunkSize] for i in range(0, len(array), chunkSize)]
