@@ -870,7 +870,7 @@ async def covidDataTipsEval(channel, number):
         number,
         sortedTips[0]["username"],
         sortedTips[0]["number"],
-        sortedTips[1:6]
+        sortedTips[1:]
     )
 
 
@@ -905,6 +905,7 @@ def tweetCovidNumberAndWiner(yesterday, tipsWinner, tip, moreTips):
     # print(moreTips)
     tweetListSize = 5
     moreTipsList = splitListSize(moreTips, tweetListSize)
+    print(moreTipsList, moreTips)
     if moreTips:
         for t, tips in enumerate(moreTipsList):
             textMoreTips = "".join(
