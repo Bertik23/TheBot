@@ -1097,6 +1097,31 @@ async def covidTips_command(msg, *args):
     )
 
 
+@client.command("evalTips")
+async def evalTips_command(msg, *args):
+    """Evals the tips. Month in format YYYY-MM"""
+    if args == (None,):
+        await msg.reply("Dodej měsíc demente.")
+        return
+
+    if not re.match(r"\b\d{4}-\d{2}\b", args[0]):
+        await msg.reply(f"`{args[0]}` neni měsíc debile!")
+    points = evalTips(args[0])
+    fields = [
+        (f"{i}. place", f"<@{uid}> with {points[uid]} points")
+        for i, uid in enumerate(sorted(
+            points,
+            key=lambda x: points[x],
+            reverse=True
+        ))
+    ]
+
+    await msg.reply(embed=client.embed(
+        "Points for tipping",
+        fields=fields
+    ))
+
+
 for command in client.commands:
     client.commands[command].__doc__ = (
         client.commands[command].__doc__.replace(

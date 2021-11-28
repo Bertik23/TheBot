@@ -5,27 +5,27 @@ import io
 import json
 import os
 import pprint
-import zlib
-from datetime import date, datetime, timedelta, timezone, time
-
+import random
 import re
+import zlib
+from datetime import date, datetime, time, timedelta, timezone
 
 import bdbf
-from bdbf.functions import embed
 import discord
 import numpy as np
-from numpy.lib.twodim_base import eye
+import oaAPI
 import plotly.graph_objects as go
 import requests
 import tomd
 import tweepy
 import wolframalpha
+from bdbf.functions import embed
 from bs4 import BeautifulSoup
-from prettytable import ALL, PrettyTable
+from numpy.lib.twodim_base import eye
 from PIL import Image, ImageDraw, ImageFont
-from variables import *
-import random
+from prettytable import ALL, PrettyTable
 
+from variables import *
 
 wClient = wolframalpha.Client("TV7GVY-8YLJ26PPK9")
 githubToken = os.environ.get("GithubToken", None)
@@ -1005,3 +1005,46 @@ def nf(number):
 
 def splitListSize(array, chunkSize):
     return [array[i:i + chunkSize] for i in range(0, len(array), chunkSize)]
+
+
+def evalTips(month):
+    from database import getCovidTips
+    tips = [
+        i for i in getCovidTips() if i["date"].isoformat().startswith(month)
+    ]
+    filteredTips = []
+    filtered = set()
+    for tip in tips:
+        if ((tip["date"].date(), tip["userID"]) not in filtered):
+            filteredTips.append(tip)
+            filtered.add((tip["date"].date(), tip["userID"]))
+
+    dateTips: dict[str, list] = {}
+    for tip in filteredTips:
+        dateTips.setdefault(
+            tip["date"].date().isoformat(),
+            []
+        ).append(tip)
+
+    dateNumbers = {
+        i["datum"]: i["incidence_pozitivni"]
+        for i in oaAPI.getTestyPcrAntigenni(
+            os.environ["covidDataToken"],
+            date_before=f"{month}-31",
+            date_after=f"{month}-01"
+        )
+    }
+
+    for key, value in dateTips.items():
+        if key in dateNumbers:
+            value.sort(key=lambda x: abs(x["number"] - dateNumbers[key]))
+        else:
+            value = []
+
+    sumsOfPlaces = {}
+    for tips in dateTips.values():
+        for i, tip in enumerate(tips):
+            sumsOfPlaces.setdefault(tip["userID"], 0)
+            sumsOfPlaces[tip["userID"]] += len(tips) - i
+
+    return sumsOfPlaces
