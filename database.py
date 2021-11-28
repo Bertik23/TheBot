@@ -180,10 +180,10 @@ def getCovidTips():
 def getCovidTipsDate(date):
     covidTips = getCovidTips()
     covidTips = [i for i in covidTips if i["date"].date() == date]
-    users = []
+    users = set()
     for tip in covidTips:
         if tip["userID"] not in users:
-            users.append(tip["userID"])
+            users.add(tip["userID"])
             yield tip
 
 
