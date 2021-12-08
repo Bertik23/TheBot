@@ -607,11 +607,15 @@ async def covidNumbers():
                     database.getLastCovidDataModifiedTime()
                 )
                 and
+                covidData["modified"].startswith(now().isoformat()[:10])
+                and
                 now()
                 > datetime.datetime.fromisoformat(testyData["modified"])
                 > datetime.datetime.fromisoformat(
                     database.getLastTestDataModifiedTime()
                 )
+                and
+                testyData["modified"].startswith(now().isoformat()[:10])
             ):
                 await covidDataSend(obecne, covidData, testyData)
                 database.setLastCovidDataModifiedTime(covidData["modified"])
