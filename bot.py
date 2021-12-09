@@ -606,7 +606,7 @@ async def covidNumbers():
                 os.environ["covidDataToken"],
                 date_after=datetime.date.today() - datetime.timedelta(days=2)
             )
-            if datetime.datetime.now().hour > 6:
+            if datetime.datetime.now().hour < 6:
                 await botspam.send(
                     "CovidData\n```json\n"
                     f"{json.dumps(covidData, indent=4)}\n```"
