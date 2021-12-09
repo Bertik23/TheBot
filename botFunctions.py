@@ -775,66 +775,71 @@ async def covidDataSend(
     testyData=None
 ):
     if covidData is None:
-        covidData = requests.get(
-            "https://onemocneni-aktualne.mzcr.cz/api/v2/"
-            "covid-19/zakladni-prehled.json"
-        ).json()
+        # covidData = requests.get(
+        #     "https://onemocneni-aktualne.mzcr.cz/api/v2/"
+        #     "covid-19/zakladni-prehled.json"
+        # ).json()
+        covidData = oaAPI.getZakladniPrehled(os.environ["covidDataToken"])
     if testyData is None:
-        testyData = requests.get(
-            "https://onemocneni-aktualne.mzcr.cz/api/v2/"
-            "covid-19/testy-pcr-antigenni.min.json"
-        ).json()
+        # testyData = requests.get(
+        #     "https://onemocneni-aktualne.mzcr.cz/api/v2/"
+        #     "covid-19/testy-pcr-antigenni.min.json"
+        # ).json()
+        testyData = oaAPI.getTestyPcrAntigenni(
+            os.environ["covidDataToken"],
+            date_after=datetime.date.today() - datetime.timedelta(days=2)
+        )
 
     await channel.send(
         embed=covidDataEmbed(
             client,
-            covidData["data"][0]["potvrzene_pripady_vcerejsi_den"],
-            testyData["data"][-2]["incidence_pozitivni"],
-            covidData["data"][0]["aktivni_pripady"],
+            covidData["potvrzene_pripady_vcerejsi_den"],
+            testyData[-2]["incidence_pozitivni"],
+            covidData["aktivni_pripady"],
             (
-                covidData["data"][0][
+                covidData[
                     "potvrzene_pripady_vcerejsi_den"
                 ]
                 /
                 (
-                    covidData["data"][0][
+                    covidData[
                         "provedene_testy_vcerejsi_den"
                     ]
-                    + covidData["data"][0][
+                    + covidData[
                         "provedene_antigenni_testy_vcerejsi_den"
                     ]
                 )
             ),
             (
-                testyData["data"][-2][
+                testyData[-2][
                     "incidence_pozitivni"
                 ]
                 /
                 (
-                    testyData["data"][-2][
+                    testyData[-2][
                         "pocet_PCR_testy"
                     ]
-                    + testyData["data"][-2][
+                    + testyData[-2][
                         "pocet_AG_testy"
                     ]
                 )
             ),
             (
                 (
-                    covidData["data"][0][
+                    covidData[
                         "provedene_testy_vcerejsi_den"
                     ]
-                    + covidData["data"][0][
+                    + covidData[
                         "provedene_antigenni_testy_vcerejsi_den"
                     ]
                 )
             ),
             (
                 (
-                    testyData["data"][-2][
+                    testyData[-2][
                         "pocet_PCR_testy"
                     ]
-                    + testyData["data"][-2][
+                    + testyData[-2][
                         "pocet_AG_testy"
                     ]
                 )
@@ -843,35 +848,37 @@ async def covidDataSend(
     )
 
 
-async def covidDataTipsEval(channel, number):
+async def covidDataTipsEval(channel, number, twitter=True, discord=True):
     sortedTips = sorted(
         getFullCovidTips(),
         key=lambda x: abs(x["number"] - number)
     )
 
-    await channel.send(
-        embed=client.embed(
-            "Tabulka tipů",
-            description=f"{number}",
-            fields=[
-                (
-                    f"{p}. " + i["username"],
+    if discord:
+        await channel.send(
+            embed=client.embed(
+                "Tabulka tipů",
+                description=f"{number}",
+                fields=[
                     (
-                        str(i["number"]) +
-                        f" ({pm(i['number']-number)}"
-                        f"{i['number']-number})"
+                        f"{p}. " + i["username"],
+                        (
+                            str(i["number"]) +
+                            f" ({pm(i['number']-number)}"
+                            f"{i['number']-number})"
+                        )
                     )
-                )
-                for p, i in enumerate(sortedTips)
-            ]
+                    for p, i in enumerate(sortedTips)
+                ]
+            )
         )
-    )
-    tweetCovidNumberAndWiner(
-        number,
-        sortedTips[0]["username"],
-        sortedTips[0]["number"],
-        sortedTips[1:]
-    )
+    if twitter:
+        tweetCovidNumberAndWiner(
+            number,
+            sortedTips[0]["username"],
+            sortedTips[0]["number"],
+            sortedTips[1:]
+        )
 
 
 def getTwitterClient():

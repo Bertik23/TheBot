@@ -77,8 +77,11 @@ client = bdbf.Client(
     )
 
 
-klubik, obecne, choco_afroAnouncements, korona_info, hodinyUpozorneni = (
-    None, None, None, None, None
+(
+    klubik, obecne, choco_afroAnouncements,
+    korona_info, hodinyUpozorneni, botspam
+) = (
+    None, None, None, None, None, None
 )
 botStartTime = datetime.datetime.utcnow()
 botReadyTimes = []

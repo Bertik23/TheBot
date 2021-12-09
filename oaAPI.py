@@ -1,6 +1,7 @@
 import requests
 import datetime
 import typing
+from pprint import pprint
 
 date = typing.TypeVar("date", str, datetime.date, datetime.datetime)
 
@@ -18,13 +19,14 @@ def getResource(token: str, endpoint: str, params: dict[str, str] = None):
     ).json()
 
 
-def getZakladniPrehled(token, date: date = None):
+def getZakladniPrehled(token: str, date: date = None):
     """Gets the základní přehled endpoint, for specific date.
     Only today works tho (MZCR's bad, not mine)
 
     Args:
         token (:class:`str`): your API token
-        date (Union[:class:`datetime.datetime`, :class:`datetime.date`, :class:`str`], optional): Date you want základní přehled for. Defaults to todays date.
+        date (:class:`date`, optional): Date you want základní přehled for. \
+            Defaults to todays date.
 
     Returns:
         JSON: Základní přehled endpoint
@@ -36,7 +38,7 @@ def getZakladniPrehled(token, date: date = None):
     elif isinstance(date, datetime.datetime):
         date = date.date().isoformat()
 
-    return getResource(token, f"zakladni-prehled/{date}")[0]
+    return getResource(token, f"zakladni-prehled/{date}")
 
 
 def getTestyPcrAntigenni(

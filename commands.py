@@ -1122,6 +1122,41 @@ async def evalTips_command(msg, *args):
     ))
 
 
+# @client.command("covidNumbers")
+# async def covidNumbers_command(msg, *args):
+#     """"""
+#     covidData = oaAPI.getZakladniPrehled(os.environ["covidDataToken"])
+#     testyData = oaAPI.getTestyPcrAntigenni(
+#         os.environ["covidDataToken"],
+#         date_after=datetime.date.today() - datetime.timedelta(days=2)
+#     )
+#     await covidDataSend(msg.channel, covidData, testyData)
+
+
+@client.command("covidTipsDiscord")
+async def covidTipsNewData_command(msg, *args):
+    """"""
+    if msg.author.id != 452478521755828224:
+        await msg.reply("Na tohle nemáš právo.")
+        return
+    covidData = oaAPI.getZakladniPrehled(os.environ["covidDataToken"])
+    await covidDataTipsEval(msg.channel, covidData[
+        "potvrzene_pripady_vcerejsi_den"
+    ], twitter=False, discord=True)
+
+
+@client.command("covidTipsTwitter")
+async def covidTipsNewData_command(msg, *args):
+    """"""
+    if msg.author.id != 452478521755828224:
+        await msg.reply("Na tohle nemáš právo.")
+        return
+    covidData = oaAPI.getZakladniPrehled(os.environ["covidDataToken"])
+    await covidDataTipsEval(msg.channel, covidData[
+        "potvrzene_pripady_vcerejsi_den"
+    ], twitter=True, discord=False)
+
+
 for command in client.commands:
     client.commands[command].__doc__ = (
         client.commands[command].__doc__.replace(
