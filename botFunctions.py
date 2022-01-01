@@ -932,61 +932,106 @@ def tweetCovidNumberAndWiner(yesterday, tipsWinner, tip, moreTips):
             ).data["id"]
 
 
-def getTwitterTips(day=None):
+def getTwitterTips(day=None, start=None, end=None):
     clientTW = getTwitterClient()
 
-    if day is None:
-        start = datetime.datetime.combine(
+    if day is None and start is None and end is None:
+        _start = datetime.datetime.combine(
             datetime.date.today() - datetime.timedelta(1),
             datetime.time(0, 0, 1)
         ).isoformat()+"Z"
-        end = datetime.datetime.combine(
+        _end = datetime.datetime.combine(
             datetime.date.today(),
             datetime.time(0, 0, 1)
         ).isoformat()+"Z"
-    else:
-        start = datetime.datetime.combine(
+    elif start is None and end is None:
+        _start = datetime.datetime.combine(
             day,
             datetime.time(0, 0, 1)
         ).isoformat()+"Z"
-        end = datetime.datetime.combine(
+        _end = datetime.datetime.combine(
             day + datetime.timedelta(1),
             datetime.time(0, 0, 1)
         ).isoformat()+"Z"
+    elif start is not None and end is not None:
+        # print("THIS")
+        _start = start
+        _end = end
 
-    response: tweepy.Response = clientTW.get_users_mentions(
-        1460632004509241349,
-        end_time=end,
-        start_time=start,
-        user_fields=["username"],
-        expansions=["author_id"]
-    )
-    # print(response.data, response.includes)
-    if response.data is not None:
-        for tweet, user in zip(response.data, response.includes["users"]):
-            try:
-                tweetText = str(tweet)
-                mentions = re.findall(r"@\w+", tweetText)
-                # print(mentions)
-                for mention in mentions:
-                    tweetText = tweetText.replace(mention, "")
-                # print(tweetText)
-                tweetText = tweetText.replace(" ", "")
-                # print(tweetText)
-                if not tweetText.isnumeric():
+    next_token = None
+    while True:
+        if next_token is None:
+            response: tweepy.Response = clientTW.get_users_mentions(
+                1460632004509241349,
+                end_time=_end,
+                start_time=_start,
+                user_fields=["username"],
+                expansions=["author_id"],
+                tweet_fields=["created_at"],
+                max_results=100
+            )
+        else:
+            response: tweepy.Response = clientTW.get_users_mentions(
+                1460632004509241349,
+                end_time=_end,
+                start_time=_start,
+                user_fields=["username"],
+                expansions=["author_id"],
+                tweet_fields=["created_at"],
+                max_results=100,
+                pagination_token=next_token
+            )
+        # print(response.data, response.includes)
+        if response.data is not None:
+            for tweet, user in zip(response.data, response.includes["users"]):
+                try:
+                    tweetText = str(tweet)
+                    mentions = re.findall(r"@\w+", tweetText)
+                    # print(mentions)
+                    for mention in mentions:
+                        tweetText = tweetText.replace(mention, "")
+                    # print(tweetText)
+                    tweetText = tweetText.replace(" ", "")
+                    # print(tweetText)
+                    if not tweetText.isnumeric():
+                        continue
+                    # num = "".join(re.findall(r'\b(\d| \d+)\b', str(tweet)))
+                    # print(num)
+                    # num = int(num.replace(" ", ""))
+                    num = int(tweetText)
+                    # num = int(
+                    #     str(tweet).lower().replace(
+                    #         "@covidtipsbot", ""
+                    #     ).replace(" ", "")
+                    # )
+                    if (
+                        day is not None
+                        or
+                        (
+                            day is None
+                            and
+                            start is None
+                            and
+                            end is None
+                        )
+                    ):
+                        yield {"number": num, "username": f"@{user}"}
+                    else:
+                        yield {
+                            "date": tweet.created_at,
+                            "number": num,
+                            "username": f"@{user}"
+                        }
+                except ValueError:
                     continue
-                # num = "".join(re.findall(r'\b(\d| \d+)\b', str(tweet)))
-                # print(num)
-                # num = int(num.replace(" ", ""))
-                num = int(tweetText)
-                # num = int(
-                #     str(tweet).lower().replace(
-                #         "@covidtipsbot", ""
-                #     ).replace(" ", "")
-                # )
-                yield {"number": num, "username": f"@{user}"}
-            except ValueError:
-                continue
+        if (
+            response.meta["result_count"] == 0
+            or
+            "next_token" not in response.meta.keys()
+        ):
+            break
+        # print(response.meta)
+        next_token = response.meta["next_token"]
 
 
 def getFullCovidTips(day=None):
@@ -1055,3 +1100,92 @@ def evalTips(month):
             sumsOfPlaces[tip["userID"]] += len(tips) - i
 
     return sumsOfPlaces
+
+
+def evalTwitterTips(start: datetime.datetime, end: datetime.datetime):
+    tips = getTwitterTips(start=start.isoformat()+"Z", end=end.isoformat()+"Z")
+    # print(tips)
+    filteredTips = []
+    filtered = set()
+    for tip in tips:
+        # print(tip)
+        if ((tip["date"].date(), tip["username"]) not in filtered):
+            filteredTips.append(tip)
+            filtered.add((tip["date"].date(), tip["username"]))
+
+    dateTips: dict[str, list] = {}
+    for tip in filteredTips:
+        dateTips.setdefault(
+            tip["date"].date().isoformat(),
+            []
+        ).append(tip)
+
+    dateNumbers = {
+        i["datum"]: i["incidence_pozitivni"]
+        for i in oaAPI.getTestyPcrAntigenni(
+            os.environ["covidDataToken"],
+            date_before=end.date().isoformat(),
+            date_after=start.date().isoformat()
+        )
+    }
+
+    for key, value in dateTips.items():
+        if key in dateNumbers:
+            value.sort(key=lambda x: abs(x["number"] - dateNumbers[key]))
+        else:
+            value = []
+
+    sumsOfPlaces = {}
+    for tips in dateTips.values():
+        for i, tip in enumerate(tips):
+            sumsOfPlaces.setdefault(tip["username"], 0)
+            sumsOfPlaces[tip["username"]] += len(tips) - i
+
+    return sumsOfPlaces
+
+
+def tweetEvalTips(start, end):
+    _start = datetime.datetime.combine(
+        datetime.date.fromisoformat(start),
+        datetime.time(0, 0, 1)
+    )
+    _end = datetime.datetime.combine(
+        datetime.date.fromisoformat(end),
+        datetime.time(23, 59, 59)
+    )
+    points = evalTwitterTips(
+        _start, _end
+    )
+
+    sortedPeople = sorted(points, key=lambda x: points[x], reverse=True)
+
+    clientTW = getTwitterClient()
+
+    tweetId = clientTW.create_tweet(
+        text=(
+            "Nejlepším tipujícím roku se stal:\n"
+            +
+            f"{sortedPeople[0]} s {nf(points[sortedPeople[0]])} body.\n"
+            "Gratuluji.\n"
+            "Zároveň bych Vám všem chtěl popřát"
+            "vše nejlepší v Novém a novém roce."
+        )
+    ).data["id"]
+
+    # print(moreTips)
+    tweetListSize = 5
+    morePointsList = splitListSize(sortedPeople, tweetListSize)
+    for p, morePoints in enumerate(morePointsList):
+        textMorePoints = "".join(
+            f"{p*tweetListSize+i+2}. "
+            f"{person} s {nf(points[person])} body\n"
+            for i, person in enumerate(morePoints)
+        )
+
+        tweetId = clientTW.create_tweet(
+            in_reply_to_tweet_id=tweetId,
+            text=(
+                "Další v pořadí:\n"
+                f"{textMorePoints}"
+            )
+        ).data["id"]

@@ -1157,6 +1157,16 @@ async def covidTipsNewData_command(msg, *args):
     ], twitter=True, discord=False)
 
 
+@client.command("evalTwitter")
+async def evalTwitter_command(msg, *args):
+    """"""
+    if msg.author.id != 452478521755828224:
+        await msg.reply("Na tohle nemáš právo.")
+        return
+    args = args[0]
+    tweetEvalTips(*args.split(" "))
+
+
 for command in client.commands:
     client.commands[command].__doc__ = (
         client.commands[command].__doc__.replace(
