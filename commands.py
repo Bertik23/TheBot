@@ -1090,7 +1090,7 @@ async def covidTips_command(msg, *args):
         embed=client.embed(
             "Aktuální tipy",
             fields=[
-                (i["username"], i["number"])
+                (i["username"], i["number"], True)
                 for i in tips
             ]
         )

@@ -593,51 +593,33 @@ async def ieTweetLoop():
 async def covidNumbers():
     while True:
         try:
-            # covidData = requests.get(
-            #     "https://onemocneni-aktualne.mzcr.cz/api/v2/"
-            #     "covid-19/zakladni-prehled.json"
-            # ).json()
-            covidData = oaAPI.getZakladniPrehled(os.environ["covidDataToken"])
-            # testyData = requests.get(
-            #     "https://onemocneni-aktualne.mzcr.cz/api/v2/"
-            #     "covid-19/testy-pcr-antigenni.min.json"
-            # ).json()
-            testyData = oaAPI.getTestyPcrAntigenni(
-                os.environ["covidDataToken"],
-                date_after=datetime.date.today() - datetime.timedelta(days=2)
-            )
-            if datetime.datetime.now().hour < 6:
-                await botspam.send(
-                    "CovidData\n```json\n"
-                    f"{json.dumps(covidData, indent=4)}\n```"
+            if datetime.date.today() != datetime.date.fromisoformat(
+                database.getLastCovidTime()
+            ):
+                covidData: dict = oaAPI.getZakladniPrehled(
+                    os.environ["covidDataToken"]
                 )
-                await botspam.send(
-                    "testyData\n```json\n"
-                    f"{json.dumps(testyData, indent=4)}\n```"
+                testyData = oaAPI.getTestyPcrAntigenni(
+                    os.environ["covidDataToken"],
+                    date_after=datetime.date.today()
+                    - datetime.timedelta(days=2)
                 )
-            # if (
-            #     now()
-            #     > datetime.datetime.fromisoformat(covidData["modified"])
-            #     > datetime.datetime.fromisoformat(
-            #         database.getLastCovidDataModifiedTime()
-            #     )
-            #     and
-            #     covidData["modified"].startswith(now().isoformat()[:10])
-            #     and
-            #     now()
-            #     > datetime.datetime.fromisoformat(testyData["modified"])
-            #     > datetime.datetime.fromisoformat(
-            #         database.getLastTestDataModifiedTime()
-            #     )
-            #     and
-            #     testyData["modified"].startswith(now().isoformat()[:10])
-            # ):
-            #     await covidDataSend(obecne, covidData, testyData)
-            #     database.setLastCovidDataModifiedTime(covidData["modified"])
-            #     database.setLastTestDataModifiedTime(testyData["modified"])
-            #     await covidDataTipsEval(obecne, covidData["data"][0][
-            #         "potvrzene_pripady_vcerejsi_den"
-            #     ])
+                if (
+                    "title" not in covidData
+                    and
+                    len(testyData) >= 2
+                ):
+                    await covidDataSend(obecne, covidData, testyData)
+                    await covidDataTipsEval(
+                        obecne,
+                        covidData[
+                            "potvrzene_pripady_vcerejsi_den"
+                        ],
+                        twitter=False
+                    )
+                    database.setLastCovidTime(
+                        datetime.date.today().isoformat()
+                    )
         except Exception as e:
             print(e)
         await asyncio.sleep(60*15)

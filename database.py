@@ -1,4 +1,4 @@
-import botFunctions
+from botFunctions import decrypt
 import os
 from oauth2client.service_account import ServiceAccountCredentials
 import gspread
@@ -23,7 +23,7 @@ with open("thebotdbCredentials-encrypted.nottxt", "rb") as f:
         try:
             encryptionKey = int(os.environ.get("encrypt", 0))
             fr = f.read()
-            f2.write(botFunctions.decrypt(fr.decode("utf-8"), encryptionKey))
+            f2.write(decrypt(fr.decode("utf-8"), encryptionKey))
         except Exception as e:
             print(e)
 
@@ -145,20 +145,12 @@ def getIEDataTimes():
     ]
 
 
-def getLastCovidDataModifiedTime():
+def getLastCovidTime():
     return dataLog.cell(2, 5).value
 
 
-def setLastCovidDataModifiedTime(time):
+def setLastCovidTime(time):
     return dataLog.update_cell(2, 5, time)
-
-
-def getLastTestDataModifiedTime():
-    return dataLog.cell(2, 6).value
-
-
-def setLastTestDataModifiedTime(time):
-    return dataLog.update_cell(2, 6, time)
 
 
 def getCovidTips():

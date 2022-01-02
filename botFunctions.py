@@ -849,8 +849,16 @@ async def covidDataSend(
 
 
 async def covidDataTipsEval(channel, number, twitter=True, discord=True):
+    from database import getCovidTipsDate
     sortedTips = sorted(
         getFullCovidTips(),
+        key=lambda x: abs(x["number"] - number)
+    )
+
+    sortedDiscordTips = sorted(
+        getCovidTipsDate(
+            datetime.date.today() - datetime.timedelta(days=1)
+        ),
         key=lambda x: abs(x["number"] - number)
     )
 
@@ -861,14 +869,34 @@ async def covidDataTipsEval(channel, number, twitter=True, discord=True):
                 description=f"{number}",
                 fields=[
                     (
-                        f"{p}. " + i["username"],
-                        (
-                            str(i["number"]) +
-                            f" ({pm(i['number']-number)}"
-                            f"{i['number']-number})"
-                        )
+                        "Top 3 tips.",
+                        "\n".join((
+                            f"{p}. " + i["username"]
+                            + (
+                                str(i["number"]) +
+                                f" ({pm(i['number']-number)}"
+                                f"{i['number']-number})"
+                            )
+                        ) for p, i in enumerate(sortedTips[:3])),
+                        True
+                    ),
+                    (
+                        "Discord tips.",
+                        "\n".join((
+                            f"{p}. ({sortedTips.index(i)}.) {i['username']} "
+                            + (
+                                str(i["number"]) +
+                                f" ({pm(i['number']-number)}"
+                                f"{i['number']-number})"
+                            )
+                        ) for p, i in enumerate(sortedDiscordTips)),
+                        True
+                    ),
+                    (
+                        "Celkem tipů:",
+                        f"{len(sortedTips)}",
+                        True
                     )
-                    for p, i in enumerate(sortedTips)
                 ]
             )
         )
