@@ -614,8 +614,7 @@ async def covidNumbers():
                         obecne,
                         covidData[
                             "potvrzene_pripady_vcerejsi_den"
-                        ],
-                        twitter=False
+                        ]
                     )
                     database.setLastCovidTime(
                         datetime.date.today().isoformat()
