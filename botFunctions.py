@@ -889,7 +889,10 @@ async def covidDataTipsEval(channel, number, twitter=True, discord=True):
                                 f" ({pm(i['number']-number)}"
                                 f"{i['number']-number})"
                             )
-                        ) for p, i in enumerate(sortedDiscordTips)),
+                        ) for p, i in enumerate(sortedDiscordTips))
+                        if len(sortedDiscordTips)
+                        else
+                        "No discord tips yesterday 😢",
                         True
                     ),
                     (
