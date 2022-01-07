@@ -1,7 +1,9 @@
 import asyncio
 import bdbf
 import random
+import discord
 from prettytable import PrettyTable
+from botFunctions import waitUntil, xorSum
 from variables import *
 
 
@@ -9,7 +11,7 @@ class Game2048:
     def __init__(self, player, gridSize):
         self.player = player
         self.grid = []
-        for i in range(gridSize):
+        for _ in range(gridSize):
             self.grid.append([0 for j in range(gridSize)])
         self.addNumber()
         self.addNumber()
@@ -157,3 +159,71 @@ class Game2048:
             for j in i:
                 if j == 0:
                     self.zeroInGrid = True
+
+
+class GameNim:
+    def __init__(self, player1, player2, collums):
+        self.player1 = player1
+        self.player2 = player2
+        self.collums = collums
+        self.gameMessage = None
+        self.currentPlayer = random.choice([player1, player2])
+        # self.currentPlayer = player2
+
+    async def startGame(self, msg: discord.Message):
+        colsText = "\n\n".join(":orange_square: "*i for i in self.collums)
+        self.gameMessage = await msg.channel.send(
+            f"Welcome to the game of Nim\n{colsText}\n"
+            f"Na tahu je {self.currentPlayer.mention}"
+        )
+        await self.playGame()
+
+    async def playGame(self):
+        if self.currentPlayer.id != client.user.id:
+            msg = await client.wait_for(
+                "message",
+                check=lambda m: (
+                    m.reference.message_id == self.gameMessage.id
+                    and
+                    m.author == self.currentPlayer
+                )
+            )
+            play = msg.content.split(" ")
+        else:
+            s = xorSum(self.collums)
+            for i, col in enumerate(self.collums):
+                print(s, col, xorSum([s, col]))
+                if (x := xorSum([s, col])) <= col:
+                    play = [str(i), str(col - x)]
+                    break
+            else:
+                play = [str(random.randint(0, len(self.collums)-1))]
+                play.append(str(random.randint(1, self.collums[int(play[0])])))
+            msg = self.gameMessage
+        try:
+            if len(play) != 2:
+                await msg.reply("Neplatný tah")
+            else:
+                self.collums[int(play[0])] -= int(play[1])
+                for i, col in enumerate(self.collums):
+                    if col == 0:
+                        del self.collums[i]
+                colsText = "\n\n".join(
+                    ":orange_square: "*i for i in self.collums
+                )
+                if self.currentPlayer == self.player1:
+                    self.currentPlayer = self.player2
+                else:
+                    self.currentPlayer = self.player1
+                self.gameMessage = await msg.reply(
+                    colsText
+                    + f"Na tahu je {self.currentPlayer.mention}"
+                )
+            if len(self.collums):
+                await self.playGame()
+            else:
+                await msg.reply(f"{self.currentPlayer.mention} prohrál.")
+                del self
+        except Exception as e:
+            await msg.reply(f"Neplatný tah\n{e}")
+            await self.playGame()

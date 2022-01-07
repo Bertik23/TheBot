@@ -15,9 +15,8 @@ from bdbf import *
 from PIL import Image, ImageDraw, ImageFont
 
 import botFunctions
-import botGames
 from botFunctions import *
-from botGames import Game2048
+from botGames import Game2048, GameNim
 from database import (commandLog, getCovidTipsDate, getGuildBDays, messageLog,
                       setCovidTip, timers)
 from exceptions import *
@@ -564,7 +563,7 @@ activeGame = {}
 
 
 @client.command("play")
-async def play(msg, *args):
+async def play(msg: discord.Message, *args):
     """Play games.\nAvailable games:\n2048
     **Usage**: `%commandPrefix%play <game> <options>` eg. \
     `%commandPrefix%play 2048 4` or without options to show options"""
@@ -582,6 +581,20 @@ async def play(msg, *args):
                 await msg.reply("Grid size must be between 1 and 19")
         except IndexError:
             await msg.reply("Options for 2048:\nGrid Size")
+        except Exception as e:
+            await msg.reply(e)
+            raise e
+    elif args[0] == "Nim":
+        try:
+            collumns = list(map(int, args[2:]))
+            activeGame[msg.author] = GameNim(
+                msg.author,
+                msg.mentions[0],
+                collumns
+            )
+            await activeGame[msg.author].startGame(msg)
+        except IndexError:
+            await msg.reply("Options for 2048:\nStart position")
         except Exception as e:
             await msg.reply(e)
             raise e
@@ -1135,7 +1148,7 @@ async def evalTips_command(msg, *args):
 
 @client.command("covidTipsDiscord")
 async def covidTipsNewData_command(msg, *args):
-    """"""
+    """Do not use"""
     if msg.author.id != 452478521755828224:
         await msg.reply("Na tohle nemáš právo.")
         return
@@ -1147,7 +1160,7 @@ async def covidTipsNewData_command(msg, *args):
 
 @client.command("covidTipsTwitter")
 async def covidTipsNewData_command(msg, *args):
-    """"""
+    """Do not use"""
     if msg.author.id != 452478521755828224:
         await msg.reply("Na tohle nemáš právo.")
         return
@@ -1159,7 +1172,7 @@ async def covidTipsNewData_command(msg, *args):
 
 @client.command("evalTwitter")
 async def evalTwitter_command(msg, *args):
-    """"""
+    """Do not use"""
     if msg.author.id != 452478521755828224:
         await msg.reply("Na tohle nemáš právo.")
         return

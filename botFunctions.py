@@ -1220,3 +1220,10 @@ def tweetEvalTips(start, end):
                 f"{textMorePoints}"
             )
         ).data["id"]
+
+
+def xorSum(arr):
+    ans = 0
+    for i in arr:
+        ans ^= i
+    return ans
