@@ -183,6 +183,8 @@ class GameNim:
             msg = await client.wait_for(
                 "message",
                 check=lambda m: (
+                    hasattr(m.reference, "message_id")
+                    and 
                     m.reference.message_id == self.gameMessage.id
                     and
                     m.author == self.currentPlayer
@@ -193,7 +195,7 @@ class GameNim:
             s = xorSum(self.collums)
             for i, col in enumerate(self.collums):
                 print(s, col, xorSum([s, col]))
-                if (x := xorSum([s, col])) <= col:
+                if (x := xorSum([s, col])) <= col and col - x > 0:
                     play = [str(i), str(col - x)]
                     break
             else:
@@ -201,12 +203,12 @@ class GameNim:
                 play.append(str(random.randint(1, self.collums[int(play[0])])))
             msg = self.gameMessage
         try:
-            if len(play) != 2:
+            if len(play) != 2 or int(play[1]) <= 0:
                 await msg.reply("Neplatný tah")
             else:
                 self.collums[int(play[0])] -= int(play[1])
                 for i, col in enumerate(self.collums):
-                    if col == 0:
+                    if col <= 0:
                         del self.collums[i]
                 colsText = "\n\n".join(
                     ":orange_square: "*i for i in self.collums
