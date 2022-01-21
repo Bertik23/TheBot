@@ -604,17 +604,28 @@ async def covidNumbers():
                     date_after=datetime.date.today()
                     - datetime.timedelta(days=2)
                 )
+                reinfekceData = oaAPI.getPrehledReinfekceDate(
+                    os.environ["covidDataToken"],
+                    date=datetime.date.today()-datetime.timedelta(days=1)
+                )
                 if (
                     "title" not in covidData
                     and
+                    "title" not in reinfekceData
+                    and
                     len(testyData) >= 2
                 ):
-                    await covidDataSend(obecne, covidData, testyData)
+                    await covidDataSend(
+                        obecne,
+                        covidData,
+                        testyData,
+                        reinfekceData
+                    )
                     await covidDataTipsEval(
                         obecne,
                         covidData[
                             "potvrzene_pripady_vcerejsi_den"
-                        ]
+                        ] + reinfekceData["60_dnu"]
                     )
                     database.setLastCovidTime(
                         datetime.date.today().isoformat()

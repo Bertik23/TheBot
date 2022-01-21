@@ -78,3 +78,27 @@ def getTestyPcrAntigenni(
         "testy-pcr-antigenni",
         params=params
     )
+
+
+def getPrehledReinfekceDate(
+    token: str,
+    date: date = None
+):
+    """Gets the prehled reinfekce endpoint, for specific date.
+
+    Args:
+        token (:class:`str`): your API token
+        date (:class:`date`, optional): Date you want reinfections for. \
+            Defaults to todays date.
+
+    Returns:
+        JSON: Přehled reinfekce endpoint
+    """
+    if date is None:
+        date = datetime.date.today().isoformat()
+    elif isinstance(date, datetime.date):
+        date = date.isoformat()
+    elif isinstance(date, datetime.datetime):
+        date = date.date().isoformat()
+
+    return getResource(token, f"prehled-reinfekce/{date}")

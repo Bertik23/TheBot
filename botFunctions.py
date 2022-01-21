@@ -772,7 +772,8 @@ def covidDataEmbed(
 async def covidDataSend(
     channel: discord.TextChannel,
     covidData=None,
-    testyData=None
+    testyData=None,
+    reinfekceData=None,
 ):
     if covidData is None:
         # covidData = requests.get(
@@ -789,17 +790,23 @@ async def covidDataSend(
             os.environ["covidDataToken"],
             date_after=datetime.date.today() - datetime.timedelta(days=2)
         )
+    if reinfekceData is None:
+        reinfekceData = oaAPI.getPrehledReinfekceDate(
+            os.environ["covidDataToken"],
+            date=datetime.date.today()-datetime.timedelta(days=1)
+        )
 
     await channel.send(
         embed=covidDataEmbed(
             client,
-            covidData["potvrzene_pripady_vcerejsi_den"],
+            covidData["potvrzene_pripady_vcerejsi_den"]
+            + reinfekceData["60_dnu"],
             testyData[-2]["incidence_pozitivni"],
             covidData["aktivni_pripady"],
             (
-                covidData[
+                (covidData[
                     "potvrzene_pripady_vcerejsi_den"
-                ]
+                ] + reinfekceData["60_dnu"])
                 /
                 (
                     covidData[
