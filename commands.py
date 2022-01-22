@@ -1080,13 +1080,15 @@ async def setCovidTip_command(msg, *args):
     tips.sort(key=lambda x: x["number"])
 
     await msg.reply(
-        f"Tvůj tip `{tip}` byl zaznamenán.",
         embed=client.embed(
             "Aktuální tipy",
-            fields=[
-                (i["username"], i["number"])
-                for i in tips
-            ]
+            description=strTable(
+                [
+                    f'{i["username"]} - {i["number"]}'
+                    for i in tips
+                ],
+                2
+            )
         )
     )
 
@@ -1102,10 +1104,13 @@ async def covidTips_command(msg, *args):
     await msg.reply(
         embed=client.embed(
             "Aktuální tipy",
-            fields=[
-                (i["username"], i["number"], True)
-                for i in tips
-            ]
+            description=strTable(
+                [
+                    f'{i["username"]} - {i["number"]}'
+                    for i in tips
+                ],
+                2
+            )
         )
     )
 

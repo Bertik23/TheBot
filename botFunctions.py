@@ -1234,3 +1234,17 @@ def xorSum(arr):
     for i in arr:
         ans ^= i
     return ans
+
+
+def strTable(arr, cols, dir=1):
+    colLen = max(map(len, arr))
+
+    out = ""
+    if dir == 1:
+        for i, a in enumerate(arr):
+            out += ("{:>"+f'{colLen+1}'+"}").format(a)
+            print(i, i+1, cols, (i+1) % cols)
+            if (i+1) % cols == 0:
+                out += "\n"
+    print(out)
+    return "```"+out+"```"
