@@ -1080,38 +1080,24 @@ async def setCovidTip_command(msg, *args):
     tips.sort(key=lambda x: x["number"])
 
     await msg.reply(
-        embed=client.embed(
-            "Aktuální tipy",
-            description=strTable(
-                [
-                    f'{i["username"]} - {i["number"]}'
-                    for i in tips
-                ],
-                2
-            )
-        )
+        embed=covidTipsEmbed(tips)
     )
 
 
 @client.command("covidTips")
 async def covidTips_command(msg, *args):
     """Show current covid tips"""
+    if args[0] is None:
+        day = datetime.date.today()
+    else:
+        day = datetime.date.fromisoformat(args[0])
     tips = getFullCovidTips(
-        datetime.date.today()
+        day
     )
     tips.sort(key=lambda x: x["number"])
 
     await msg.reply(
-        embed=client.embed(
-            "Aktuální tipy",
-            description=strTable(
-                [
-                    f'{i["username"]} - {i["number"]}'
-                    for i in tips
-                ],
-                2
-            )
-        )
+        embed=covidTipsEmbed(tips)
     )
 
 

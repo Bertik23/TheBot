@@ -1248,3 +1248,21 @@ def strTable(arr, cols, dir=1):
                 out += "\n"
     print(out)
     return "```"+out+"```"
+
+
+def covidTipsEmbed(tips):
+    return client.embed(
+            "Aktuální tipy",
+            # thumbnail=dict(
+            #     url="https://pbs.twimg.com/profile_images/1461008360350924803/RltBFbNk_400x400.jpg"
+            # ),
+            fields=[(
+                f"Pozice {ci*10} až {ci*10 + len(chunk)}",
+                "\n".join(
+                    f'**{i["username"]}** - {i["number"]}'
+                    for i in chunk
+                ),
+                True
+            ) for ci, chunk in enumerate(splitListSize(tips, 10))
+            ]
+        )
