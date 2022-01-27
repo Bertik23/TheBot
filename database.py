@@ -3,6 +3,7 @@ import os
 from oauth2client.service_account import ServiceAccountCredentials
 import gspread
 import datetime
+import re
 
 # print(vars(botFunctions))
 
@@ -180,9 +181,16 @@ def getCovidTipsDate(date):
 
 
 def setCovidTip(date: datetime.date, tip, user, twitterUsername=""):
+    isTwitterUsername = re.match(r"\b[A-Za-z0-9]+\b", twitterUsername)
+    if isTwitterUsername:
+        twitterUsername = "@" + twitterUsername[:15]
+    else:
+        twitterUsername = twitterUsername[:25]
     covidTipsSheet.append_row([
         date.isoformat(),
-        str(user) if not twitterUsername else f"@{twitterUsername}",
+        str(user)
+        if not twitterUsername or not isTwitterUsername
+        else twitterUsername,
         str(user.id),
         str(tip)
     ])

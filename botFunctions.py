@@ -747,8 +747,9 @@ def now():
 
 def covidDataEmbed(
     client: bdbf.Client,
-    lastDay,
     today,
+    reinfectionsToday,
+    lastDay,
     active,
     positivity,
     positivityBefore,
@@ -758,8 +759,11 @@ def covidDataEmbed(
     return client.embed(
         "Covid Data",
         fields=[
-            ("Včera", "{:,}".format(lastDay).replace(",", " ")),
-            ("Předevčírem", "{:,}".format(today).replace(",", " ")),
+            ("Včera", "{:,}".format(today).replace(",", " ")),
+            ("Z toho reinfekce", "{:,}".format(
+                reinfectionsToday
+            ).replace(",", " ")),
+            ("Předevčírem", "{:,}".format(lastDay).replace(",", " ")),
             ("Aktivní", "{:,}".format(active).replace(",", " ")),
             ("Pozitivita", "{:.2%}".format(positivity)),
             ("Pozitivita předevčírem", "{:.2%}".format(positivityBefore)),
@@ -801,6 +805,7 @@ async def covidDataSend(
             client,
             covidData["potvrzene_pripady_vcerejsi_den"]
             + reinfekceData["60_dnu"],
+            reinfekceData["60_dnu"],
             testyData[-2]["incidence_pozitivni"],
             covidData["aktivni_pripady"],
             (
@@ -855,7 +860,13 @@ async def covidDataSend(
     )
 
 
-async def covidDataTipsEval(channel, number, twitter=True, discord=True):
+async def covidDataTipsEval(
+    channel,
+    number,
+    reinfections,
+    twitter=True,
+    discord=True
+):
     from database import getCovidTipsDate
     sortedTips = sorted(
         getFullCovidTips(),
@@ -878,7 +889,7 @@ async def covidDataTipsEval(channel, number, twitter=True, discord=True):
                     (
                         "Top 3 tips.",
                         "\n".join((
-                            f"{p}. " + i["username"]
+                            f"{p}. " + i["username"] + " "
                             + (
                                 str(i["number"]) +
                                 f" ({pm(i['number']-number)}"
@@ -913,6 +924,7 @@ async def covidDataTipsEval(channel, number, twitter=True, discord=True):
     if twitter:
         tweetCovidNumberAndWiner(
             number,
+            reinfections,
             sortedTips[0]["username"],
             sortedTips[0]["number"],
             sortedTips[1:]
@@ -929,23 +941,38 @@ def getTwitterClient():
     )
 
 
-def tweetCovidNumberAndWiner(yesterday, tipsWinner, tip, moreTips):
+def tweetCovidNumberAndWiner(
+    yesterday,
+    reinfections,
+    tipsWinner,
+    tip,
+    moreTips
+):
     clientTW = getTwitterClient()
 
     tweetId = clientTW.create_tweet(
         text=(
-            f"Včera přibylo {yesterday:,} nakažených covidem-19.\n\n".replace(
+            f"Včera přibylo {yesterday:,} nakažených covidem-19.\n".replace(
                 ",", " "
             )
             +
+            f"Z toho {reinfections:,} reinfekcí.\n\n".replace(",", " ")
+            +
             f"Nejblíže byl {tipsWinner} - {nf(tip)} "
-            f"({pm(tip-yesterday)} {nf(tip-yesterday)}). "
+            f"({pm(tip-yesterday)} {nf(tip-yesterday)}).\n"
             "Gratuluji.\n"
-            f"Tipy na dnešní den tweetujte jako odpověď na tento tweet"
-            " (např. 12 456),"
-            " pokud bude tweet obsahovat písmena, nebude se počítat."
         )
     ).data["id"]
+
+    clientTW.create_tweet(
+        in_reply_to_tweet_id=tweetId,
+        text=(
+            "Tipy na dnešní den tweetujte jako odpověď na tento tweet "
+            "nebo na jakýkoli jiný tweet, případně stačí označit @CovidTipsBot"
+            "(např. 12 456), "
+            "pokud bude tweet obsahovat písmena, nebude se počítat."
+        )
+    )
 
     # print(moreTips)
     tweetListSize = 5

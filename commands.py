@@ -1144,9 +1144,17 @@ async def covidTipsNewData_command(msg, *args):
         await msg.reply("Na tohle nemáš právo.")
         return
     covidData = oaAPI.getZakladniPrehled(os.environ["covidDataToken"])
-    await covidDataTipsEval(msg.channel, covidData[
-        "potvrzene_pripady_vcerejsi_den"
-    ], twitter=False, discord=True)
+    reinfekceData = oaAPI.getPrehledReinfekceDate(
+        os.environ["covidDataToken"],
+        date=datetime.date.today()-datetime.timedelta(days=1)
+    )
+    await covidDataTipsEval(
+        msg.channel,
+        covidData[
+            "potvrzene_pripady_vcerejsi_den"
+        ],
+        reinfekceData["60_dnu"],
+        twitter=False, discord=True)
 
 
 @client.command("covidTipsTwitter")
@@ -1156,9 +1164,17 @@ async def covidTipsNewData_command(msg, *args):
         await msg.reply("Na tohle nemáš právo.")
         return
     covidData = oaAPI.getZakladniPrehled(os.environ["covidDataToken"])
-    await covidDataTipsEval(msg.channel, covidData[
-        "potvrzene_pripady_vcerejsi_den"
-    ], twitter=True, discord=False)
+    reinfekceData = oaAPI.getPrehledReinfekceDate(
+        os.environ["covidDataToken"],
+        date=datetime.date.today()-datetime.timedelta(days=1)
+    )
+    await covidDataTipsEval(
+        msg.channel,
+        covidData[
+            "potvrzene_pripady_vcerejsi_den"
+        ],
+        reinfekceData["60_dnu"],
+        twitter=True, discord=False)
 
 
 @client.command("evalTwitter")
