@@ -181,7 +181,7 @@ def getCovidTipsDate(date):
 
 
 def setCovidTip(date: datetime.date, tip, user, twitterUsername=""):
-    isTwitterUsername = re.match(r"\b[A-Za-z0-9]+\b", twitterUsername)
+    isTwitterUsername = re.match(r"(\b[A-Za-z0-9]+\b)", twitterUsername)
     if isTwitterUsername and isTwitterUsername.groups()[0] == twitterUsername:
         twitterUsername = "@" + twitterUsername[:15]
     else:
