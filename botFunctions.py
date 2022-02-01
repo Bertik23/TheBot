@@ -1209,7 +1209,7 @@ def evalTwitterTips(start: datetime.datetime, end: datetime.datetime):
     return sumsOfPlaces
 
 
-def tweetEvalTips(start, end):
+def tweetEvalTips(start, end, message):
     _start = datetime.datetime.combine(
         datetime.date.fromisoformat(start),
         datetime.time(0, 0, 1)
@@ -1228,12 +1228,12 @@ def tweetEvalTips(start, end):
 
     tweetId = clientTW.create_tweet(
         text=(
-            "Nejlepším tipujícím roku se stal:\n"
+            message
+            +
+            "\n"
             +
             f"{sortedPeople[0]} s {nf(points[sortedPeople[0]])} body.\n"
-            "Gratuluji.\n"
-            "Zároveň bych Vám všem chtěl popřát"
-            "vše nejlepší v Novém a novém roce."
+            "Gratuluji."
         )
     ).data["id"]
 
