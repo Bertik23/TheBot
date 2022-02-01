@@ -1183,8 +1183,8 @@ async def evalTwitter_command(msg, *args):
     if msg.author.id != 452478521755828224:
         await msg.reply("Na tohle nemáš právo.")
         return
-    args = args[0]
-    tweetEvalTips(*args.split(" "))
+    args: str = args[0]
+    tweetEvalTips(*args.split(" ", 2))
 
 
 for command in client.commands:
