@@ -895,7 +895,10 @@ async def covidDataTipsEval(
                                 f" ({pm(i['number']-number)}"
                                 f"{i['number']-number})"
                             )
-                        ) for p, i in enumerate(sortedTips[:3])),
+                        ) for p, i in enumerate(sortedTips[:3]))
+                        if len(sortedTips)
+                        else
+                        "No tips? WTF",
                         True
                     ),
                     (
@@ -925,9 +928,9 @@ async def covidDataTipsEval(
         tweetCovidNumberAndWiner(
             number,
             reinfections,
-            sortedTips[0]["username"],
-            sortedTips[0]["number"],
-            sortedTips[1:]
+            sortedTips[0]["username"] if len(sortedTips) else None,
+            sortedTips[0]["number"] if len(sortedTips) else None,
+            sortedTips[1:] if len(sortedTips) else None
         )
 
 
@@ -950,6 +953,12 @@ def tweetCovidNumberAndWiner(
 ):
     clientTW = getTwitterClient()
 
+    winnerText = (
+        f"Nejblíže byl {tipsWinner} - {nf(tip)} "
+        f"({pm(tip-yesterday)} {nf(tip-yesterday)}).\n"
+        "Gratuluji.\n"
+    ) if tipsWinner is not None else ""
+
     tweetId = clientTW.create_tweet(
         text=(
             f"Včera přibylo {yesterday:,} nakažených covidem-19.\n".replace(
@@ -958,9 +967,7 @@ def tweetCovidNumberAndWiner(
             +
             f"Z toho {reinfections:,} reinfekcí.\n\n".replace(",", " ")
             +
-            f"Nejblíže byl {tipsWinner} - {nf(tip)} "
-            f"({pm(tip-yesterday)} {nf(tip-yesterday)}).\n"
-            "Gratuluji.\n"
+            winnerText
         )
     ).data["id"]
 
@@ -974,6 +981,8 @@ def tweetCovidNumberAndWiner(
         )
     )
 
+    if tipsWinner is None:
+        return
     # print(moreTips)
     tweetListSize = 5
     moreTipsList = splitListSize(moreTips, tweetListSize)
