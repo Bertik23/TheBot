@@ -63,6 +63,9 @@ botId = 540563812890443794
 # 84032 permissions int
 # https://discordapp.com/oauth2/authorize?client_id=540563812890443794&scope=bot&permissions=8
 
+# DEBUG ONLY!!!
+# logging = True
+# END DEBUG ONLY!!!
 
 client = bdbf.Client(
     commandPrefix="~",

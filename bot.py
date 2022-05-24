@@ -3,10 +3,12 @@ import datetime
 import json
 import math
 import re
+import subprocess
 import traceback
 from asyncio.tasks import wait
 from random import choice, randint
 from string import Template
+import sys
 
 import discord
 import iepy
@@ -64,7 +66,7 @@ print(
 def log(message):
     if "guild" in dir(message.channel):
         msgLog = [
-            datetime.datetime.utcnow().isoformat(),
+            message.created_at.isoformat(),
             str(message.id), message.content,
             str(message.author.id),
             message.author.name,
@@ -75,7 +77,7 @@ def log(message):
         ]
     else:
         msgLog = [
-            datetime.datetime.utcnow().isoformat(),
+            message.created_at.isoformat(),
             str(message.id),
             message.content,
             str(message.author.id),
@@ -83,13 +85,14 @@ def log(message):
             str(message.channel.id),
             str(message.channel)
         ]
-    database.messageLog.append_row(msgLog)
+    with open(f"msgToLog/{message.id}.txt", "w", encoding="utf-8") as f:
+        f.write(str(msgLog))
 
 
 @client.logCommand
 def logC(command, msg, time, e):
     Clog = [
-        datetime.datetime.utcnow().isoformat(),
+        msg.created_at.isoformat(),
         command, str(msg.author.id),
         msg.author.name,
         str(msg.channel.id),
@@ -101,7 +104,9 @@ def logC(command, msg, time, e):
         e,
         time
     ]
-    database.commandLog.append_row(Clog)
+    # database.commandLog.append_row(Clog)
+    with open(f"cmdToLog/{msg.id}.txt", "w", encoding="utf-8") as f:
+        f.write(str(Clog))
 
 
 @client.event  # event decorator/wrapper
@@ -155,6 +160,8 @@ async def on_ready():
                         int(t[6]))).fetch_message(int(t[5])),
                     t[4]
                 )
+    if client.logging:
+        loggingProcess = subprocess.Popen([sys.executable, "sheetsLoging.py"])
 
 
 @client.event
