@@ -4,8 +4,9 @@ import ksoftapi
 import praw
 import datetime
 
-version = (2, 2, 16)
+version = (2, 2, 17)
 changelog = {
+    "2.2.17": "Better logging system",
     "2.2.16": "Now sending covid data in the morning.",
     "2.2.15": "Added ~birthdays and notifying of next birthdays.",
     "2.2.14": "Next hour now displays rooms and upgraded `rozvrh` command",
