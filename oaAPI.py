@@ -12,8 +12,20 @@ def getResource(token: str, endpoint: str, params: dict[str, str] = None):
         params = {"apiToken": token}
     else:
         params["apiToken"] = token
+
+    for param in [
+        "datum[before]",
+        "datum[strictly_before",
+        "datum[after]",
+        "datum[strictly_after]"
+    ]:
+        if param in params:
+            if isinstance(params[param], datetime.date):
+                params[param] = params[param].isoformat()
+            elif isinstance(params[param], datetime.datetime):
+                params[param] = params[param].date().isoformat()
     return requests.get(
-        "https://onemocneni-aktualne.mzcr.cz/api/v3/"+endpoint,
+        f"https://onemocneni-aktualne.mzcr.cz/api/v3/{endpoint}",
         params=params,
         headers=headers
     ).json()
@@ -102,3 +114,46 @@ def getPrehledReinfekceDate(
         date = date.date().isoformat()
 
     return getResource(token, f"prehled-reinfekce/{date}")
+
+
+def getHospilatizace(
+    token: str,
+    date_before: date = None,
+    date_striclty_before: date = None,
+    date_after: date = None,
+    date_striclty_after: date = None
+):
+    """Gets the hospizalizace endpoint.
+
+    Args:
+        token (str): your API token
+        date_before (date, optional): _description_. Defaults to None.
+        date_striclty_before (date, optional): _description_. Defaults to None.
+        date_after (date, optional): _description_. Defaults to None.
+        date_striclty_after (date, optional): _description_. Defaults to None.
+
+    Returns:
+       JSON: _description_
+    """
+    params = {}
+    if date_before is not None:
+        params["datum[before]"] = date_before
+    if date_striclty_before is not None:
+        params["datum[strictly_before"] = date_striclty_before
+    if date_after is not None:
+        params["datum[after]"] = date_after
+    if date_striclty_after is not None:
+        params["datum[strictly_after]"] = date_striclty_after
+
+    return getResource(token, "hospitalizace", params=params)
+
+
+def getNakazeniVyleceniUmrtiTesty(token: str, date: date = None):
+    if date is None:
+        date = datetime.date.today().isoformat()
+    elif isinstance(date, datetime.date):
+        date = date.isoformat()
+    elif isinstance(date, datetime.datetime):
+        date = date.date().isoformat()
+
+    return getResource(token, f"nakazeni-vyleceni-umrti-testy/{date}")

@@ -778,6 +778,8 @@ async def covidDataSend(
     covidData=None,
     testyData=None,
     reinfekceData=None,
+    hospitalizaceData=None,
+    twitter=False
 ):
     if covidData is None:
         # covidData = requests.get(
@@ -792,72 +794,137 @@ async def covidDataSend(
         # ).json()
         testyData = oaAPI.getTestyPcrAntigenni(
             os.environ["covidDataToken"],
-            date_after=datetime.date.today() - datetime.timedelta(days=2)
+            date_after=datetime.date.today() - datetime.timedelta(days=8)
         )
     if reinfekceData is None:
         reinfekceData = oaAPI.getPrehledReinfekceDate(
             os.environ["covidDataToken"],
             date=datetime.date.today()-datetime.timedelta(days=1)
         )
+    if hospitalizaceData is None:
+        hospitalizaceData = oaAPI.getHospilatizace(
+            os.environ["covidDataToken"],
+            date_after=datetime.date.today()
+            - datetime.timedelta(days=8)
+        )
+
+    novePripady = (
+        covidData["potvrzene_pripady_vcerejsi_den"]
+        + reinfekceData["60_dnu"]
+    )
+    pripadyLastWeek = testyData[0]["incidence_pozitivni"]
+    activni = covidData["aktivni_pripady"]
+    lastWeekActivniCalc = oaAPI.getNakazeniVyleceniUmrtiTesty(
+        os.environ["covidDataToken"],
+        datetime.date.today() - datetime.timedelta(days=8)
+    )
+    print(lastWeekActivniCalc)
+    activniLastWeek = (
+        lastWeekActivniCalc["kumulativni_pocet_nakazenych"]
+        - lastWeekActivniCalc["kumulativni_pocet_vylecenych"]
+        - lastWeekActivniCalc["kumulativni_pocet_umrti"]
+    )
+    positivity = (
+        (covidData["potvrzene_pripady_vcerejsi_den"] + reinfekceData["60_dnu"])
+        /
+        (
+            covidData["provedene_testy_vcerejsi_den"]
+            + covidData["provedene_antigenni_testy_vcerejsi_den"]
+        )
+    )
+    positivityBefore = (
+        testyData[-2]["incidence_pozitivni"]
+        /
+        (
+            testyData[-2]["pocet_PCR_testy"] + testyData[-2]["pocet_AG_testy"]
+        )
+    )
+    positivityLastWeek = (
+        testyData[0]["incidence_pozitivni"]
+        /
+        (
+            testyData[0]["pocet_PCR_testy"] + testyData[0]["pocet_AG_testy"]
+        )
+    )
+    tests = (
+        covidData["provedene_testy_vcerejsi_den"]
+        + covidData["provedene_antigenni_testy_vcerejsi_den"]
+    )
+    testsLastWeek = (
+        testyData[0]["pocet_PCR_testy"] + testyData[0]["pocet_AG_testy"]
+    )
 
     await channel.send(
         embed=covidDataEmbed(
             client,
-            covidData["potvrzene_pripady_vcerejsi_den"]
-            + reinfekceData["60_dnu"],
+            novePripady,
             reinfekceData["60_dnu"],
             testyData[-2]["incidence_pozitivni"],
-            covidData["aktivni_pripady"],
-            (
-                (covidData[
-                    "potvrzene_pripady_vcerejsi_den"
-                ] + reinfekceData["60_dnu"])
-                /
-                (
-                    covidData[
-                        "provedene_testy_vcerejsi_den"
-                    ]
-                    + covidData[
-                        "provedene_antigenni_testy_vcerejsi_den"
-                    ]
-                )
-            ),
+            activni,
+            positivity,
+            positivityBefore,
+            tests,
             (
                 testyData[-2][
-                    "incidence_pozitivni"
+                    "pocet_PCR_testy"
                 ]
-                /
-                (
-                    testyData[-2][
-                        "pocet_PCR_testy"
-                    ]
-                    + testyData[-2][
-                        "pocet_AG_testy"
-                    ]
-                )
-            ),
-            (
-                (
-                    covidData[
-                        "provedene_testy_vcerejsi_den"
-                    ]
-                    + covidData[
-                        "provedene_antigenni_testy_vcerejsi_den"
-                    ]
-                )
-            ),
-            (
-                (
-                    testyData[-2][
-                        "pocet_PCR_testy"
-                    ]
-                    + testyData[-2][
-                        "pocet_AG_testy"
-                    ]
-                )
+                + testyData[-2][
+                    "pocet_AG_testy"
+                ]
             )
         )
     )
+
+    twitterInfoP = {
+        "novePripady": novePripady,
+        "novePripadyLastWeek": pripadyLastWeek,
+        "tests": tests,
+        "testsLastWeek": testsLastWeek,
+        "activni": activni,
+        "activniLastWeek": activniLastWeek,
+        "pozitivita": positivity,
+        "pozitivitaLastWeek": positivityLastWeek,
+        "hl": hospitalizaceData[-1]["stav_lehky"],
+        "hlLastWeek": hospitalizaceData[0]["stav_lehky"],
+        "hs": hospitalizaceData[-1]["stav_stredni"],
+        "hsLastWeek": hospitalizaceData[0]["stav_stredni"],
+        "ht": hospitalizaceData[-1]["stav_tezky"],
+        "htLastWeek": hospitalizaceData[0]["stav_tezky"],
+        "umrti": oaAPI.getNakazeniVyleceniUmrtiTesty(
+            os.environ["covidDataToken"],
+            datetime.date.today() - datetime.timedelta(days=1)
+        )["prirustkovy_pocet_umrti"],
+        "umrtiLastWeek": lastWeekActivniCalc["prirustkovy_pocet_umrti"]
+    }
+
+    twitterInfo = {}
+    for i in twitterInfoP:
+        if i.endswith("LastWeek"):
+            continue
+        twitterInfo[f"{i}str"] = nf(twitterInfoP[i])
+        if i == "pozitivita":
+            twitterInfo[f"{i}str"] = nf(round(twitterInfoP[i]*100, 1)) + " %"
+        a = twitterInfoP[i]/twitterInfoP[f"{i}LastWeek"]*100 - 100
+        twitterInfo[f"{i}LastWeekstr"] = pm(a)+nf(int(a))+" %"
+        twitterInfo[f"{i}both"] = f"{twitterInfo[f'{i}str']} ({twitterInfo[f'{i}LastWeekstr']})"
+
+    twitterInfo["umrtiCelkem"] = nf(covidData["umrti"])
+
+    if twitter:
+        tweetText = f"""Počet nově nakažených: {twitterInfo["novePripadystr"]} (mezitýdenní změna: {twitterInfo["novePripadyLastWeekstr"]})
+Aktivní případy: {twitterInfo["activniboth"]}
+Testů: {twitterInfo["testsboth"]}
+Pozitivita: {twitterInfo["pozitivitaboth"]}
+Hospitalizace:
+    Lehký: {twitterInfo["hlboth"]}
+    Střední: {twitterInfo["hsboth"]}
+    Těžký: {twitterInfo["htboth"]}
+Úmrtí: {twitterInfo["umrtiboth"]}
+Celkem úmrtí: {twitterInfo["umrtiCelkem"]}"""
+
+        tClient = getTwitterClient()
+        tClient.create_tweet(text=tweetText)
+        # await channel.send(f"Would be posted to Twitter:\n```{tweetText}```")
 
 
 async def covidDataTipsEval(

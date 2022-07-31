@@ -392,8 +392,10 @@ async def checkWebsites():
                                       description=clanek["text"][(
                                         i*2048):((i+1)*2048)])
                             await obecne.send(
-                                klubik.default_role+" nový příspěvek na Gymso",
-                                embed=e)
+                                f"{klubik.default_role} nový příspěvek na "
+                                "Gymso",
+                                embed=e
+                            )
         except Exception as e:
             print(e)
 
@@ -609,24 +611,33 @@ async def covidNumbers():
                 testyData = oaAPI.getTestyPcrAntigenni(
                     os.environ["covidDataToken"],
                     date_after=datetime.date.today()
-                    - datetime.timedelta(days=2)
+                    - datetime.timedelta(days=8)
                 )
                 reinfekceData = oaAPI.getPrehledReinfekceDate(
                     os.environ["covidDataToken"],
                     date=datetime.date.today()-datetime.timedelta(days=1)
+                )
+                hospitalizaceData = oaAPI.getHospilatizace(
+                    os.environ["covidDataToken"],
+                    date_after=datetime.date.today()
+                    - datetime.timedelta(days=8)
                 )
                 if (
                     "title" not in covidData
                     and
                     "title" not in reinfekceData
                     and
-                    len(testyData) >= 2
+                    len(testyData) >= 8
+                    and
+                    len(hospitalizaceData >= 8)
                 ):
                     await covidDataSend(
                         obecne,
                         covidData,
                         testyData,
-                        reinfekceData
+                        reinfekceData,
+                        hospitalizaceData,
+                        twitter=True
                     )
                     await covidDataTipsEval(
                         obecne,
