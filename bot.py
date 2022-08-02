@@ -622,6 +622,9 @@ async def covidNumbers():
                     date_after=datetime.date.today()
                     - datetime.timedelta(days=8)
                 )
+                print(len(testyData), len(hospitalizaceData))
+                pprint(testyData)
+                pprint(hospitalizaceData)
                 if (
                     "title" not in covidData
                     and
@@ -629,7 +632,7 @@ async def covidNumbers():
                     and
                     len(testyData) >= 8
                     and
-                    len(hospitalizaceData >= 8)
+                    len(hospitalizaceData) >= 8
                 ):
                     await covidDataSend(
                         obecne,
