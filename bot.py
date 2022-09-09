@@ -378,26 +378,26 @@ async def on_raw_reaction_add(payload):
 async def checkWebsites():
     while True:
         # Gymso
-        try:
-            print("Checking for new posts on Gymso")
-            with stopit.ThreadingTimeout(10) as to_ctx_mgr:
-                assert to_ctx_mgr.state == to_ctx_mgr.EXECUTING
-
-                clanky = newOnGymso()
-                if clanky:
-                    for clanek in clanky:
-                        for i in range(math.ceil(len(clanek["text"])/2048)):
-                            e = embed(clanek["title"],
-                                      url=clanek["url"],
-                                      description=clanek["text"][(
-                                        i*2048):((i+1)*2048)])
-                            await obecne.send(
-                                f"{klubik.default_role} nový příspěvek na "
-                                "Gymso",
-                                embed=e
-                            )
-        except Exception as e:
-            print(e)
+        # try:
+        #    print("Checking for new posts on Gymso")
+        #    with stopit.ThreadingTimeout(10) as to_ctx_mgr:
+        #        assert to_ctx_mgr.state == to_ctx_mgr.EXECUTING
+        #
+        #        clanky = newOnGymso()
+        #        if clanky:
+        #            for clanek in clanky:
+        #                for i in range(math.ceil(len(clanek["text"])/2048)):
+        #                    e = embed(clanek["title"],
+        #                              url=clanek["url"],
+        #                              description=clanek["text"][(
+        #                                i*2048):((i+1)*2048)])
+        #                    await obecne.send(
+        #                        f"{klubik.default_role} nový příspěvek na "
+        #                        "Gymso",
+        #                        embed=e
+        #                    )
+        # except Exception as e:
+        #    print(e)
 
         # choco_afro
         # try:
