@@ -162,6 +162,7 @@ async def on_ready():
                 )
     if client.logging:
         loggingProcess = subprocess.Popen([sys.executable, "sheetsLoging.py"])
+        print(loggingProcess)
 
 
 @client.event
