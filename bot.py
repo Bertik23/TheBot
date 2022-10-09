@@ -190,7 +190,8 @@ async def on_message(message):
             and
                 message.channel.guild.id in (
                     697015129199607839,
-                    540563312857841714
+                    540563312857841714,
+                    1028368345898172517
         )):
             for i in [
                     "hi", "dobrý den", "brý den",
