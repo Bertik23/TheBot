@@ -2,6 +2,9 @@ import database
 import time
 import os
 
+os.mkdir("msgToLog")
+os.mkdir("cmdToLog")
+
 while True:
     logFiles = os.listdir("msgToLog")
     logFiles = sorted(logFiles, key=lambda x: int(x.split(".")[0]))
