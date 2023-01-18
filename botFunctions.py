@@ -779,7 +779,8 @@ async def covidDataSend(
     testyData=None,
     reinfekceData=None,
     hospitalizaceData=None,
-    twitter=False
+    twitter=False,
+    discordSend=False
 ):
     if covidData is None:
         # covidData = requests.get(
@@ -853,27 +854,28 @@ async def covidDataSend(
     testsLastWeek = (
         testyData[0]["pocet_PCR_testy"] + testyData[0]["pocet_AG_testy"]
     )
-
-    await channel.send(
-        embed=covidDataEmbed(
-            client,
-            novePripady,
-            reinfekceData["60_dnu"],
-            testyData[-2]["incidence_pozitivni"],
-            activni,
-            positivity,
-            positivityBefore,
-            tests,
-            (
-                testyData[-2][
-                    "pocet_PCR_testy"
-                ]
-                + testyData[-2][
-                    "pocet_AG_testy"
-                ]
+    
+    if discordSend:
+        await channel.send(
+            embed=covidDataEmbed(
+                client,
+                novePripady,
+                reinfekceData["60_dnu"],
+                testyData[-2]["incidence_pozitivni"],
+                activni,
+                positivity,
+                positivityBefore,
+                tests,
+                (
+                    testyData[-2][
+                        "pocet_PCR_testy"
+                    ]
+                    + testyData[-2][
+                        "pocet_AG_testy"
+                    ]
+                )
             )
         )
-    )
 
     twitterInfoP = {
         "novePripady": novePripady,
