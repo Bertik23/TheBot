@@ -190,8 +190,8 @@ async def on_message(message):
             and
                 message.channel.guild.id in (
                     697015129199607839,
-                    540563312857841714,
-                    1028368345898172517
+                    540563312857841714
+                    # 1028368345898172517
         )):
             for i in [
                     "hi", "dobrý den", "brý den",
@@ -624,9 +624,9 @@ async def covidNumbers():
                     date_after=datetime.date.today()
                     - datetime.timedelta(days=8)
                 )
-                print(len(testyData), len(hospitalizaceData))
-                pprint(testyData)
-                pprint(hospitalizaceData)
+                # print(len(testyData), len(hospitalizaceData))
+                # pprint(testyData)
+                # pprint(hospitalizaceData)
                 if (
                     "title" not in covidData
                     and
@@ -642,7 +642,8 @@ async def covidNumbers():
                         testyData,
                         reinfekceData,
                         hospitalizaceData,
-                        twitter=True
+                        twitter=True,
+                        discordSend=False
                     )
                     await covidDataTipsEval(
                         obecne,
