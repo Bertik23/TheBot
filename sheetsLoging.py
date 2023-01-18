@@ -2,8 +2,14 @@ import database
 import time
 import os
 
-os.mkdir("msgToLog")
-os.mkdir("cmdToLog")
+try:
+    os.mkdir("msgToLog")
+except FileExistsError:
+    pass
+try:
+    os.mkdir("cmdToLog")
+except FileExistsError:
+    pass
 
 while True:
     logFiles = os.listdir("msgToLog")
